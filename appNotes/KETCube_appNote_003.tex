@@ -1,0 +1,229 @@
+\documentclass[twoside,a4paper]{refart}
+\usepackage[utf8x]{inputenc}
+%\usepackage[czech]{babel}
+\usepackage[pdftex]{graphicx}
+\graphicspath{{resources/images/}{resources/appNotes/003/images/}}
+\usepackage{caption}% for \captionof
+\usepackage{mwe}% contains example-image
+\usepackage[owncaptions]{vhistory}
+\usepackage{hyperref}
+%\usepackage[superscript,biblabel]{cite}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+
+\usepackage[table, x11names]{xcolor}
+\usepackage{array, booktabs, boldline} %
+\usepackage{mathtools}
+
+\newsavebox{\tempbox}
+\newlength{\tempheight}
+
+\newcommand\ToDo[1]{\textcolor{red}{ToDo: #1}}
+
+%skryt barevny obdelnik kolem odkazu
+\hypersetup{
+    colorlinks=false,
+    pdfborder={0 0 0},
+}
+
+% vhistory
+\renewcommand{\vhhistoryname}{Revision History}
+\renewcommand{\vhchangename}{Note}
+\renewcommand{\vhversionname}{Revision}
+\renewcommand{\vhdatename}{Date}
+\renewcommand{\vhauthorname}{Author}
+\renewcommand \vhAuthorColWidth{0.8\hsize}
+\renewcommand \vhChangeColWidth{1.2\hsize}
+
+\DeclareRobustCommand{\UWBLogo}{%
+   \begin{wrapfigure}{l}{2.1cm}
+    \vspace{-1.35cm}
+    \includegraphics[width=2cm]{ZCU_logo.pdf}
+   \end{wrapfigure}
+}
+
+\title{\UWBLogo KETCube AppNote 003:\\ Voltage Measurement up to 100V DC (\vhCurrentVersion)}
+
+\author{Author: \vhListAllAuthors}
+
+\begin{document}
+\pagenumbering{roman} 
+
+\titlepage
+\maketitle
+
+\section*{About this Document}
+\input{resources/about.tex}
+
+This document describes a simple yet powerful extension board with only 4 discrete-components for Voltage measurement up to 100V DC.
+
+
+\setcounter{tocdepth}{1}
+\tableofcontents
+\clearpage
+
+\listoffigures
+\listoftables
+\begin{versionhistory}
+  \vhEntry{03/2018}{03.03.2018}{Jan Bělohoubek}{Initial version}
+  \vhEntry{05/2018}{07.05.2018}{Jan Bělohoubek, Kryštof Vaněk, Matin Úbl}{Text review, minor fixes}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage 
+\pagenumbering{arabic} 
+\pagestyle{headings} 
+
+\clearpage
+\section{Measurement Principle}
+The measurement is based on a simple Voltage divider -- see Figure \ref{fig:mp:voltDiv}.
+
+\marginlabel{\captionof{figure}{Voltage Divider}\label{fig:mp:voltDiv}}
+\raisebox{-\height}{\includegraphics[width=0.3\paperwidth]{volt_divider.pdf}}
+
+For potential $U$, the following equations holds:
+
+\begin{equation}
+U = U_1 + U_2
+\end{equation}
+
+When $U_2$ is known, the following equations holds for $U$:
+
+\begin{equation}
+U = U_2 + \frac{U_2 \cdot R_1}{R_2}
+\end{equation}
+
+
+
+For current $I$, the following equation holds:
+
+\begin{equation}
+I = \frac{U_1}{R_1} = \frac{U_2}{R_2} = \frac{U}{R_1 + R_2}
+\end{equation}
+
+% ============================
+\clearpage
+\section{Extension Board}
+The extension board contains the voltage divider and additional components to enhance circuit protection -- see Figure \ref{fig:eb:sch}.
+
+\subsection{Schematic}
+\marginlabel{\captionof{figure}{Extension board schematic and interfacing with KETCube}\label{fig:eb:sch}}
+\raisebox{-\height}{\includegraphics[width=0.4\paperwidth]{schematic.pdf}}
+
+\begin{table*}[!ht]
+    \begin{tabular}{| p{2cm} | p{2cm} | p{1.5cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Reference} & {\bf Value} & {\bf Unit} \\
+        \hline
+        \hline
+        R1 & 1M & $\Omega$ \\
+        \hline
+        R2 & 24k & $\Omega$ \\
+        \hline
+        R3 & 1k & $\Omega$ \\
+        \hline
+        D1 & 1N4007 & -- \\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Extension board components}
+    \label{tab:eb:values}
+   \end{table*}
+
+\subsection{KETCube Interface}
+  The extension board can be connected to KETCube via mikroBUS or KETCube socket. 
+  
+  Connect $ADCin$ to KETCube $AN$ pin and ground to KETCube $GND$ pin.
+  
+  Make sure, that $Vref$ on KETCube main board is connected to supply voltage -- see KETCube specification \cite{ZCU:KETCube:05-2018}.
+  
+\subsection{Operation}
+  The measured voltage should be connected to pads $A$ (a positive terminal) and $B$ (a negative -- common -- terminal) respectively. The polarity of the measured voltage is $A \rightarrow B$. 
+
+  When the measured voltage source is connected correctly, a small current flows from $A$ to $B$ and the partial voltage at $ADCin$ is measured to determine $A \rightarrow B$ voltage.
+
+  When the measured voltage source is connected incorrectly ($B \rightarrow A$), no current flows through the circuit and the partial voltage at $ADCin$ is equal to 0V.
+  
+  KETCube ADC module uses 12-bit ADC, this results in measurement resolution of $\approx$ 0.025V.
+
+\subsection*{Note}
+  The measured voltage source is constantly loaded by current $I \leq 100 ~\mu$A
+  
+\subsection{Protections}
+\subsubsection*{Over-Current}
+  The resistor $R_3$ protects the MCU PIN.
+
+\begin{equation}
+  U_{ADCin} \leq U_{VDD} + U_{protection~diode~forward~voltage}
+\end{equation}
+  
+\subsubsection*{Wrong Polarity}
+
+When the polarity of voltage source connected to pads is wrong, i.e. $B \rightarrow A$, the diode $D1$ ensures, that the potential at $ADCin$ will be equal to KETCube ground.
+
+% ============================
+\clearpage
+\section{Absolute Maximum Ratings}
+  \begin{table*}[!ht]
+    \hspace*{-4cm}
+    \begin{tabular}{| p{3.5cm} | p{1.5cm} | p{2cm} | p{2cm} | p{2cm} | p{1cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Parameter} & {\bf Symbol} & {\bf MIN} & {\bf TYP} & {\bf MAX} & {\bf UNIT} \\
+        \hline
+        \hline
+        Resolution & $U_{res}$ & -- & 0.025 & -- & V\\
+        \hline
+        \hline
+        Supply Voltage & VDD & 2.5\footnotemark & \multicolumn{2}{l|}{see KETCube spec. \cite{ZCU:KETCube:05-2018}} & V \\
+        \hline 
+        1N4007 Forward voltage & $U_{DFW}$ & -- & 0.6 & -- & V\\
+        \hline 
+        1N4007 DC blocking voltage & $U_{DCB}$ & -- & -- & 1000 & V\\
+        \hline 
+        $A \rightarrow B$ voltage & $U_{A \rightarrow B}$ & $U_{DFW} + U_{res}$ & -- & 100 & V\\
+        \hline 
+        $B \rightarrow A$ voltage & $U_{B \rightarrow A}$ & -- & -- & $U_{DCB}$ & V\\
+        \hline 
+        $A \rightarrow B$ current & $I$ & -- & -- & 100 & $\mu$A\\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Absolute Maximum Ratings}
+    \label{tab:spec:AMR}
+   \end{table*}
+   \footnotetext{Minimum supply voltage for full range measurement: 0V -- 100V}
+
+% ============================
+\clearpage
+\section{KETCube Settings}
+  In KETCube terminal (see KETCube specification \cite{ZCU:KETCube:05-2018}) enable {\it ADC module} and configure any module for data delivery e.g. {\it LoRa} module: {\tt enable ADC}, {\tt enable LoRa}, {\tt setLoRa appEUI}, \dots
+
+% ============================
+
+\section{Measured Voltage Computation}
+  The KETCube ADC module measure the $U_{ADCin}$ voltage, but the interesting value is $U_{A \rightarrow B}$. Thus $U_{A \rightarrow B}$ must be computed from  $U_{ADCin}$ by using the following equation:
+  
+\[
+   U_{A \rightarrow B} = 
+   \begin{dcases}
+     \leq U_{DFW}, & \text{if } U_{ADCin} = 0\\
+     U_{DFW} + U_{ADCin} + \frac{U_{ADCin} \cdot 10^6}{24 \cdot 10^3}, & \text{otherwise}
+   \end{dcases}
+\]
+
+\subsection*{Note A}
+  The extension board enables measurement for $U_{A \rightarrow B} \geq U_{DFW}$ only.
+
+\subsection*{Note B}
+  When this extension board is used in conjunction with {\it LoRa} module, apply the above equation to the received value on the application server.
+
+  
+% ============================
+
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,resources/sources}
+
+% ============================
+
+\input{resources/license.tex}

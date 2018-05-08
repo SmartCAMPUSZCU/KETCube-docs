@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="180.44568mm"
+   height="103.7165mm"
+   viewBox="0 0 180.44568 103.7165"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   sodipodi:docname="fw_stack.svg"
+   inkscape:export-filename="/home/jan/projects/zcu/ketcube/repos/KETCube-docs/resources/images/fw_stack.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="254.96761"
+     inkscape:cy="-69.418479"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g849-7"
+     showgrid="true"
+     inkscape:window-width="1362"
+     inkscape:window-height="729"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0"
+     inkscape:snap-midpoints="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid815"
+       originx="-15.610501"
+       originy="0.2645" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-15.6105,-193.548)">
+    <g
+       id="g854">
+      <rect
+         ry="2.6458333"
+         rx="3.5044062"
+         y="281.125"
+         x="15.875"
+         height="15.875"
+         width="179.91667"
+         id="rect817"
+         style="opacity:0.92000002;fill:#ff784a;fill-opacity:0.92957746;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         id="text821"
+         y="291.77649"
+         x="105.13323"
+         style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           y="291.77649"
+           x="105.13323"
+           id="tspan819"
+           sodipodi:role="line">STM32L0 MCU</tspan></text>
+    </g>
+    <g
+       id="g849"
+       transform="translate(4.4583244)">
+      <rect
+         ry="2.6458333"
+         rx="3.5044062"
+         y="262.60416"
+         x="41.843758"
+         height="15.87501"
+         width="119.0625"
+         id="rect817-3"
+         style="opacity:0.92000002;fill:#ff78cb;fill-opacity:0.92957746;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         id="text821-5"
+         y="273.52017"
+         x="104.22698"
+         style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           y="273.52017"
+           x="104.22698"
+           id="tspan819-8"
+           sodipodi:role="line">STM32 HAL Drivers</tspan></text>
+    </g>
+    <g
+       id="g849-7"
+       transform="translate(-53.750008,-34.395834)"
+       style="fill:#7fa5cb;fill-opacity:0.55164322">
+      <g
+         id="g1017">
+        <path
+           transform="matrix(0.26458333,0,0,0.26458333,53.750008,34.395834)"
+           sodipodi:nodetypes="cssssscssssssscc"
+           inkscape:connector-curvature="0"
+           id="rect817-3-3"
+           d="m 175,982.5197 156.75586,-1.7e-4 c 7.33773,-10e-6 13.24414,-4.46 13.24414,-10 v -160 c 0,-5.54 -5.90641,-10 -13.24414,-10 H 153.24414 c -0.2514,0 -0.49628,0.017 -0.74414,0.0273 -0.24786,-0.0103 -0.49274,-0.0273 -0.74414,-0.0273 H 73.244141 c -7.33773,0 -13.244141,4.46 -13.244141,10 v 229.99997 c 0,5.54 5.906411,10 13.244141,10 h 78.511719 c 7.33773,0 13.24414,-4.46 13.24414,-10 v -49.9998 c 0,-5 5,-10 10,-10 z"
+           style="opacity:0.92000002;fill:#7fa5cb;fill-opacity:0.55164322;stroke:#231f20;stroke-width:1.99936998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           x="107.17472"
+           y="265.8476"
+           id="text821-5-0"><tspan
+             sodipodi:role="line"
+             id="tspan819-8-7"
+             x="107.17472"
+             y="265.8476"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px">KETCube Core</tspan><tspan
+             id="tspan1011"
+             sodipodi:role="line"
+             x="107.17472"
+             y="276.31509"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px">Drivers</tspan></text>
+      </g>
+      <g
+         transform="matrix(-1,0,0,1,262.28126,-105.83333)"
+         style="fill:#7fa56b;fill-opacity:0.73708921"
+         id="g1017-4">
+        <path
+           sodipodi:nodetypes="cssssscssssssscc"
+           inkscape:connector-curvature="0"
+           id="rect817-3-3-0"
+           d="m 43.166669,400.1875 67.537781,-5e-5 c 1.94144,0 3.50418,-1.18004 3.50418,-2.64583 l 1.2e-4,-42.33333 c 1e-5,-1.46579 -1.56286,-2.64584 -3.5043,-2.64584 H 37.410431 c -0.06652,0 -0.131308,0.005 -0.196887,0.007 -0.06558,-0.003 -0.130371,-0.007 -0.196887,-0.007 H 16.243765 c -1.941441,0 -3.504179,1.18005 -3.504179,2.64584 v 60.85416 c 0,1.46579 1.562738,2.64583 3.504179,2.64583 h 20.772892 c 1.941441,0 3.504178,-1.18004 3.504178,-2.64583 v -13.22912 c 0,-1.32291 1.322917,-2.64583 2.645834,-2.64583 z"
+           style="opacity:0.92000002;fill:#7fa56b;fill-opacity:0.73708921;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="198.65373"
+         y="265.8476"
+         id="text821-5-0-0"><tspan
+           id="tspan1011-0"
+           sodipodi:role="line"
+           x="198.65373"
+           y="265.8476"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px">KETCube Modules</tspan></text>
+      <g
+         transform="matrix(-1,0,0,1,214.65626,-195.79166)"
+         style="fill:#7fa56b;fill-opacity:0.73708921"
+         id="g1017-4-0">
+        <path
+           sodipodi:nodetypes="cssssscssssssscc"
+           inkscape:connector-curvature="0"
+           id="rect817-3-3-0-1"
+           d="m -4.1282681,490.14588 67.1719301,-5e-5 c 1.94144,0 3.50418,-1.18004 3.50418,-2.64583 v -16.40417 c 0,-1.46579 -1.56274,-2.64584 -3.50418,-2.64584 H -9.8845058 c -0.06652,0 -0.1313082,0.005 -0.1968872,0.007 -0.06558,-0.003 -0.130371,-0.007 -0.196887,-0.007 h -8.072892 c -1.941441,0 -3.504179,1.18005 -3.504179,2.64584 v 34.925 c 0,1.46579 1.562738,2.64583 3.504179,2.64583 h 8.072892 c 1.9414409,0 3.5041779,-1.18004 3.5041779,-2.64583 v -13.22912 c 0,-1.32291 1.322917,-2.64583 2.645834,-2.64583 z"
+           style="opacity:0.92000002;fill:#38a56b;fill-opacity:0.73708921;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="192.19873"
+         y="282.4288"
+         id="text821-5-0-0-5"><tspan
+           id="tspan1011-0-0"
+           sodipodi:role="line"
+           x="192.19873"
+           y="282.4288"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722242px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';text-align:center;text-anchor:middle;stroke-width:0.26458332px">KETCube Module</tspan><tspan
+           sodipodi:role="line"
+           x="192.19873"
+           y="288.6239"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722242px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';text-align:center;text-anchor:middle;stroke-width:0.26458332px"
+           id="tspan1147">Drivers</tspan></text>
+    </g>
+    <g
+       id="g849-7-1"
+       transform="translate(-6.1250079,-39.687501)" />
+    <g
+       transform="translate(0,-87.3125)"
+       id="g854-4">
+      <rect
+         ry="2.6458333"
+         rx="3.5044062"
+         y="281.125"
+         x="15.875"
+         height="15.875"
+         width="179.91667"
+         id="rect817-2"
+         style="opacity:0.92000002;fill:#4278b4;fill-opacity:0.83802819;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         id="text821-4"
+         y="291.77649"
+         x="105.13323"
+         style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           y="291.77649"
+           x="105.13323"
+           id="tspan819-9"
+           sodipodi:role="line">KETCube Core</tspan></text>
+    </g>
+  </g>
+</svg>

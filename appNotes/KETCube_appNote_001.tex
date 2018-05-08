@@ -1,0 +1,228 @@
+\documentclass[twoside,a4paper]{refart}
+\usepackage[utf8x]{inputenc}
+%\usepackage[czech]{babel}
+\usepackage[pdftex]{graphicx}
+\graphicspath{{resources/images/}{resources/appNotes/001/images/}}
+\usepackage{caption}% for \captionof
+\usepackage{mwe}% contains example-image
+\usepackage[owncaptions]{vhistory}
+\usepackage{hyperref}
+%\usepackage[superscript,biblabel]{cite}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+
+\usepackage[table, x11names]{xcolor}
+\usepackage{array, booktabs, boldline} %
+\usepackage{mathtools}
+
+\newsavebox{\tempbox}
+\newlength{\tempheight}
+
+\newcommand\ToDo[1]{\textcolor{red}{ToDo: #1}}
+
+%skryt barevny obdelnik kolem odkazu
+\hypersetup{
+    colorlinks=false,
+    pdfborder={0 0 0},
+}
+
+% vhistory
+\renewcommand{\vhhistoryname}{Revision History}
+\renewcommand{\vhchangename}{Note}
+\renewcommand{\vhversionname}{Revision}
+\renewcommand{\vhdatename}{Date}
+\renewcommand{\vhauthorname}{Author}
+\renewcommand \vhAuthorColWidth{0.8\hsize}
+\renewcommand \vhChangeColWidth{1.2\hsize}
+
+\DeclareRobustCommand{\UWBLogo}{%
+   \begin{wrapfigure}{l}{2.1cm}
+    \vspace{-1.35cm}
+    \includegraphics[width=2cm]{ZCU_logo.pdf}
+   \end{wrapfigure}
+}
+
+\title{\UWBLogo KETCube AppNote 001:\\ Writing KETCube Module (\vhCurrentVersion)}
+
+\author{Author: \vhListAllAuthors}
+
+\begin{document}
+\pagenumbering{roman} 
+
+\titlepage
+\maketitle
+
+\section*{About this Document}
+\input{resources/about.tex}
+
+This document is a short How-To guide through KETCube (software) module creation process. The existing KETCube modules will be used as a reference.
+
+
+\setcounter{tocdepth}{1}
+\tableofcontents
+\clearpage
+
+\listoffigures
+\listoftables
+\begin{versionhistory}
+  \vhEntry{03/2018}{05.03.2018}{Jan Bělohoubek}{Initial version}
+  \vhEntry{05/2018}{07.05.2018}{Jan Bělohoubek, Kryštof Vaněk, Matin Úbl}{Text review, minor fixes}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage 
+\pagenumbering{arabic} 
+\pagestyle{headings} 
+
+\clearpage
+\section{Naming rules}
+\subsection*{Module Name}
+Choose a short appropriate and unique name well describing the designed KETCube module. The {\it CamelCaseNames} are preferred. The abbreviations should be uppercase.
+\subsubsection*{Example: ADC, HDC1080, BatMeas}
+
+\subsection*{File Names}
+For naming files use {\tt ketCube\_} prefix. As the suffix use lowercase module name. When the module name is composed of multiple words, use uppercase at the beginning of the second and other words.
+\subsubsection*{Example: {\it ketCube\_adc.c}, {\it ketCube\_hdc1080.c}, {\it ketCube\_batMeas.c}}
+
+\subsection*{Function Names}
+For naming public functions, use {\tt ketCube\_MODULE\_NAME\_} prefix. As the suffix use the function name starting with the uppercase letter (the {\it CamelCaseName}).
+\subsubsection*{Example: {\tt ketCube\_ADC\_Init()}}
+
+For naming private (unit-local) functions, use an appropriate name starting with the lowercase letter (the {\it camelCaseName}).
+\subsubsection*{Example: {\tt setHeaterOn()}}
+
+\subsection*{Variable Names}
+For naming public variables, use {\tt ketCube\_MODULE\_NAME\_}  prefix. As the suffix use the variable name starting with the uppercase letter (the {\it CamelCaseName}).
+\subsubsection*{Example: {\tt uint8\_t ketCube\_LoRa\_RxBuffer[10]}}
+
+For naming private (unit-local) variables, use an appropriate name starting with the lowercase letter (the {\it camelCaseName}).
+\subsubsection*{Example: {\tt uint8\_t rxBuffer[10]}}
+
+\subsection*{Define Names}
+For naming pre-processor defines use {\tt KETCUBE\_MODULE\_NAME\_} prefix (uppercase). As the suffix use the define name. Use uppercase only.
+\subsubsection*{Example: {\tt KETCUBE\_ADC\_MAX}}
+
+\clearpage
+\subsection*{Data Type Names}
+For naming data types use {\tt ketCube\_MODULE\_NAME\_} prefix followed by the type name. The type name starts with uppercase (the {\it CamelCaseName}). The type definition should be enclosed by the {\tt \_t} suffix.
+\subsubsection*{Example: {\tt ketCube\_ADC\_Error\_t}}
+
+\clearpage
+\section{Module Creation Process}
+This section describes required steps necessary for successful module creation.
+
+\subsection*{Create Module Files}
+At first, create {\it ketCube\_adc.c} and {\it ketCube\_adc.h in} \\{\it KETCube/modules/sensing} directory.
+
+
+\subsection*{Implement Module Interface}
+\subsubsection*{Init() Function}
+Every KETCube module has to implement (even empty!) init function.
+
+If the module is designed to communicate with other modules in a custom way, it has to initialize it's outgoing message queue and return pointer to it in the msg variable. See Section \ref{sec:msg} for details.
+
+\subsubsection*{Example: {\tt ketCube\_cfg\_ModError\_t ketCube\_ADC\_Init(ketCube\_interModMsg\_t *** msg)}}
+
+\subsubsection*{SleepEnter() Function}
+KETCube module can implement SleepEnter() function returning\\{\tt ketCube\_cfg\_ModError\_t}, which is executed always before KETCube enters (tries to enter) low-power mode. The return value influences the power-mode management: if the function returns\\“KETCUBE\_CFG\_MODULE\_ERROR”, KETCube will not enter low-power mode.
+
+\subsubsection*{SleepExit() Function}
+KETCube module can implement {\it SleepExit()} function, which is executed always after wake-up from low-power mode.
+
+\subsubsection*{GetSensorData() Function}
+KETCube sensing module has to implement {\it GetSensorData()} function, which is executed once per defined KETCube {\it base period}. KETCube core passes two parameters to the module: {\tt uint8\_t * buffer} and\\{\tt uint8\_t * len}. The pointers are used to return data and data length to the core.
+
+Please note, that when adding new module to KETCube, you have to increment {\tt KETCUBE\_MODULES\_SENSOR\_BYTES} by at least number of bytes returned by your module (use maximum, when variable).
+
+\subsubsection*{SendData() Function}
+KETCube communication module has to implement {\it SendData()} function, which is executed once per defined KETCube {\it base period}. KETCube core passes two parameters to the module: {\tt uint8\_t * buffer} and\\{\tt uint8\_t * len}. The pointers represents the buffer to be transmitted by the communication module and it's size.
+
+\subsubsection*{ProcessMsg() Function}
+KETCube module can implement {\it ProcessMsg()} function. The function is intended to processes (receive) the inter-module messages. The module should implement {\it ProcessMsg()} function only if it is designed to interact with other modules in a custom way (not only forward data through standard KETCube mechanisms). See Section \ref{sec:msg} for details.
+
+\clearpage
+\subsection{The KETCube Core Modification}\label{sec:creation:core}
+
+\subsubsection*{Modify {\tt ketCube\_cfg.h}}\label{sec:creation:core:cfg}
+
+At the end of the {\tt KETCUBE\_CFG\_INC\_MOD\_}-prefixed definitions in\\{\it ketCube\_cfg.h}, add the definition allowing the link-time inclusion/exclusion of the module
+\subsubsection*{Example: {\tt \#define KETCUBE\_CFG\_INC\_MOD\_ADC}}
+
+At the end of the definition in\\{\it ketCube\_cfg.h} insert the module ID definition.
+\subsubsection*{Example:}
+\begin{verbatim}
+typedef enum {
+
+...
+
+#ifdef KETCUBE_CFG_INC_MOD_ADC
+  KETCUBE_LISTS_MODULEID_ADC,   /*<! Module ADC */
+#endif
+
+  KETCUBE_LISTS_MODULEID_LAST
+} ketCube_cfg_moduleIDs_t;
+\end{verbatim}
+
+\subsubsection*{Modify {\it ketCube\_modules.c}}
+At the end of the array {\it ketCube\_modules\_list[]} in {\it ketCube\_modules.c} insert the structure describing your module.
+\subsubsection*{Example:}
+\begin{verbatim}
+ketCube_cfg_module_t ketCube_modules_list[...] = {
+    
+    ...
+#ifdef KETCUBE_CFG_INC_MOD_ADC
+    {((char *) &("ADC")),
+     ((char *) &("Measure mVolts on PA4.")),
+     &ketCube_ADC_Init,                 /*·Module Init()   */
+     (ketCube_cfg_ModVoidFn_t) NULL,    /*·SleepEnter()    */
+     (ketCube_cfg_ModVoidFn_t) NULL,    /*·SleepExit()     */
+     &ketCube_ADC_ReadData,             /*·GetSensorData() */
+     (ketCube_cfg_ModDataFn_t) NULL,    /*·SendData()      */
+     (ketCube_cfg_ModDataPtrFn_t) NULL, /*·ProcessData()   */
+     0,            /*·CFG base addr -- set dynamicaly      */
+     1,            /*·CFG len in bytes                     */
+     TRUE          /*·module CFG byte -- set dynamically   */
+    },
+#endif
+    ...
+};
+\end{verbatim}
+
+
+\clearpage
+\section{Inter-Module Messages}\label{sec:msg}
+The KETCube platform allows to send inter-module messages. This allows to pass data between modules in a standardized way.
+
+The messaging is realised by using the pseudo-dynamic approach. The message producing module  maintains it's outgoing message queue. The message queue size must be set statically considering the space required for produced messages. The message queue is initialized in module's {\it Init()} function.
+
+The message itself is a data structure defined as:
+\begin{verbatim}
+typedef struct ketCube_interModMsg_t {
+    uint8_t modID;     /*<! Target module index */
+    uint8_t msgLen;    /*<! Message length in bytes */
+    uint8_t * msg;     /*<! Message body */
+} ketCube_interModMsg_t;
+\end{verbatim}
+
+The variable {\tt modID} is the ID of the target (recipient) module defined in {\tt ketCube\_cfg\_moduleIDs\_t} (see \ref{sec:creation:core:cfg}), {\tt msgLen} is the message length in bytes and {\tt *msg} is a pointer to message body.
+
+Messages should be stored to queue without using any synchronization primitives (semaphores), thus a strict cooperative procedure between message producer and recipient must be followed. 
+
+Every message has an single-writer (message producer) and single-reader (message recipient). The message insertion can be performed only into module's own queue. Insertion can be performed inside or outside ISR (if predetermined locations should be used if access order is not fixed). When the message is produced, it's length must be set to an non-zero value. Once set to non-zero value, the message cannot be modified.
+
+Messages with non-zero length are picked-up by the KETCube core and forwarded to target (recipient) module. The message receive (by a recipient module) is always performed outside ISR in the module's {\it ProcessData()} function.
+
+If the message is processed by the recipient, it's length must be set to 0 (by the recipient). This is only way to free a position in the message queue.
+
+
+% ============================
+
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,resources/sources}
+
+% ============================
+
+\input{resources/license.tex}
