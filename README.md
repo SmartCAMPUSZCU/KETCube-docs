@@ -11,11 +11,11 @@ More detailed info related to KETCube can be found in [Application Notes](https:
 ## KETCube Components
 
 * [KETCube fw](https://github.com/SmartCAMPUSZCU/KETCube-fw)
-* [KETCube tools](https://github.com/SmartCAMPUSZCU/KETCube-tools) (wil be released soon)
+* [KETCube tools](https://github.com/SmartCAMPUSZCU/KETCube-tools) (will be released soon)
 * [KETCube box](https://github.com/SmartCAMPUSZCU/KETCube-box)
 
-* [KETCube mainBoard](https://github.com/SmartCAMPUSZCU/KETCube-mainBoard)
-* [KETCube batBoard](https://github.com/SmartCAMPUSZCU/KETCube-batBoard)
+* [KETCube mainBoard](https://github.com/SmartCAMPUSZCU/KETCube-mainBoard) (will be released soon)
+* [KETCube batBoard](https://github.com/SmartCAMPUSZCU/KETCube-batBoard) (will be released soon)
 
 ## Contribute
 
