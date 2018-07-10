@@ -5,6 +5,7 @@
 \graphicspath{{resources/images/}{resources/appNotes/002/images/}}
 \usepackage{caption}% for \captionof
 \usepackage{mwe}% contains example-image
+\input{resources/authors.tex}
 \usepackage[owncaptions]{vhistory}
 \usepackage{hyperref}
 %\usepackage[superscript,biblabel]{cite}
@@ -46,7 +47,8 @@
 
 \title{\UWBLogo KETCube AppNote 002:\\ LoRa Configuration (\vhCurrentVersion)}
 
-\author{Author: \vhListAllAuthors}
+\author{Author: \vhListAllAuthorsLongWithAbbrev}
+\date{Version \vhCurrentVersion\ from \vhCurrentDate}
 
 \begin{document}
 \pagenumbering{roman} 
@@ -67,8 +69,8 @@ This document describes how to set-up the KETCube as a LoRaWAN class A device.
 \listoffigures
 \listoftables
 \begin{versionhistory}
-  \vhEntry{03/2018}{03.03.2018}{Jan Bělohoubek}{Initial version}
-  \vhEntry{05/2018}{07.05.2018}{Jan Bělohoubek, Kryštof Vaněk, Matin Úbl}{Terminal configuration, text review, minor fixes}
+  \vhEntry{03/2018}{03.03.2018}{JB}{Initial version}
+  \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Terminal configuration, text review, minor fixes}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}

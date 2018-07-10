@@ -5,6 +5,7 @@
 \graphicspath{{resources/images/}{resources/appNotes/001/images/}}
 \usepackage{caption}% for \captionof
 \usepackage{mwe}% contains example-image
+\input{resources/authors.tex}
 \usepackage[owncaptions]{vhistory}
 \usepackage{hyperref}
 %\usepackage[superscript,biblabel]{cite}
@@ -45,7 +46,8 @@
 
 \title{\UWBLogo KETCube AppNote 001:\\ Writing KETCube Module (\vhCurrentVersion)}
 
-\author{Author: \vhListAllAuthors}
+\author{Author: \vhListAllAuthorsLongWithAbbrev}
+\date{Version \vhCurrentVersion\ from \vhCurrentDate}
 
 \begin{document}
 \pagenumbering{roman} 
@@ -66,8 +68,8 @@ This document is a short How-To guide through KETCube (software) module creation
 \listoffigures
 \listoftables
 \begin{versionhistory}
-  \vhEntry{03/2018}{05.03.2018}{Jan Bělohoubek}{Initial version}
-  \vhEntry{05/2018}{07.05.2018}{Jan Bělohoubek, Kryštof Vaněk, Matin Úbl}{Text review, minor fixes}
+  \vhEntry{03/2018}{05.03.2018}{JB}{Initial version}
+  \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Text review, minor fixes}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}
