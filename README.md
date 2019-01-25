@@ -41,7 +41,7 @@ See also the list of current and past [contributors](CONTRIBUTORS).
 KETCube is distributed under the MIT-like University of Illinois/NCSA Open Source License. 
 See also [LICENSE](LICENSE).
 
-## Papers
+## Publications
 
 If you use KETCube for your research, please include the following paper to the resource/citation list:
 
