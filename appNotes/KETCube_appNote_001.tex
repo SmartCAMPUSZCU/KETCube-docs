@@ -70,6 +70,7 @@ This document is a short How-To guide through KETCube (software) module creation
 \begin{versionhistory}
   \vhEntry{03/2018}{05.03.2018}{JB}{Initial version}
   \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Text review, minor fixes}
+  \vhEntry{0.1.1}{25.01.2019}{JB}{KETCube-fw 0.1.1 updates}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}
@@ -113,7 +114,7 @@ For naming data types use {\tt ketCube\_MODULE\_NAME\_} prefix followed by the t
 
 \clearpage
 \section{Module Creation Process}
-This section describes required steps necessary for successful module creation.
+This section describes required steps necessary for successful (sensing) module creation.
 
 \subsection*{Create Module Files}
 At first, create {\it ketCube\_adc.c} and {\it ketCube\_adc.h in} \\{\it KETCube/modules/sensing} directory.
@@ -145,14 +146,14 @@ KETCube communication module has to implement {\it SendData()} function, which i
 KETCube module can implement {\it ProcessMsg()} function. The function is intended to processes (receive) the inter-module messages. The module should implement {\it ProcessMsg()} function only if it is designed to interact with other modules in a custom way (not only forward data through standard KETCube mechanisms). See Section \ref{sec:msg} for details.
 
 \clearpage
-\subsection{The KETCube Core Modification}\label{sec:creation:core}
+\subsection{The KETCube Project Settings}\label{sec:creation:core}
 
-\subsubsection*{Modify {\tt ketCube\_cfg.h}}\label{sec:creation:core:cfg}
+\subsubsection*{Modify {\tt ketCube\_compilation.h}}\label{sec:creation:core:cfg}
 
-At the end of the {\tt KETCUBE\_CFG\_INC\_MOD\_}-prefixed definitions in\\{\it ketCube\_cfg.h}, add the definition allowing the link-time inclusion/exclusion of the module
+At the end of the {\tt KETCUBE\_CFG\_INC\_MOD\_}-prefixed definitions in\\{\it ketCube\_compilation.h}, add the definition allowing the link-time inclusion/exclusion of the module
 \subsubsection*{Example: {\tt \#define KETCUBE\_CFG\_INC\_MOD\_ADC}}
 
-At the end of the definition in\\{\it ketCube\_cfg.h} insert the module ID definition.
+At the end of the definition in\\{\it ketCube\_compilation.h} insert the module ID definition.
 \subsubsection*{Example:}
 \begin{verbatim}
 typedef enum {
@@ -167,8 +168,8 @@ typedef enum {
 } ketCube_cfg_moduleIDs_t;
 \end{verbatim}
 
-\subsubsection*{Modify {\it ketCube\_modules.c}}
-At the end of the array {\it ketCube\_modules\_list[]} in {\it ketCube\_modules.c} insert the structure describing your module.
+\subsubsection*{Modify {\it ketCube\_moduleList.c}}
+At the end of the array {\it ketCube\_modules\_list[]} in {\it ketCube\_moduleList.c} insert the structure describing your module.
 \subsubsection*{Example:}
 \begin{verbatim}
 ketCube_cfg_module_t ketCube_modules_list[...] = {
@@ -212,11 +213,13 @@ The variable {\tt modID} is the ID of the target (recipient) module defined in {
 
 Messages should be stored to queue without using any synchronization primitives (semaphores), thus a strict cooperative procedure between message producer and recipient must be followed. 
 
-Every message has an single-writer (message producer) and single-reader (message recipient). The message insertion can be performed only into module's own queue. Insertion can be performed inside or outside ISR (if predetermined locations should be used if access order is not fixed). When the message is produced, it's length must be set to an non-zero value. Once set to non-zero value, the message cannot be modified.
+Every message has an single-writer (message producer) and single-reader (message recipient). The message insertion can be performed only into module's own queue. Insertion can be performed inside or outside ISR (predefined locations should be used if access order is not fixed). When the message is produced, it's length must be set to an non-zero value. Once set to non-zero value, the message cannot be modified.
 
-Messages with non-zero length are picked-up by the KETCube core and forwarded to target (recipient) module. The message receive (by a recipient module) is always performed outside ISR in the module's {\it ProcessData()} function.
+Messages with non-zero length are picked-up by the KETCube core and forwarded to target (recipient) module. The message receive (by a recipient module) is always performed outside ISR in the module's {\it ProcessData()} function called by {\it KETCube core} regularly.
 
 If the message is processed by the recipient, it's length must be set to 0 (by the recipient). This is only way to free a position in the message queue.
+
+If there are no empty slot in the predefined message queue, the message producer has no option to free any message slots. The producer must prevent deadlocks caused by full queue. The preferred way to prevent deadlocks is simply to skip a message insertion if there are no empty slots in the message queue.
 
 
 % ============================

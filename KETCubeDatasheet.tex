@@ -95,8 +95,9 @@ The additional sensors can be connected to the main board by connecting KETCube 
 \listoftables
 \begin{versionhistory}
   \vhEntry{draft}{09.12.2017}{JB}{draft}
-  \vhEntry{02/2018}{16.02.2018}{JB}{Initial version}
+  \vhEntry{02/2018}{16.02.2018}{JB}{Initial version (v0.1.0)}
   \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Text review, minor fixes}
+  \vhEntry{0.1.1}{25.01.2019}{JB}{KETCube-fw 0.1.1 updates}
 \end{versionhistory}
 
 % history table ... do not number
@@ -217,7 +218,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
   
   \newpage
   
-  \subsubsection{Main Board Pinout} \label{spec:TB}
+  \subsubsection{Main Board Pinout (rev. E2)} \label{spec:TB}
    \begin{table*}[!ht]
     \hspace*{-4cm}
     \begin{tabular}{| p{2cm} | p{3cm} | p{7cm} |}
@@ -234,7 +235,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
         \hline
         IO3 & PA8/Vref & Configurable by J1 and J7 \\
         \hline
-        IO4 & PA5/PA0 & Configurable by J9 \\
+        IO4 & PA5/NRST & Configurable by J9 \\
         \hline
         \hline
         \rowcolor{SeaGreen3!30!} \multicolumn{3}{|l|}{\bf KETCube and mikroBUS\textsuperscript{TM} pins}\\
@@ -242,7 +243,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
         \hline
         AN & PA4 & ADC\_IN4; DAC\_OUT1 \\
         \hline
-        RST & NRST & MCU reset \\
+        RST & PA0 & mikroBUS\textsuperscript{TM} reset \\
         \hline
         CS & PB12 &  SPI2 CS (AF0)\\
         \hline
@@ -258,7 +259,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
         \hline
         PWM & PB2 &  \\
         \hline
-        INT &  PB7 &  \\
+        INT &  PB5 &  \\
         \hline
         RX & PA3 & USART2 RX\\
         \hline
@@ -276,7 +277,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
         \hline
         V2 & PB6 & LED\_GREEN \\
         \hline
-        V3 & PB5 & LED\_RED \\
+        V3 & PB7 & LED\_RED \\
         \hline
     \end{tabular}
     \addcontentsline{lot}{table}{Main Board Pinout}
@@ -284,7 +285,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
    \end{table*}
   
 \clearpage
-\subsubsection{PCB Settings -- Solder Jumpers and Optional Parts}
+\subsubsection{PCB Settings -- Solder Jumpers and Optional Parts (rev. E2)}
 
    \begin{table*}[!ht]
     \hspace*{-4cm}
@@ -293,38 +294,42 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
         \rowcolor{SeaGreen3!30!} {\bf Settings\footnotemark{}} & {\bf Pads} & {\bf Description} \\
         \hline
         \hline
-        J1 \hfill $\bullet$ & 1 -- 2 & Connect PA8 to IO3\\
+        J1  \hfill $\bullet$ & 1 -- 2 & Connect PA8 to IO3 (do not use with J7)\\
         \hline
-        J2 \hfill $\bullet$ & 1 -- 2 & Enable power for the radio part of the MuRaTa module\\
+        J2  \hfill $\bullet$ & 1 -- 2 & Enable power for the radio part of the MuRaTa module\\
         \hline
-        J3 \hfill $\bullet$ & 1 -- 2 & MCU control of radio sleep mode (PA12)\\
+        J3  \hfill $\bullet$ & 1 -- 2 & MCU control of radio sleep mode (PA12; do not use with J8)\\
         \hline
-        J3 & 2 -- 3 & Turn the radio permanently ON \\
+        J3                  & 2 -- 3 & Turn radio permanently ON (do not use with J8) \\
         \hline
-        J4 & 1 -- 2 & Enable USB-delivered 5V power supply to be available on the board 5V pin; if not shorted, the 5V pin is floating\\
+        J4                  & 1 -- 2 & Enable USB-delivered 5V power supply to be available on the board 5V pin; if not shorted, the 5V pin is floating\\
         \hline
-        J5 \hfill $\bullet$ & 1 -- 2& Connect HDC1080 RHT sensor SCL to I2C bus\\
+        J5  \hfill $\bullet$ & 1 -- 2& Connect HDC1080 RHT sensor SCL to I2C bus\\
         \hline
-        J6 \hfill $\bullet$ & 1 -- 2& Connect HDC1080 RHT sensor SDA to I2C bus\\
+        J6  \hfill $\bullet$ & 1 -- 2& Connect HDC1080 RHT sensor SDA to I2C bus\\
         \hline
-        J7 & 1 -- 2 & Connect Vref to IO3\\
+        J7                   & 1 -- 2 & Connect Vref to IO3 (do not use with J1)\\
         \hline
-        J8 & 1 -- 2 & MCU control of radio sleep mode (PA5)\\
+        J8                   & 1 -- 2 & MCU control of radio sleep mode (PA5; do not use with J3)\\
         \hline
-        J9 \hfill $\bullet$ & 1 -- 2 & Connect PA5 to IO4\\
+        J9                   & 1 -- 2 & Connect NRST to IO4\\
         \hline
-        J9 & 2 -- 3 & Connect PA0 to IO4\\
+        J9  \hfill $\bullet$ & 2 -- 3 & Connect PA5 to IO4\\
         \hline
         J10 \hfill $\bullet$ & 1 -- 2 & Connect Vref to 3V3\\
         \hline
-        R7 \hfill $\bullet$ & 1 -- 2& Assembly 2k2 pull-up resistor to enable I2C bus SDA\\
+        R7  \hfill $\bullet$ & 1 -- 2& Assembly 2k2 pull-up resistor to enable I2C bus SDA\\
         \hline
-        R8 \hfill $\bullet$ & 1 -- 2& Assembly 2k2 pull-up resistor to enable I2C bus SDA\\
+        R8  \hfill $\bullet$ & 1 -- 2& Assembly 2k2 pull-up resistor to enable I2C bus SDA\\
         \hline
-        V1 & 1 -- 2& POWER LED -- do not assembly when power consumption should be as low as possible\\
+        V1                   & 1 -- 2& POWER LED -- do not assembly when power consumption should be as low as possible\\
+        \hline
+        V2  \hfill $\bullet$ & 1 -- 2&  LED\_GREEN \\
+        \hline
+        V3  \hfill $\bullet$ & 1 -- 2&  LED\_RED \\
         \hline
     \end{tabular}
-    \addcontentsline{lot}{table}{Main Board Pinout}
+    \addcontentsline{lot}{table}{Main Board Configuration}
     \label{tab:boards:MBP}
    \end{table*}
    
@@ -380,13 +385,15 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
 % Serial CmdLine
 \clearpage
 \section{KETCube Terminal}
-When programmed by the supplied software stack, the KETCube serial line called {\it KETCube Terminal} is available on USART1 (IO1 and IO2) -- see Figure\ref{fig:terminal:putty}. KETCube Terminal allows to configure KETCube modules (e.g. HDC1080, batVoltage, LoRa ...) and module parameters (e.g. devEUI, appKEY, ... for LoRa module). The KETCube terminal is case-sensitive.
+When programmed by the supplied software stack, the KETCube serial line called {\it KETCube Terminal} is available on USART1 (IO1 and IO2) -- see Figure \ref{fig:terminal:putty}. KETCube Terminal allows to configure KETCube modules (e.g. HDC1080, batVoltage, LoRa ...) and module parameters (e.g. devEUI, appKEY, ... for LoRa module). The KETCube terminal is case-sensitive.
 
 The Terminal commands follow the hierarchical tree arrangement. The basic help including root commands is printed after device reset. The command {\tt help} can be used anytime to display root commands.
 
 Inline help is displayed when {\tt [TAB]} key is pushed (e.g. write “s{\tt [TAB]}” and all commands with leading “s” will be printed -- these are: “set” and “show”). Inline help is usefull especially for commands hidden deeply in the tree structure.
 
-To display list of modules use {\tt list} command. Commands {\tt enable}/{\tt disable} are used to turn ON/OFF KETCube modules (e.g. {\tt enable HDC1080}). When module is enabled, it starts to perform defined operation (e.g. measure RH and Temperature and send results through LoRa).
+To display list of modules use {\tt list} command. Commands {\tt enable}/{\tt disable} are used to turn ON/OFF KETCube modules (e.g. {\tt enable HDC1080}). When module is enabled, it starts to perform defined operation (e.g. measure RH and Temperature and send results through LoRa). 
+
+The {\tt enable} command can be additionally used for debugging -- the second (optional) parameter of the command sets the module {\it severity level}. The {\it severity levels} are: {\it NONE (1)}, {\it ERROR (1)}, {\it INFO (2)} and {\it DEBUG (3)}. The {\it severity level} defines the amount of information provided by the specified module to the {\it terminal} interface. The default  {\it severity level} is {\it ERROR}. Use the following command to enable {\tt HDC1080}, while setting the {\it severity level} to {\it INFO}: {\tt enable HDC1080 2}.
 
 Commands {\tt show}/{\tt set} are used to show/set KETCube settings (e.g. {\tt show LoRa devEUI}). Parameters are saved into on-chip EEPROM.
 
@@ -396,6 +403,8 @@ All settings are applied after device reset (use command {\tt reload}).
 
 \marginlabel{\captionof{figure}{KETCube Terminal in Putty}\label{fig:terminal:putty}}
 \raisebox{-\height}{\includegraphics[width=0.5\paperwidth]{ketCube_terminal_putty.png}}
+
+\clearpage 
 
 \subsection{Default KETCube Terminal Settings}
 
