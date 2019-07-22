@@ -81,7 +81,7 @@ The additional sensors can be connected to the main board by connecting KETCube 
 \begin{itemize}
   \item Supported Frequencies \cite{Murata:ABZ}: 868MHz, 915MHz
   \item Supported Wireless communication protocols: LoRaWAN (Class A), Sigfox (planned), Proprietary P2P (experimental)
-  \item Interfaces \cite{Murata:ABZ}: UART, SPI, I2C, ADC, DAC, PWM, INT, GPIO
+  \item Interfaces \cite{Murata:ABZ}: UART, SPI, I2C, USB, ADC, DAC, PWM, INT, GPIO
   \item mikroBUS\textsuperscript{TM} compatible pinout, custom KETCube pinout
   \item Key circuits: Murata Type ABZ (CMWX1ZZABZ) \cite{Murata:ABZ}, TI HDC1080 \cite{TI:HDC1080}
   \item Recommended Battery (for evaluation only): Panasonic CR-2450/BN (620 mAh)
@@ -298,7 +298,7 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
         \hline
         J2  \hfill $\bullet$ & 1 -- 2 & Enable power for the radio part of the MuRaTa module\\
         \hline
-        J3  \hfill $\bullet$ & 1 -- 2 & MCU control of radio sleep mode (PA12; do not use with J8)\\
+        J3  \hfill $\bullet$ & 1 -- 2 & MCU control of radio sleep mode (PA12; do not use with J8); must remain OPEN when USB is used\\
         \hline
         J3                  & 2 -- 3 & Turn radio permanently ON (do not use with J8) \\
         \hline
