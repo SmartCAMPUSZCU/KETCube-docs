@@ -1,0 +1,12 @@
+ digraph graphname {
+     
+ {
+ 
+    "initialize" ->"do an\nusefull work";
+    "de-initialize" -> "low-power\nmode"
+    "low-power\nmode" ->"initialize";
+    "do an\nusefull work" -> "de-initialize"
+ 
+  } 
+
+ }

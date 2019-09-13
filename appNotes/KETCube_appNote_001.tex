@@ -1,64 +1,53 @@
-\documentclass[twoside,a4paper]{refart}
-\usepackage[utf8x]{inputenc}
-%\usepackage[czech]{babel}
-\usepackage[pdftex]{graphicx}
-\graphicspath{{resources/images/}{resources/appNotes/001/images/}}
-\usepackage{caption}% for \captionof
-\usepackage{mwe}% contains example-image
-\input{resources/authors.tex}
-\usepackage[owncaptions]{vhistory}
-\usepackage{hyperref}
-%\usepackage[superscript,biblabel]{cite}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Defines
 
-\usepackage[table, x11names]{xcolor}
-\usepackage{array, booktabs, boldline} %
-\usepackage{mathtools}
+% ------------------------------------------------------------
+% ------------------------------------------------------------
 
-\newsavebox{\tempbox}
-\newlength{\tempheight}
-
-\newcommand\ToDo[1]{\textcolor{red}{ToDo: #1}}
-
-%skryt barevny obdelnik kolem odkazu
-\hypersetup{
-    colorlinks=false,
-    pdfborder={0 0 0},
-}
-
-% vhistory
-\renewcommand{\vhhistoryname}{Revision History}
-\renewcommand{\vhchangename}{Note}
-\renewcommand{\vhversionname}{Revision}
-\renewcommand{\vhdatename}{Date}
-\renewcommand{\vhauthorname}{Author}
-\renewcommand \vhAuthorColWidth{0.8\hsize}
-\renewcommand \vhChangeColWidth{1.2\hsize}
-
-\DeclareRobustCommand{\UWBLogo}{%
-   \begin{wrapfigure}{l}{2.1cm}
-    \vspace{-1.35cm}
-    \includegraphics[width=2cm]{ZCU_logo.pdf}
-   \end{wrapfigure}
-}
+\input{resources/appNotes/defs.tex}
 
 \title{\UWBLogo KETCube AppNote 001:\\ Writing KETCube Module (\vhCurrentVersion)}
 
 \author{Author: \vhListAllAuthorsLongWithAbbrev}
 \date{Version \vhCurrentVersion\ from \vhCurrentDate}
 
-\begin{document}
-\pagenumbering{roman} 
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Head
 
-\titlepage
-\maketitle
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/head.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
 
 \section*{About this Document}
 \input{resources/about.tex}
 
-This document is a short How-To guide through KETCube (software) module creation process. The existing KETCube modules will be used as a reference.
+This document is a short guide through KETCube (software) module creation process. 
+
+Existing upstream KETCube modules will be used as a reference.
+
+KETCube upstream module files reside in the {\it KETCube/modules/} subdirectory depending on the module cathegory.
+KETCube project-speciffic (3rd party) module files reside in the {\it Projects/inc/} and {\it Projects/src/} subdirectories dependiong on the module cathegory and file type.
+
+The module cathegories are:
+
+\begin{itemize}
+  \item sensing
+  \item actuation
+  \item communication
+\end{itemize}
 
 
 \setcounter{tocdepth}{1}
@@ -71,6 +60,7 @@ This document is a short How-To guide through KETCube (software) module creation
   \vhEntry{03/2018}{05.03.2018}{JB}{Initial version}
   \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Text review, minor fixes}
   \vhEntry{0.1.1}{25.01.2019}{JB}{KETCube-fw 0.1.1 updates}
+  \vhEntry{0.2.0}{13.09.2019*}{JB}{KETCube-fw 0.2.0 update}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}
@@ -80,25 +70,26 @@ This document is a short How-To guide through KETCube (software) module creation
 \pagestyle{headings} 
 
 \clearpage
-\section{Naming rules}
+\section{Naming Conventions}
 \subsection*{Module Name}
-Choose a short appropriate and unique name well describing the designed KETCube module. The {\it CamelCaseNames} are preferred. The abbreviations should be uppercase.
-\subsubsection*{Example: ADC, HDC1080, BatMeas}
+Choose a short appropriate and unique name well describing the designed KETCube module. The {\it CamelCaseNames} are preferred. Abbreviations should be uppercase.
+\subsubsection*{Examples: ADC, HDC1080, BatMeas}
 
 \subsection*{File Names}
-For naming files use {\tt ketCube\_} prefix. As the suffix use lowercase module name. When the module name is composed of multiple words, use uppercase at the beginning of the second and other words.
-\subsubsection*{Example: {\it ketCube\_adc.c}, {\it ketCube\_hdc1080.c}, {\it ketCube\_batMeas.c}}
+For naming files use {\tt ketCube\_} prefix. As the suffix use lowercase module name. When the module name is composed of multiple words, use the ``Camel Case'' style with the lowercase leading character.
+
+\docExample{{\it ketCube\_adc.c}, {\it ketCube\_hdc1080.c}, {\it ketCube\_batMeas.c}}
 
 \subsection*{Function Names}
-For naming public functions, use {\tt ketCube\_MODULE\_NAME\_} prefix. As the suffix use the function name starting with the uppercase letter (the {\it CamelCaseName}).
-\subsubsection*{Example: {\tt ketCube\_ADC\_Init()}}
+For naming public functions, use {\tt ketCube\_MODULE\_NAME\_} prefix (lowercase module name; abbreviations can be uppercase). As the suffix use the function name starting with the uppercase letter (the {\it CamelCaseName}).
+\docExample{{\tt ketCube\_lora\_Init()}, {\tt ketCube\_ADC\_Init()}}
 
 For naming private (unit-local) functions, use an appropriate name starting with the lowercase letter (the {\it camelCaseName}).
-\subsubsection*{Example: {\tt setHeaterOn()}}
+\docExample{{\tt setHeaterOn()}}
 
 \subsection*{Variable Names}
-For naming public variables, use {\tt ketCube\_MODULE\_NAME\_}  prefix. As the suffix use the variable name starting with the uppercase letter (the {\it CamelCaseName}).
-\subsubsection*{Example: {\tt uint8\_t ketCube\_LoRa\_RxBuffer[10]}}
+For naming public variables, use {\tt ketCube\_MODULE\_NAME\_} prefix (lowercase module name; abbreviations can be uppercase). As the suffix use the variable name starting with the uppercase letter (the {\it CamelCaseName}).
+\docExample{{\tt uint8\_t ketCube\_lora\_RxBuffer[10]}}
 
 For naming private (unit-local) variables, use an appropriate name starting with the lowercase letter (the {\it camelCaseName}).
 \subsubsection*{Example: {\tt uint8\_t rxBuffer[10]}}
@@ -109,24 +100,57 @@ For naming pre-processor defines use {\tt KETCUBE\_MODULE\_NAME\_} prefix (upper
 
 \clearpage
 \subsection*{Data Type Names}
-For naming data types use {\tt ketCube\_MODULE\_NAME\_} prefix followed by the type name. The type name starts with uppercase (the {\it CamelCaseName}). The type definition should be enclosed by the {\tt \_t} suffix.
-\subsubsection*{Example: {\tt ketCube\_ADC\_Error\_t}}
+For naming data types use {\tt ketCube\_MODULE\_NAME\_} prefix (lowercase module name; abbreviations can be uppercase) followed by the type name. The type name starts with uppercase (the {\it CamelCaseName}). The type definition should be enclosed by the {\tt \_t} suffix.
+\docExample{{\tt ketCube\_ADC\_ModuleCfg\_t}}
 
 \clearpage
-\section{Module Creation Process}
-This section describes required steps necessary for successful (sensing) module creation.
+\section{Semi-Automatic Module Creation Process}
+The KETCube project comes with helper script, which can be used to generate the 3rd party KETCube module skeleton. 
+
+The script is located in the {\it supportTools} directory. Python 3 is required to execute the script. 
+The script is CLI-based wizard -- user must respond to several questions and the module skeleton is generated for him.
+
+\begin{docCodeExample}
+\begin{verbatim}
+$ cd supportTools
+$./createModule.py
+Set module AUTHOR full name [KET]: KET User
+Set module NAME [NONE]: TestModule
+Set module DESCRIPTION [-]: KETCube TestModule
+Set module VERSION [0.1]: 
+Set module CATEGORY (sensing, communication, actuation) [sensing]: sensing
+
+...
+\end{verbatim}
+\end{docCodeExample}
+
+When module is created, it's id is not persistent. Consider setting it's ID explicitely: set the module ID value in the {\it ketCube\_module\_id.h} to an unique value grather than 1024.
+
+
+\docNote{The autogenerated module contains empty functions: it does nothing; it can be only enabled/disabled from the KETCube Terminal.}
+
+\docNote{The module functionality should be implemented in the module {\it .c} file.}
+
+\docWarn{The complete KETCube rebuild is required when the new module is added}
+
+\clearpage
+\section{Manual Module Creation Process}
+This section describes required steps necessary for manual module creation.
 
 \subsection*{Create Module Files}
-At first, create {\it ketCube\_adc.c} and {\it ketCube\_adc.h in} \\{\it KETCube/modules/sensing} directory.
+
+At first, create module {\it .c} and {\it .h} files and place them into appropriate location (upstream modules to {\it KETCube/modules/}; 3rd party modules to {\it Projects/inc/} and {\it Projects/src/}).
+
+\docExample{Create {\it ketCube\_adc.c} and {\it ketCube\_adc.h} in {\it KETCube/modules/sensing} directory}
 
 
 \subsection*{Implement Module Interface}
 \subsubsection*{Init() Function}
-Every KETCube module has to implement (even empty!) init function.
+Every KETCube module should implement (even empty!) init function.
 
 If the module is designed to communicate with other modules in a custom way, it has to initialize it's outgoing message queue and return pointer to it in the msg variable. See Section \ref{sec:msg} for details.
 
-\subsubsection*{Example: {\tt ketCube\_cfg\_ModError\_t ketCube\_ADC\_Init(ketCube\_interModMsg\_t *** msg)}}
+\docExample{{\tt ketCube\_cfg\_ModError\_t ketCube\_ADC\_Init(ketCube\_interModMsg\_t *** msg)}}
 
 \subsubsection*{SleepEnter() Function}
 KETCube module can implement SleepEnter() function returning\\{\tt ketCube\_cfg\_ModError\_t}, which is executed always before KETCube enters (tries to enter) low-power mode. The return value influences the power-mode management: if the function returns\\“KETCUBE\_CFG\_MODULE\_ERROR”, KETCube will not enter low-power mode.
@@ -137,7 +161,7 @@ KETCube module can implement {\it SleepExit()} function, which is executed alway
 \subsubsection*{GetSensorData() Function}
 KETCube sensing module has to implement {\it GetSensorData()} function, which is executed once per defined KETCube {\it base period}. KETCube core passes two parameters to the module: {\tt uint8\_t * buffer} and\\{\tt uint8\_t * len}. The pointers are used to return data and data length to the core.
 
-Please note, that when adding new module to KETCube, you have to increment {\tt KETCUBE\_MODULES\_SENSOR\_BYTES} by at least number of bytes returned by your module (use maximum, when variable).
+\docWarn{When adding new module to KETCube, you have to increment {\tt KETCUBE\_MODULES\_SENSOR\_BYTES} by at least number of bytes returned by your module (use maximum, when variable)}
 
 \subsubsection*{SendData() Function}
 KETCube communication module has to implement {\it SendData()} function, which is executed once per defined KETCube {\it base period}. KETCube core passes two parameters to the module: {\tt uint8\_t * buffer} and\\{\tt uint8\_t * len}. The pointers represents the buffer to be transmitted by the communication module and it's size.
@@ -145,16 +169,43 @@ KETCube communication module has to implement {\it SendData()} function, which i
 \subsubsection*{ProcessMsg() Function}
 KETCube module can implement {\it ProcessMsg()} function. The function is intended to processes (receive) the inter-module messages. The module should implement {\it ProcessMsg()} function only if it is designed to interact with other modules in a custom way (not only forward data through standard KETCube mechanisms). See Section \ref{sec:msg} for details.
 
+\subsubsection*{Configuration Structure}
+Every KETCube module must define a configuration structure containing at least one item of type: {\it ketCube\_cfg\_ModuleCfgByte\_t}.
+
+This structure is used to keep the module configuration. It exists in two instances: in RAM for runtime configuration and in EEPROM for persistent configuration. 
+
+During initialization, KETCube core loads automatically the configuration sructure from EEPROM into RAM for every enabled module.
+
+\begin{docCodeExample}
+\begin{verbatim}
+typedef enum {
+
+...
+
+/**
+* @brief  KETCube module configuration
+*/
+typedef struct ketCube_ADC_moduleCfg_t {
+    ketCube_cfg_ModuleCfgByte_t coreCfg;   /*!< KETCube core 
+                                                cfg byte */
+} ketCube_ADC_ModuleCfg_t;
+
+extern ketCube_ADC_ModuleCfg_t ketCube_ADC_ModuleCfg;
+\end{verbatim}
+\end{docCodeExample}
+
 \clearpage
 \subsection{The KETCube Project Settings}\label{sec:creation:core}
 
 \subsubsection*{Modify {\tt ketCube\_compilation.h}}\label{sec:creation:core:cfg}
 
-At the end of the {\tt KETCUBE\_CFG\_INC\_MOD\_}-prefixed definitions in\\{\it ketCube\_compilation.h}, add the definition allowing the link-time inclusion/exclusion of the module
+Add the definition allowing the compile-time inclusion/exclusion of the module into {\it ketCube\_compilation.h} file.
+Use this define to include/exclude module code during the build process.
 \subsubsection*{Example: {\tt \#define KETCUBE\_CFG\_INC\_MOD\_ADC}}
 
 At the end of the definition in\\{\it ketCube\_compilation.h} insert the module ID definition.
-\subsubsection*{Example:}
+
+\begin{docCodeExample}
 \begin{verbatim}
 typedef enum {
 
@@ -167,32 +218,48 @@ typedef enum {
   KETCUBE_LISTS_MODULEID_LAST
 } ketCube_cfg_moduleIDs_t;
 \end{verbatim}
+\end{docCodeExample}
+
+\subsubsection*{Modify {\it ketCube\_module\_id.h}}
+Add an unique module ID into {\it ketCube\_moduleID\_t} enumerate deffinition.  
+
+Upstream module ID range is 128 to 1023.
+
+3rd party module range is 1024 to 65534.
 
 \subsubsection*{Modify {\it ketCube\_moduleList.c}}
+
+This file contains module declarations.
+
 At the end of the array {\it ketCube\_modules\_list[]} in {\it ketCube\_moduleList.c} insert the structure describing your module.
-\subsubsection*{Example:}
+
+\begin{docCodeExample}
 \begin{verbatim}
 ketCube_cfg_module_t ketCube_modules_list[...] = {
     
     ...
 #ifdef KETCUBE_CFG_INC_MOD_ADC
-    {((char *) &("ADC")),
-     ((char *) &("Measure mVolts on PA4.")),
-     &ketCube_ADC_Init,                 /*·Module Init()   */
-     (ketCube_cfg_ModVoidFn_t) NULL,    /*·SleepEnter()    */
-     (ketCube_cfg_ModVoidFn_t) NULL,    /*·SleepExit()     */
-     &ketCube_ADC_ReadData,             /*·GetSensorData() */
-     (ketCube_cfg_ModDataFn_t) NULL,    /*·SendData()      */
-     (ketCube_cfg_ModDataPtrFn_t) NULL, /*·ProcessData()   */
-     0,            /*·CFG base addr -- set dynamicaly      */
-     1,            /*·CFG len in bytes                     */
-     TRUE          /*·module CFG byte -- set dynamically   */
-    },
+  DEF_MODULE("ADC",
+             "Measure mVolts on PA4",
+             KETCUBE_MODULEID_ADC,      /* Unique module ID 
+                                           defined in 
+                                           ketCube_module_id.h */
+             &ketCube_ADC_Init,         /* Init() */
+             NULL,                      /* SleepEnter() */
+             NULL,                      /* SleepExit() */
+             &ketCube_ADC_ReadData,     /* GetSensorData() */
+             NULL,                      /* SendData() */
+             NULL,                      /* ReceiveData() */
+             NULL,                      /* ProcessData() */
+             ketCube_ADC_ModuleCfg      /* Module cfg struct */
+            ),
 #endif
     ...
 };
 \end{verbatim}
+\end{docCodeExample}
 
+\docWarn{The complete KETCube rebuild is required when the new module is added}
 
 \clearpage
 \section{Inter-Module Messages}\label{sec:msg}
@@ -201,6 +268,7 @@ The KETCube platform allows to send inter-module messages. This allows to pass d
 The messaging is realised by using the pseudo-dynamic approach. The message producing module  maintains it's outgoing message queue. The message queue size must be set statically considering the space required for produced messages. The message queue is initialized in module's {\it Init()} function.
 
 The message itself is a data structure defined as:
+\begin{docCodeListing}
 \begin{verbatim}
 typedef struct ketCube_interModMsg_t {
     uint8_t modID;     /*<! Target module index */
@@ -208,6 +276,7 @@ typedef struct ketCube_interModMsg_t {
     uint8_t * msg;     /*<! Message body */
 } ketCube_interModMsg_t;
 \end{verbatim}
+\end{docCodeListing}
 
 The variable {\tt modID} is the ID of the target (recipient) module defined in {\tt ketCube\_cfg\_moduleIDs\_t} (see \ref{sec:creation:core:cfg}), {\tt msgLen} is the message length in bytes and {\tt *msg} is a pointer to message body.
 
@@ -222,12 +291,23 @@ If the message is processed by the recipient, it's length must be set to 0 (by t
 If there are no empty slot in the predefined message queue, the message producer has no option to free any message slots. The producer must prevent deadlocks caused by full queue. The preferred way to prevent deadlocks is simply to skip a message insertion if there are no empty slots in the message queue.
 
 
-% ============================
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube appNote Content
 
-\clearpage
-\bibliographystyle{IEEEtran}
-\bibliography{IEEEabrv,resources/sources}
+% ------------------------------------------------------------
+% ------------------------------------------------------------
 
-% ============================
 
-\input{resources/license.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube appNote Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/tail.tex}
+

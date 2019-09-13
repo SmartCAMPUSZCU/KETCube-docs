@@ -14,7 +14,7 @@
    viewBox="0 0 180.44568 103.7165"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.4 (unknown)"
    sodipodi:docname="fw_stack.svg"
    inkscape:export-filename="/home/jan/projects/zcu/ketcube/repos/KETCube-docs/resources/images/fw_stack.png"
    inkscape:export-xdpi="300"
@@ -28,14 +28,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="254.96761"
-     inkscape:cy="-69.418479"
+     inkscape:zoom="0.9899495"
+     inkscape:cx="361.59002"
+     inkscape:cy="22.840991"
      inkscape:document-units="mm"
      inkscape:current-layer="g849-7"
      showgrid="true"
-     inkscape:window-width="1362"
-     inkscape:window-height="729"
+     inkscape:window-width="1676"
+     inkscape:window-height="1011"
      inkscape:window-x="0"
      inkscape:window-y="18"
      inkscape:window-maximized="0"
@@ -125,34 +125,18 @@
            sodipodi:nodetypes="cssssscssssssscc"
            inkscape:connector-curvature="0"
            id="rect817-3-3"
-           d="m 175,982.5197 156.75586,-1.7e-4 c 7.33773,-10e-6 13.24414,-4.46 13.24414,-10 v -160 c 0,-5.54 -5.90641,-10 -13.24414,-10 H 153.24414 c -0.2514,0 -0.49628,0.017 -0.74414,0.0273 -0.24786,-0.0103 -0.49274,-0.0273 -0.74414,-0.0273 H 73.244141 c -7.33773,0 -13.244141,4.46 -13.244141,10 v 229.99997 c 0,5.54 5.906411,10 13.244141,10 h 78.511719 c 7.33773,0 13.24414,-4.46 13.24414,-10 v -49.9998 c 0,-5 5,-10 10,-10 z"
+           d="m 175,982.5197 156.75586,-1.7e-4 c 7.33773,-10e-6 13.24414,-4.46 13.24414,-10 v -61.99952 c 0,-5.54 -5.90641,-10 -13.24414,-10 H 153.24414 c -0.2514,0 -0.49628,0.017 -0.74414,0.0273 -0.24786,-0.0103 -0.49274,-0.0273 -0.74414,-0.0273 H 73.245693 c -7.33773,0 -13.244141,4.46 -13.244141,10 v 131.99949 c 0,5.54 5.906411,10 13.244141,10 h 78.510167 c 7.33773,0 13.24414,-4.46 13.24414,-10 v -49.9998 c 0,-5 5,-10 10,-10 z"
            style="opacity:0.92000002;fill:#7fa5cb;fill-opacity:0.55164322;stroke:#231f20;stroke-width:1.99936998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           x="107.17472"
-           y="265.8476"
-           id="text821-5-0"><tspan
-             sodipodi:role="line"
-             id="tspan819-8-7"
-             x="107.17472"
-             y="265.8476"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px">KETCube Core</tspan><tspan
-             id="tspan1011"
-             sodipodi:role="line"
-             x="107.17472"
-             y="276.31509"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px">Drivers</tspan></text>
       </g>
       <g
          transform="matrix(-1,0,0,1,262.28126,-105.83333)"
          style="fill:#7fa56b;fill-opacity:0.73708921"
          id="g1017-4">
         <path
-           sodipodi:nodetypes="cssssscssssssscc"
+           sodipodi:nodetypes="cssccccssscssssssscc"
            inkscape:connector-curvature="0"
            id="rect817-3-3-0"
-           d="m 43.166669,400.1875 67.537781,-5e-5 c 1.94144,0 3.50418,-1.18004 3.50418,-2.64583 l 1.2e-4,-42.33333 c 1e-5,-1.46579 -1.56286,-2.64584 -3.5043,-2.64584 H 37.410431 c -0.06652,0 -0.131308,0.005 -0.196887,0.007 -0.06558,-0.003 -0.130371,-0.007 -0.196887,-0.007 H 16.243765 c -1.941441,0 -3.504179,1.18005 -3.504179,2.64584 v 60.85416 c 0,1.46579 1.562738,2.64583 3.504179,2.64583 h 20.772892 c 1.941441,0 3.504178,-1.18004 3.504178,-2.64583 v -13.22912 c 0,-1.32291 1.322917,-2.64583 2.645834,-2.64583 z"
+           d="m 43.166669,400.1875 67.537781,-5e-5 c 1.94144,0 3.50418,-1.18004 3.50418,-2.64583 l 1.1e-4,-19.76819 c 0.13085,-1.39843 0.9246,-1.66302 2.36082,-1.7411 h 27.60319 c 1.917,0.0781 3.50433,-0.71566 3.50392,-2.197 1e-5,-6.81813 6e-5,-18.62704 6e-5,-18.62704 1e-5,-1.46579 -1.56271,-2.64584 -3.50415,-2.64584 H 37.410431 c -0.06652,0 -0.131308,0.005 -0.196887,0.007 -0.06558,-0.003 -0.130371,-0.007 -0.196887,-0.007 H 16.243765 c -1.941441,0 -3.504179,1.18005 -3.504179,2.64584 v 60.85416 c 0,1.46579 1.562738,2.64583 3.504179,2.64583 h 20.772892 c 1.941441,0 3.504178,-1.18004 3.504178,-2.64583 v -13.22912 c 0,-1.32291 1.322917,-2.64583 2.645834,-2.64583 z"
            style="opacity:0.92000002;fill:#7fa56b;fill-opacity:0.73708921;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
       </g>
       <text
@@ -174,25 +158,41 @@
            sodipodi:nodetypes="cssssscssssssscc"
            inkscape:connector-curvature="0"
            id="rect817-3-3-0-1"
-           d="m -4.1282681,490.14588 67.1719301,-5e-5 c 1.94144,0 3.50418,-1.18004 3.50418,-2.64583 v -16.40417 c 0,-1.46579 -1.56274,-2.64584 -3.50418,-2.64584 H -9.8845058 c -0.06652,0 -0.1313082,0.005 -0.1968872,0.007 -0.06558,-0.003 -0.130371,-0.007 -0.196887,-0.007 h -8.072892 c -1.941441,0 -3.504179,1.18005 -3.504179,2.64584 v 34.925 c 0,1.46579 1.562738,2.64583 3.504179,2.64583 h 8.072892 c 1.9414409,0 3.5041779,-1.18004 3.5041779,-2.64583 v -13.22912 c 0,-1.32291 1.322917,-2.64583 2.645834,-2.64583 z"
+           d="m -4.1282681,490.14588 48.6510971,-5e-5 c 1.94144,0 3.50418,-1.18004 3.50418,-2.64583 v -16.40409 c 0,-1.46579 -1.56274,-2.64584 -3.50418,-2.64584 H -9.8845058 c -0.06652,0 -0.1313082,0.005 -0.1968872,0.007 -0.06558,-0.003 -0.130371,-0.007 -0.196887,-0.007 h -8.072892 c -1.941441,0 -3.504179,1.18005 -3.504179,2.64584 v 34.92492 c 0,1.46579 1.562738,2.64583 3.504179,2.64583 h 8.072892 c 1.9414409,0 3.5041779,-1.18004 3.5041779,-2.64583 v -13.22912 c 0,-1.32291 1.322917,-2.64583 2.645834,-2.64583 z"
            style="opacity:0.92000002;fill:#38a56b;fill-opacity:0.73708921;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
       </g>
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="192.19873"
+         x="201.45915"
          y="282.4288"
          id="text821-5-0-0-5"><tspan
            id="tspan1011-0-0"
            sodipodi:role="line"
-           x="192.19873"
+           x="201.45915"
            y="282.4288"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722242px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';text-align:center;text-anchor:middle;stroke-width:0.26458332px">KETCube Module</tspan><tspan
            sodipodi:role="line"
-           x="192.19873"
+           x="201.45915"
            y="288.6239"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722242px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';text-align:center;text-anchor:middle;stroke-width:0.26458332px"
            id="tspan1147">Drivers</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="107.17445"
+         y="282.42868"
+         id="text821-5-0-0-5-3"><tspan
+           id="tspan1011-0-0-6"
+           sodipodi:role="line"
+           x="107.17445"
+           y="282.42868"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722242px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';text-align:center;text-anchor:middle;stroke-width:0.26458332px">KETCube Core</tspan><tspan
+           sodipodi:role="line"
+           x="107.17445"
+           y="288.62378"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722242px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';text-align:center;text-anchor:middle;stroke-width:0.26458332px"
+           id="tspan1147-7">Drivers</tspan></text>
     </g>
     <g
        id="g849-7-1"
@@ -200,26 +200,62 @@
     <g
        transform="translate(0,-87.3125)"
        id="g854-4">
-      <rect
-         ry="2.6458333"
-         rx="3.5044062"
-         y="281.125"
-         x="15.875"
-         height="15.875"
-         width="179.91667"
+      <path
+         style="opacity:0.92000002;fill:#4278b4;fill-opacity:0.83802819;stroke:#231f20;stroke-width:1.99936998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="M 14.244141,1 C 6.9064109,1 1,5.4600063 1,11 v 40 99 c 0,5.53999 5.9064109,10 13.244141,10 H 148.75391 C 156.09164,160 162,155.53999 162,150 V 71.106513 C 161.99968,65.999683 164.99968,60.999683 171.42857,61 H 667.75391 C 675.09163,61 681,56.539994 681,51 V 11 C 681,5.4600063 675.09163,1 667.75391,1 h -515 z"
+         transform="matrix(0.26458333,0,0,0.26458333,15.6105,280.8605)"
          id="rect817-2"
-         style="opacity:0.92000002;fill:#4278b4;fill-opacity:0.83802819;stroke:#231f20;stroke-width:0.52899998;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-      <text
-         id="text821-4"
-         y="291.77649"
-         x="105.13323"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="sscssssccsssscs" />
+      <g
+         aria-label="KETCube Core"
          style="font-style:normal;font-weight:normal;font-size:8.26822948px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         xml:space="preserve"><tspan
+         id="text821-4">
+        <path
+           d="m 81.53971,291.77649 -2.272956,-2.74531 -0.742848,0.56521 v 2.1801 h -0.77111 v -5.68845 h 0.77111 v 2.85028 l 2.741273,-2.85028 h 0.908375 l -2.422333,2.47078 2.745311,3.21767 z"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
-           y="291.77649"
-           x="105.13323"
-           id="tspan819-9"
-           sodipodi:role="line">KETCube Core</tspan></text>
+           id="path2561" />
+        <path
+           d="m 83.275715,291.77649 v -5.68845 h 4.31579 v 0.62981 h -3.544681 v 1.82482 h 3.302448 v 0.62174 h -3.302448 v 1.98227 h 3.710207 v 0.62981 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2563" />
+        <path
+           d="m 91.02718,286.71785 v 5.05864 h -0.767072 v -5.05864 h -1.954015 v -0.62981 h 4.675102 v 0.62981 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2565" />
+        <path
+           d="m 96.372462,286.63307 q -0.94471,0 -1.469549,0.60962 -0.524839,0.60558 -0.524839,1.66333 0,1.04565 0.545025,1.68353 0.549062,0.63384 1.48166,0.63384 1.195018,0 1.796564,-1.18291 l 0.629806,0.31491 q -0.351238,0.73477 -0.989119,1.11831 -0.633844,0.38353 -1.473586,0.38353 -0.859928,0 -1.489734,-0.35527 -0.62577,-0.35931 -0.956822,-1.02142 -0.327015,-0.66614 -0.327015,-1.57452 0,-1.36054 0.734775,-2.13165 0.734774,-0.77111 2.034759,-0.77111 0.908375,0 1.517995,0.35528 0.609621,0.35527 0.896264,1.05371 l -0.730737,0.24224 q -0.197824,-0.49658 -0.637881,-0.759 -0.43602,-0.26242 -1.037566,-0.26242 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2567" />
+        <path
+           d="m 100.41776,287.40822 v 2.76953 q 0,0.43198 0.0848,0.67018 0.0848,0.23819 0.27049,0.34316 0.18572,0.10497 0.54503,0.10497 0.52484,0 0.82763,-0.35931 0.30279,-0.35932 0.30279,-0.9972 v -2.53133 h 0.7267 v 3.43567 q 0,0.76304 0.0242,0.9326 h -0.68632 q -0.004,-0.0202 -0.008,-0.10901 -0.004,-0.0888 -0.0121,-0.20186 -0.004,-0.11708 -0.0121,-0.43602 h -0.0121 q -0.25031,0.45217 -0.58136,0.64192 -0.32702,0.18571 -0.81552,0.18571 -0.71863,0 -1.05372,-0.35527 -0.331049,-0.35931 -0.331049,-1.18291 v -2.91083 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2569" />
+        <path
+           d="m 108.0037,289.57217 q 0,2.28506 -1.60682,2.28506 -0.49658,0 -0.82763,-0.17763 -0.32701,-0.18168 -0.53291,-0.58136 h -0.008 q 0,0.12515 -0.0161,0.38353 -0.0161,0.25435 -0.0242,0.29472 h -0.70247 q 0.0242,-0.21801 0.0242,-0.9003 v -5.09094 h 0.7267 v 1.70775 q 0,0.26242 -0.0161,0.61769 h 0.0161 q 0.20186,-0.41987 0.53291,-0.60154 0.33509,-0.18168 0.82763,-0.18168 0.82763,0 1.21521,0.55714 0.39161,0.55713 0.39161,1.68756 z m -0.76304,0.0242 q 0,-0.91645 -0.24223,-1.3121 -0.24223,-0.39564 -0.78726,-0.39564 -0.61366,0 -0.89626,0.41987 -0.27857,0.41987 -0.27857,1.33228 0,0.85993 0.27453,1.27172 0.27453,0.40776 0.89223,0.40776 0.54906,0 0.79129,-0.40372 0.24627,-0.40776 0.24627,-1.32017 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2571" />
+        <path
+           d="m 109.46921,289.74577 q 0,0.75092 0.31086,1.15868 0.31087,0.40776 0.90838,0.40776 0.47235,0 0.75496,-0.18975 0.28664,-0.18975 0.38757,-0.48043 l 0.63788,0.18168 q -0.39161,1.03352 -1.78041,1.03352 -0.96893,0 -1.47762,-0.57732 -0.50466,-0.57732 -0.50466,-1.71582 0,-1.08197 0.50466,-1.6593 0.50869,-0.57732 1.44936,-0.57732 1.92575,0 1.92575,2.3214 v 0.0969 z m 2.36581,-0.55714 q -0.0606,-0.69036 -0.35124,-1.00527 -0.29068,-0.31894 -0.8357,-0.31894 -0.52888,0 -0.83975,0.35528 -0.30682,0.35124 -0.33105,0.96893 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2573" />
+        <path
+           d="m 118.44799,286.63307 q -0.94471,0 -1.46955,0.60962 -0.52484,0.60558 -0.52484,1.66333 0,1.04565 0.54502,1.68353 0.54907,0.63384 1.48166,0.63384 1.19502,0 1.79657,-1.18291 l 0.6298,0.31491 q -0.35123,0.73477 -0.98911,1.11831 -0.63385,0.38353 -1.47359,0.38353 -0.85993,0 -1.48974,-0.35527 -0.62576,-0.35931 -0.95682,-1.02142 -0.32701,-0.66614 -0.32701,-1.57452 0,-1.36054 0.73477,-2.13165 0.73478,-0.77111 2.03476,-0.77111 0.90838,0 1.518,0.35528 0.60962,0.35527 0.89626,1.05371 l -0.73074,0.24224 q -0.19782,-0.49658 -0.63788,-0.759 -0.43602,-0.26242 -1.03756,-0.26242 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2575" />
+        <path
+           d="m 125.47679,289.58832 q 0,1.14657 -0.50465,1.70774 -0.50465,0.56117 -1.46551,0.56117 -0.95682,0 -1.44533,-0.58136 -0.4885,-0.58539 -0.4885,-1.68755 0,-2.26085 1.95805,-2.26085 1.00123,0 1.47359,0.5531 0.47235,0.54906 0.47235,1.70775 z m -0.76303,0 q 0,-0.90434 -0.2705,-1.3121 -0.26645,-0.4118 -0.9003,-0.4118 -0.63788,0 -0.92452,0.41987 -0.28261,0.41584 -0.28261,1.30403 0,0.86396 0.27857,1.29998 0.28261,0.43198 0.88415,0.43198 0.65403,0 0.9326,-0.41987 0.28261,-0.41987 0.28261,-1.31209 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2577" />
+        <path
+           d="m 126.40132,291.77649 v -3.35089 q 0,-0.46025 -0.0242,-1.01738 h 0.68633 q 0.0323,0.74284 0.0323,0.89222 h 0.0161 q 0.1736,-0.56117 0.39968,-0.76707 0.22609,-0.2059 0.63788,-0.2059 0.14534,0 0.29472,0.0404 v 0.66614 q -0.14534,-0.0404 -0.38757,-0.0404 -0.45217,0 -0.69037,0.39161 -0.23819,0.38758 -0.23819,1.11428 v 2.27699 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2579" />
+        <path
+           d="m 129.70376,289.74577 q 0,0.75092 0.31087,1.15868 0.31086,0.40776 0.90837,0.40776 0.47236,0 0.75496,-0.18975 0.28665,-0.18975 0.38758,-0.48043 l 0.63788,0.18168 q -0.39161,1.03352 -1.78042,1.03352 -0.96893,0 -1.47762,-0.57732 -0.50465,-0.57732 -0.50465,-1.71582 0,-1.08197 0.50465,-1.6593 0.50869,-0.57732 1.44936,-0.57732 1.92576,0 1.92576,2.3214 v 0.0969 z m 2.36581,-0.55714 q -0.0606,-0.69036 -0.35123,-1.00527 -0.29068,-0.31894 -0.83571,-0.31894 -0.52888,0 -0.83974,0.35528 -0.30683,0.35124 -0.33105,0.96893 z"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332px"
+           id="path2581" />
+      </g>
     </g>
   </g>
 </svg>

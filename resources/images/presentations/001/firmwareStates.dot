@@ -1,0 +1,18 @@
+ digraph graphname {
+     
+ {
+ 
+    "init KETCube" ->"init\nmodules";
+    "init\nmodules" -> "perform\nperiodic tasks" [label="system period\nelapsed"];
+    "init\nmodules" -> "process\ninter-module\nmessages" [label="system period\nnot elapsed"];
+    "perform\nperiodic tasks" -> "process\ninter-module\nmessages";
+    "process\ninter-module\nmessages" -> "deinit\nmodules";
+    "deinit\nmodules" -> "low-power\nmode";
+    "deinit\nmodules" -> "init\nmodules" [label="low-power mode\ndisabled\nor\nfailed to enter\nlow-power mode", style=dashed];
+    
+    "low-power\nmode" -> "init\nmodules" [label="system period\nelapsed"];
+    "low-power\nmode" -> "init\nmodules" [label="interrupt"];
+ 
+  } 
+
+ }

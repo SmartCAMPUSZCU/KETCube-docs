@@ -1,60 +1,35 @@
-\documentclass[twoside,a4paper]{refart}
-\usepackage[utf8x]{inputenc}
-%\usepackage[czech]{babel}
-\usepackage[pdftex]{graphicx}
-\graphicspath{{resources/images/}{resources/appNotes/002/images/}}
-\usepackage{caption}% for \captionof
-\usepackage{mwe}% contains example-image
-\input{resources/authors.tex}
-\usepackage[owncaptions]{vhistory}
-\usepackage{hyperref}
-%\usepackage[superscript,biblabel]{cite}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{fancyvrb}
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Defines
 
-\usepackage[table, x11names]{xcolor}
-\usepackage{array, booktabs, boldline} %
-\usepackage{mathtools}
+% ------------------------------------------------------------
+% ------------------------------------------------------------
 
-\newsavebox{\tempbox}
-\newlength{\tempheight}
-
-\newcommand\ToDo[1]{\textcolor{red}{ToDo: #1}}
-
-%skryt barevny obdelnik kolem odkazu
-\hypersetup{
-    colorlinks=false,
-    pdfborder={0 0 0},
-}
-
-% vhistory
-\renewcommand{\vhhistoryname}{Revision History}
-\renewcommand{\vhchangename}{Note}
-\renewcommand{\vhversionname}{Revision}
-\renewcommand{\vhdatename}{Date}
-\renewcommand{\vhauthorname}{Author}
-\renewcommand \vhAuthorColWidth{0.8\hsize}
-\renewcommand \vhChangeColWidth{1.2\hsize}
-
-\DeclareRobustCommand{\UWBLogo}{%
-   \begin{wrapfigure}{l}{2.1cm}
-    \vspace{-1.35cm}
-    \includegraphics[width=2cm]{ZCU_logo.pdf}
-   \end{wrapfigure}
-}
+\input{resources/appNotes/defs.tex}
 
 \title{\UWBLogo KETCube AppNote 002:\\ LoRa Configuration (\vhCurrentVersion)}
 
 \author{Author: \vhListAllAuthorsLongWithAbbrev}
 \date{Version \vhCurrentVersion\ from \vhCurrentDate}
 
-\begin{document}
-\pagenumbering{roman} 
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Head
 
-\titlepage
-\maketitle
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/head.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
 
 \section*{About this Document}
 \input{resources/about.tex}

@@ -1,0 +1,232 @@
+\usetheme{Rochester}
+
+\RequirePackage{pgf}
+
+\pgfdeclareimage[width=0.15\textwidth]{logo_UWB}{resources/images/ZCU_logo}
+\pgfdeclareimage[width=0.2\textwidth]{logo_UWBBig}{resources/images/ZCU_logo}
+\pgfdeclareimage[width=1.0\paperwidth]{header}{resources/beamer/images/header}
+\pgfdeclareimage[width=1.0\paperwidth]{header_title}{resources/beamer/images/header_title}
+
+
+\setbeamerfont{title}{size=\normalsize}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamercovered{transparent} % Průhlednost na slidech
+
+\beamer@headheight=0.15\paperwidth
+
+\definecolor{riceBlue}{HTML}{1f497d}
+\definecolor{riceLightBlue}{HTML}{dae5f1}
+\definecolor{riceLightBlue2}{HTML}{e7f3ff}
+\definecolor{riceDark}{HTML}{000000}
+\definecolor{riceWhite}{HTML}{FFFFFF}
+\definecolor{riceGray}{HTML}{a2a2a2}
+
+\definecolor{lightorange}{HTML}{FBCC20}
+
+\setbeamercolor*{Title bar}{fg=riceWhite, bg=riceBlue}
+\setbeamercolor*{Location bar}{fg=riceWhite,bg=riceBlue}
+\setbeamercolor*{frametitle}{parent=Title bar}
+\setbeamercolor*{block title}{bg=riceLightBlue,fg=riceLightBlue}
+\setbeamercolor*{block body}{bg=riceLightBlue,fg=riceBlue}
+\setbeamercolor*{normal text}{bg=white,fg=riceDark}
+\setbeamercolor*{section in head/foot}{bg=riceLightBlue,fg=riceBlue}
+\setbeamercolor*{alerted text}{fg=riceBlue}
+
+
+\usecolortheme[named=riceBlue]{structure}
+
+\setbeamerfont{section in head/foot}{size=\tiny,series=\it}
+\setbeamerfont{frametitle}{size=\large,series=\it}
+\setbeamerfont{framesubtitle}{size=\normalsize}
+
+\setbeamertemplate{navigation symbols}{}
+
+%\setbeamertemplate{headline}
+\setbeamertemplate{frametitle}
+{
+  \vskip0.50\beamer@headheight
+  \vskip-\baselineskip
+  \vskip-0.7cm
+  \hskip-0.6cm\usebeamerfont*{frametitle}\insertframetitle 
+  \vskip-0.10em
+  \hskip-0.6cm\usebeamerfont*{framesubtitle}\insertframesubtitle
+}
+
+\setbeamertemplate{headline}
+{
+  \hskip-1cm
+  \pgfuseimage{header}
+  
+%  \framelatex{
+%  \begin{beamercolorbox}[wd=\paperwidth,ht=0.9\beamer@headheight]{Title bar}
+%  \end{beamercolorbox}}
+}
+
+\setbeamertemplate{footline}
+{
+  \hskip-1.07cm
+  \linethickness{0.25pt}
+  \framelatex{
+  \begin{beamercolorbox}[leftskip=.3cm,wd=\paperwidth,ht=0.25\beamer@headheight,sep=0.1cm]{Location bar}
+    \usebeamerfont{section in head/foot}%
+    %\insertshortauthor~|~
+    %\insertshorttitle
+    
+    \ifdefined\insertthisdocsub
+      \insertthisdoc$~|~$\insertthisdocsub 
+      \vspace{-0.2cm}
+    \fi
+    
+    \hfill
+    \insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}
+}
+
+\newenvironment<>{proofs}[1][~]{%
+    \small
+    \par
+    \def\insertproofname{#1\@addpunct{~}}%
+    \usebeamertemplate{proof begin}#2}
+  {\usebeamertemplate{proof end}}
+  
+\makeatletter         
+\newcommand{\instituteaddress}{\@dblarg\beamer@instituteaddress}
+\long\def\beamer@instituteaddress[#1]#2{%
+  \def\insertinstituteaddress{#2}%
+  \def\beamer@shortinstituteaddress{#1}%
+  \def\insertshortinstituteaddress{#1}
+  }
+\makeatother
+
+\makeatletter         
+\newcommand{\authorcontact}{\@dblarg\beamer@authorcontact}
+\long\def\beamer@authorcontact[#1]#2{%
+  \def\insertauthorcontact{#2}%
+  \def\beamer@shortauthorcontact{#1}%
+  \def\insertshortauthorcontact{#1}
+  }
+\makeatother
+
+\makeatletter         
+\newcommand{\thisdoc}{\@dblarg\beamer@thisdoc}
+\long\def\beamer@thisdoc[#1]#2{%
+  \def\insertthisdocsub{#2}%
+  \def\beamer@shortthisdoc{#1}%
+  \def\insertthisdoc{#1}
+  }
+\makeatother
+
+\makeatletter         
+\newcommand{\summary}{\@dblarg\beamer@summary}
+\long\def\beamer@summary[#1]#2{%
+  \def\insertsummary{#2}%
+  \def\beamer@shortsummary{#1}%
+  \def\insertshortsummary{#1}
+  }
+\makeatother
+  
+\usepackage{amsmath}% http://ctan.org/pkg/amsmath
+\newcommand{\notimplies}{%
+  \mathrel{{\ooalign{\hidewidth$\not\phantom{=}$\hidewidth\cr$\implies$}}}}
+
+
+\setbeamertemplate{title page}{
+\centering
+\vspace{-0.7cm}
+\pgfuseimage{header_title}
+\vspace{0.5cm}
+
+  \vbox{}
+  \vfill
+  \begingroup
+    \centering
+    
+    \vspace{-1cm}
+    \begin{beamercolorbox}[sep=8pt,center]{date}
+      \usebeamerfont{date}\color{riceBlue}\it\ifdefined\insertthisdoc\insertthisdoc\fi
+    \end{beamercolorbox}
+    
+     \begin{beamercolorbox}[sep=3pt,center]{date}
+      \usebeamerfont{date}\color{riceBlue}\it\footnotesize\ifdefined\insertthisdocsub\insertthisdocsub\fi
+    \end{beamercolorbox}\vskip0.5em
+    
+    \begin{beamercolorbox}[sep=20pt,center]{title}
+      \usebeamerfont{title}\it\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%     
+    \end{beamercolorbox}%
+    \vskip-0.5em\par
+    \begin{beamercolorbox}[sep=0pt,center]{author}
+      \usebeamerfont{author}\color{riceGray}\scriptsize\flushright\insertauthor\hspace{0.5cm}~
+    \end{beamercolorbox}
+    \bigskip
+    \vfill
+    \hfill \pgfuseimage{logo_UWBBig} \hspace{0.5cm}
+    
+  \endgroup
+  \vfill
+}
+
+
+\setbeamertemplate{endpage}{%
+\centering
+
+  \bigskip
+    \vfill
+  \begingroup
+    \centering
+    
+     \begin{minipage}[t][4.5cm][t]{0.85\textwidth}
+      \insertsummary
+    \end{minipage}
+    
+    \vspace{-1cm}
+
+    \begin{beamercolorbox}[sep=20pt,center]{title}
+      \usebeamerfont{title}\it \huge Thank you for your attention!\par%
+    \end{beamercolorbox}%
+    
+    \bigskip
+    \hspace{1.0cm}
+    \begin{minipage}{0.33\textwidth}
+      \footnotesize \color{riceGray}\insertauthorcontact 
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.33\textwidth}
+      \pgfuseimage{logo_UWBBig}
+    \end{minipage}
+    \hspace{1.0cm}
+    
+    
+  \endgroup
+  \vfill
+}
+
+\setbeamertemplate{toc} {
+\begin{frame}%[allowframebreaks]
+  \frametitle{Outline}
+  \framesubtitle{~}
+  \centering
+  \begin{multicols}{2}
+    \tableofcontents
+  \end{multicols}
+\end{frame}
+}
+
+\setbeamertemplate{tocsection} {
+\begin{frame}%[allowframebreaks]
+  \frametitle{Outline}
+  \framesubtitle{~}
+  \centering
+  \begin{multicols}{2}
+    \tableofcontents[currentsection]
+  \end{multicols}
+\end{frame}
+
+% use same slide number for the following section ...
+\addtocounter{framenumber}{-1}
+}

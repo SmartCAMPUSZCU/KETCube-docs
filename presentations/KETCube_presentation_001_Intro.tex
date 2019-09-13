@@ -1,0 +1,380 @@
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube Presentation Defines
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/beamer/beamerDefs.tex}
+
+\title{KETCube -- the Prototyping and Educational Platform for IoT}
+\subtitle{}
+\author{The SmartCAMPUS Team, University of West Bohemia}
+\authorcontact[The SmartCAMPUS Team]{The SmartCAMPUS Team\\ UWB, Czech Republic\\www.smartcampus.cz}
+\institute{University of West Bohemia}
+\instituteaddress{Pilsen, Czech Republic}
+
+% Use for docuent title and subtitle
+\thisdoc[Introduction to KETCube] {KETCube Platform Release 0.2}
+
+% this will occupy the last - "Thank you" - slide
+\summary{
+\begin{itemize}
+  \item {\bf KETCube}: The Prototyping and Educational Platform for IoT:
+  
+  \begin{itemize}
+    \item {\bf accelerates} the {\bf education and R\&D} processes
+    \item {\bf uses industry-level documentation and tools}
+    \item {\bf is the point of integration}: speed-up of device validation, in-field testing and deployment
+  \end{itemize}
+\end{itemize}
+}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube Presentation Head
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/beamer/beamerHead.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube Presentation Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+% --- ToC ---
+\usebeamertemplate{tocsection}
+% -----------
+
+
+\section{Motivation}
+
+\begin{frame}%[allowframebreaks]
+    \begin{columns}
+      \begin{column}{0.6\paperwidth}
+         
+         \begin{itemize}
+           \item Diversity of IoT world brings challenges into both R\&D and Educational areas
+           \item Technical -- R\&D
+           \begin{itemize}
+             \item {\bf point of integration:} simple to (re-)use HW and SW modules
+             \item deployment to heterogeneous environments
+             \item {\bf speed-up:} prototyping, validation and test series deployment
+           \end{itemize}
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+         \centering
+         \includegraphics[width=0.35\paperwidth]{ketCube_all_photo_fullQ.jpg}
+         \vfill
+       \end{column}
+    \end{columns}
+  
+  \flushleft
+  \begin{columns}
+      \begin{column}{0.95\paperwidth}
+        \begin{itemize}
+          \item Educational:
+           \begin{itemize}
+             \item {\bf mid-complexity:} balance the simplicity and insight (e.g.: Arduino vs. custom board power by FreeRTOS)
+             \item industry-standard dev. style and documentation
+           \end{itemize}
+          \end{itemize}
+        \end{column}
+      \begin{column}{0.05\paperwidth}
+         \centering
+         ~
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\section{KETCube Project Overview}
+% --- ToC ---
+\usebeamertemplate{tocsection}
+% -----------
+\subsection{Highlightes}
+
+\begin{frame}%[allowframebreaks]
+  \begin{itemize}
+    \item KETCube is an Open Hardware project developed by the SmartCAMPUS Team at the University of West Bohemia in Pilsen
+    \item The KETCube-related resources and design files are released under BSD-like license
+    \item KETCube project resides on Github in several repositories under the SmartCAMPUS project: \url{https://github.com/SmartCAMPUSZCU}
+  \end{itemize}
+  
+\end{frame}
+
+\subsection{Core Parts}
+
+\begin{frame}%[allowframebreaks]
+\centering
+      \begin{columns}
+      \begin{column}{0.6\paperwidth}
+         
+         \begin{itemize}
+      \item Main Board -- schematics and manufacturing data
+      \item KETCube Firmware (v0.2) -- including project definitions for multiple IDEs and Doxygen-generated API documentation
+      \item KETCube Documentation -- {\it Datasheet}, {\it App Notes} and Presentations
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+         \centering
+         \includegraphics[width=0.35\paperwidth]{ketCube_all_photo_fullQ.jpg}
+         \vfill
+       \end{column}
+    \end{columns}
+  \vspace{-0.5cm}
+  \flushleft
+  \begin{columns}
+      \begin{column}{0.95\paperwidth}
+         \begin{itemize}
+             \item KETCube Tools -- KETCube-related tasks support
+             \item KETCube Box -- 3D models and sources for KETCube cube-box
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.05\paperwidth}
+         \centering
+         ~
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\section{KETCube Hardware in Detail}
+% --- ToC ---
+\usebeamertemplate{tocsection}
+% -----------
+\subsection{Board Design as the Point-of-Integration}
+
+\begin{frame}%[allowframebreaks]
+  \centering
+  
+    \begin{columns}
+      \begin{column}{0.6\paperwidth}
+         \centering
+         \begin{itemize}
+           \item Re-use of existing standard for sensor development/evaluation boards: {\bf mikroBUS\texttrademark~socket} support (click-boards)
+           \item Board-stack design: custom {\bf KETCube boards can be stacked} almost {\bf infinite} (pass-thru connectors)
+           \item Small footprint enabling development board in-field usage
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+         \centering
+         \includegraphics[width=0.35\paperwidth]{thunder_click.jpg}
+         \vfill
+         \includegraphics[width=0.2\paperwidth]{ketCube_pinout.pdf}
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\subsection{Highlighted Parts}
+\begin{frame}%[allowframebreaks]
+  \centering
+    
+    \begin{columns}
+      \begin{column}{0.6\paperwidth}
+         \centering
+         \begin{itemize}
+           \item {\bf Murata Type ABZ}: STM32L0 MCU, SX1276 radio, manufacturer's support for LoRaWAN and Sigfox
+           \item {\bf HDC1080}: Relative Humidity and Temperature sensor (RHT)
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+         \centering
+         \includegraphics[width=0.35\paperwidth]{thunder_click.jpg}
+         \vfill
+         \includegraphics[width=0.35\paperwidth]{typeabz.jpg}
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\section{KETCube Firmware}
+% --- ToC ---
+\usebeamertemplate{tocsection}
+% -----------
+\subsection{Firmware as the Point-of-Integration}
+
+\begin{frame}%[allowframebreaks]
+  \centering
+      
+    \begin{columns}
+      \begin{column}{0.6\paperwidth}
+         \centering
+         \begin{itemize}
+           \item Simple {\bf architecture reflecting} IoT node {\bf use-case}
+           \item {\bf Easy to} re-{\bf use} software modules
+           \item Enable/disable software module in compile- and run-time
+         \end{itemize}
+         \vfill
+         \includegraphics[width=0.5\paperwidth]{fw_stack.pdf}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+           \includegraphics[width=0.3\paperwidth]{iotNodeStates.pdf}<1>
+           \includegraphics[width=0.4\paperwidth]{firmwareStates.pdf}<2>
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\subsection{Configuration}
+
+\begin{frame}[fragile]%[allowframebreaks]
+  \centering
+    
+\begin{itemize}
+  \item Easy-to-use serial terminal interface:
+  \begin{itemize}
+    \item documented in {\it Datasheet}
+    \item with built-in help
+    \item includes command history
+  \end{itemize}
+\end{itemize}
+
+\vspace{1cm}
+    
+  \begin{Verbatim}[frame=single, fontsize=\scriptsize]
+> enable HDC1080 2
+> enable LoRa
+> set LoRa OTAA
+> set LoRa appEUI 1122334455667788
+> set LoRa appKey 11223344556677881122334455667788
+> reload
+ \end{Verbatim}
+ 
+  
+\end{frame}
+
+\section{Surrounding Ecosystem}
+% --- ToC ---
+\usebeamertemplate{tocsection}
+% -----------
+\subsection{Industry-Standard Tools}
+
+\begin{frame}%[allowframebreaks]
+
+         \begin{itemize}
+           \item Firmware: 
+            \begin{itemize}
+               \item no simplified custom solutions like Arduino IDE
+               \item any STM32-ready compiler and Keil $\mu$Vision, Eclipse-based Atollic TrueSTUDIO or SW4STM32 or any Makefile-ready IDE (e.g. KDevelop)
+               \item GNU Indent to enforce coding style
+               \item Doxygen to generate annotation-based documentation
+            \end{itemize}
+           \item PCBs -- problems with tools compatibility
+           \begin{itemize}
+               \item currently schematics and manufacturing data are released
+               \item planed: sample extension board projects in particular systems (Altium, KiCAD, Eagle, OrCAD) will be provided
+            \end{itemize}
+         \end{itemize}
+  
+\end{frame}
+
+\subsection{Industry-Level Documentation}
+
+\begin{frame}%[allowframebreaks]
+      
+\begin{columns}
+      \begin{column}{0.6\paperwidth}
+         \centering
+         \begin{itemize}
+           \item No README-only or Tutorial-only documentation
+           \item Industry-inspired documentation style:
+             \begin{itemize}
+               \item platform {\bf Datasheet}
+               \item {\bf Application notes}
+               \item README -- used when advantageous or as a first step to create an Application Note
+             \end{itemize}
+           \item Doxygen to generate annotation-based documentation
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+         \centering
+           \includegraphics[width=0.4\paperwidth]{docs.pdf}\\
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+
+\section{Use Cases}
+% --- ToC ---
+\usebeamertemplate{tocsection}
+% -----------
+\subsection{Project Life Cycle}
+
+\begin{frame}%[allowframebreaks]
+  \centering
+  
+  \includegraphics[width=0.75\paperwidth]{dev_steps.pdf}
+  
+\end{frame}
+
+
+% ToC
+\usebeamertemplate{tocsection}
+
+\subsection{Environmental Sensor LPWAN Node}
+\begin{frame}%[allowframebreaks]
+  \frametitle{Use Cases}
+  \framesubtitle{Environmental Sensor LPWAN Node}
+  \centering
+        
+\begin{columns}
+      \begin{column}{0.5\paperwidth}
+         \centering
+         \begin{itemize}
+           \item Out-of-the-box functionality
+           \item No programming required
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.5\paperwidth}
+         \centering
+           \includegraphics[width=0.4\paperwidth]{rht.jpg}
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\subsection{Presence Sensing Demonstrator}
+\begin{frame}%[allowframebreaks]
+  \centering
+        
+        
+        
+    \includegraphics[width=0.6\paperwidth]{cap_sensor.jpg}
+  
+   \begin{itemize}
+           \item The KETCube extension board as a reduction to TI's FDC2214 dev-board
+           \item Custom KETCube firmware module for FDC2214
+   \end{itemize}
+  
+\end{frame}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube Presentation Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube Presentation Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/beamer/beamerTail.tex}

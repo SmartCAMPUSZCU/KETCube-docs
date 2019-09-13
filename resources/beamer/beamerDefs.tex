@@ -1,0 +1,100 @@
+\pdfminorversion=4
+\documentclass[12pt]{beamer}
+
+%\usetheme{KETCube}
+\usepackage{resources/beamer/beamerthemeKETCube}
+
+\usepackage{graphicx}
+\usepackage{thumbpdf}
+\usepackage{wasysym}
+\usepackage{ucs}
+\usepackage{substr}
+\usepackage{xstring}
+\usepackage{expl3,l3regex}
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{lmodern,textcomp}
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps,pgfshade}
+\usepackage{wrapfig}
+\usepackage{verbatim}
+\usepackage{tikz}
+\usetikzlibrary{tikzmark,fit}
+\usepackage{color, colortbl}
+\usepackage{tabu}
+\usepackage{multicol}
+\usepackage{fancyvrb}
+
+\pdfinfo
+{
+  /Title       (The KETCube Project Tutorial)
+  /Creator     (LaTeX)
+  /Author      (The SmartCAMPUS Team)
+}
+
+
+% extract presenattion number to create include path for images
+\ExplSyntaxOn
+% Save a copy of \jobname
+\tl_set:NV \NUMBER \c_sys_jobname_str
+\regex_replace_once:nnN { [A-Za-z]*_[A-Za-z]*_ } { } \NUMBER
+\regex_replace_once:nnN { _[A-Za-z]* } { } \NUMBER
+\ExplSyntaxOff
+
+% declare the path(s) where your graphic files are
+\graphicspath{{resources/images/}{resources/images/presentations/\NUMBER/}}
+  
+  
+%% \title{KETCube -- the Prototyping and Educational Platform for IoT}
+%% \subtitle{}
+%% \author{The SmartCAMPUS Team, University of West Bohemia}
+%% \authorcontact[The SmartCAMPUS Team]{The SmartCAMPUS Team\\ UWB, Czech Republic\\www.smartcampus.cz}
+%% \institute{University of West Bohemia}
+%% \instituteaddress{Pilsen, Czech Republic}
+%% 
+%% % Use for conference/course/event identification
+%% %\event[Euromicro Conference on Digital System Design] {Prague, 29\textsuperscript{th}-- 31\textsuperscript{st} August 2018}
+%% 
+%% % this will occupy list slide above "Thank you"
+%% \summary{
+%% \begin{itemize}
+%%   \item A new Prototyping and Educational Platform\\for IoT -- {\bf KETCube}:
+%%   \begin{itemize}
+%%     \item {\bf accelerates} the {\bf education and R\&D} processes
+%%     \item {\bf uses industry-level documentation and tools}
+%%     \item {\bf is the point of integration}: speed-up of device validation, in-field testing and deployment
+%%   \end{itemize}
+%% \end{itemize}
+%% }
+
+
+% Redefine `\rowcolor` to allow a beamer overlay specifier
+% New syntax: \rewcolor<overlay>[color model]{color}[left overhang][right overhang]
+\makeatletter
+% Open `\noalign` and check for overlay specification:
+\def\rowcolor{\noalign{\ifnum0=`}\fi\bmr@rowcolor}
+\newcommand<>{\bmr@rowcolor}{%
+    \alt#1%
+        {\global\let\CT@do@color\CT@@do@color\@ifnextchar[\CT@rowa\CT@rowb}% Rest of original `\rowcolor`
+        {\ifnum0=`{\fi}\@gooble@rowcolor}% End `\noalign` and gobble all arguments of `\rowcolor`.
+}
+% Gobble all normal arguments of `\rowcolor`:
+\newcommand{\@gooble@rowcolor}[2][]{\@gooble@rowcolor@}
+\newcommand{\@gooble@rowcolor@}[1][]{\@gooble@rowcolor@@}
+\newcommand{\@gooble@rowcolor@@}[1][]{\ignorespaces}
+\makeatother
+
+% Thank-You page
+
+\AtEndDocument{\newgeometry{top=0cm, left=0cm, right=0cm, bottom=0cm}\begin{frame}[plain]\usebeamertemplate{endpage}\end{frame}\restoregeometry}
+
+% Automatic frame title/subtitle from section/subsection
+
+\addtobeamertemplate{frametitle}{
+   \let\insertframetitle\insertsectionhead}{}
+\addtobeamertemplate{frametitle}{
+   \let\insertframesubtitle\insertsubsectionhead}{}
+
+\makeatletter
+  \CheckCommand*\beamer@checkframetitle{\@ifnextchar\bgroup\beamer@inlineframetitle{}}
+  \renewcommand*\beamer@checkframetitle{\global\let\beamer@frametitle\relax\@ifnextchar\bgroup\beamer@inlineframetitle{}}
+\makeatother

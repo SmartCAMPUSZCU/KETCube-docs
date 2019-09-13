@@ -3,7 +3,21 @@ BIBTEX = bibtex
 
 .PHONY: all clean
 
-all: datasheet appnotes
+all: datasheet appnotes presentations
+
+clean: clean_build clean_appnotes clean_presentations clean_datasheet
+
+appNotes/%.pdf: appNotes/%.tex
+	${LATEX} $<
+	${BIBTEX} build/$(patsubst %.tex,%.aux,$(notdir $<))
+	${LATEX} $<
+	${LATEX} $<
+	mv build/$(notdir $@) $(patsubst %.tex,%.pdf,$<)
+
+presentations/%.pdf: presentations/%.tex
+	${LATEX} $<
+	${LATEX} $<
+	mv build/$(notdir $@) $(patsubst %.tex,%.pdf,$<)
 
 %.pdf: %.tex
 	${LATEX} $<
@@ -19,11 +33,13 @@ clean_datasheet:
 
 appnotes: $(patsubst %.tex, %.pdf, $(wildcard appNotes/*.tex))
 
+presentations: $(patsubst %.tex, %.pdf, $(wildcard presentations/*.tex))
+
 clean_appnotes: 
 	rm -rf appNotes/*.pdf
 
+clean_presentations: 
+	rm -rf presentations/*.pdf
+
 clean_build:
 	rm -rf build/*
-
-clean: clean_build clean_appnotes clean_datasheet
-	
