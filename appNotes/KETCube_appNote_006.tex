@@ -1,0 +1,349 @@
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Defines
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/defs.tex}
+
+\title{\UWBLogo KETCube AppNote 006:\\ KETCube Upstream Modules (\vhCurrentVersion)}
+
+\author{Author: \vhListAllAuthorsLongWithAbbrev}
+\date{Version \vhCurrentVersion\ from \vhCurrentDate}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Head
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/head.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\section*{About this Document}
+\input{resources/about.tex}
+
+This document describes KETCube upstream modules. 
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+\listoffigures
+\listoftables
+\begin{versionhistory}
+  \vhEntry{0.2.0*}{16.09.2019}{JB}{Initial version}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage 
+\pagenumbering{arabic} 
+\pagestyle{headings} 
+
+\clearpage
+
+\section{Module Activation}\label{sec:activation}
+KETCube is a modular platform, where number of modules is included in the platform release. Any module can be individually enabled or disabled based on user needs and extension boards connected to the KETCube {\it Main Board}. For details, please refer to the KETCube Datasheet \cite{ZCU:KETCube:05-2018}.
+
+To display list of available modules, open the KETCube Terminal and use \docKCCmdInline{list} command. Commands \docKCCmdInline{enable}/\docKCCmdInline{disable} are used to turn ON/OFF modules (e.g. \docKCCmdInline{enable HDC1080}). When module is enabled, it starts to perform defined operation (e.g. measure RH and Temperature).
+
+Debug messages are useful when device is initially configured or in case, that unexpected behavior occurred.
+
+Debug messages are printed to serial terminal interface. They can be configured on the per-module basis by setting the {\it severity level} to the selected module or to the KETCube core.
+
+Four severity levels are defined:
+\begin{itemize}
+  \item[0 --] NONE -- no messages enabled
+  \item[1 --] ERROR -- only error messages enabled (default severity)
+  \item[2 --] INFO -- error and informational messages enabled
+  \item[3 --] DEBUG -- previous message groups and debug information are enabled
+\end{itemize}
+
+The second (optional) parameter of the “enable” command is used to configure the {\it severity level} of the selected module (e.g. \docKCCmdInline{enable HDC1080 3} enables debug messages for HDC1080 module). The command \docKCCmdInline{set core severity} is used to configure \docKCCmdInline{severity level} of the KETCube core and command \docKCCmdInline{set driver severity} is used to configure {\it severity level} of the KETCube low-level drivers.
+
+\docNote{Debug messages may cause a situation, where it may be difficult to write commands (terminal echo is foggy due to lot of debug messages produced by KETCube)}.
+
+The commands \docKCCmdInline{show(r)}/\docKCCmdInline{set(r)} are used to show/set KETCube (module) settings. The commands are organized in a tree-like manner: the \docKCCmdInline{show(r)}/\docKCCmdInline{set(r)} command is the root command, it is followed by the module name and by the module variable, which is to be set. 
+
+\begin{docCodeExample}
+\begin{verbatim}
+>> show LoRa devEUI
+[root command] [module name] [variable name]
+\end{verbatim}
+\end{docCodeExample}
+
+\docNote{The persistent parameters are saved into on-chip EEPROM, the running configuration is stored in RAM.}
+
+% ====================
+\clearpage
+\section{KETCube Actuation Modules}
+\docNote{No actuation modules are currently part of the KETCube upstream.}
+  
+% ====================
+\clearpage
+\section{KETCube Communication Modules}
+
+\subsection{LoRa Module}
+\docKCModName{LoRa} allows to use KETCube as a LoRaWAN node device. 
+
+The \docKCModName{LoRa} can be enabled the same way as any other module -- see Section \ref{sec:activation}. Most of the LoRaWAN parameters can be set by using the KETCube Terminal interface.
+
+Write command \docKCCmdInline{show LoRa} or \docKCCmdInline{set LoRa} to display commands related to the \docKCModName{LoRa}:
+\begin{docCodeExample}
+\begin{verbatim}
+>> show LoRa
+appEUI              LoRa application EUI
+appKey              LoRa application key
+appSKey             LoRa app session Key
+devAddr             LoRa device address
+devEUIBoard         Board (boardID-based) LoRa device EUI
+devEUICustom        Custom LoRa device EUI
+enableABP           Enable ABP
+enableCustomDevEUI  Custom (user-defined) LoRa device EUI
+nwkSKey             LoRa network session Key
+
+>> set LoRa
+appEUI              LoRa application EUI
+appKey              LoRa application key
+appSKey             LoRa app session Key
+devAddr             LoRa device address
+devEUICustom        Custom LoRa device EUI
+enableABP           Enable ABP
+enableCustomDevEUI  Custom (user-defined) LoRa device EUI
+nwkSKey             LoRa network session Key
+\end{verbatim}
+\end{docCodeExample}
+
+\subsubsection{LoRaWAN Node Activation}
+To select or check OTAA/ABP mode settings, the following commands are used: \docKCCmdInline{set LoRa enableABP {0|1}}/\docKCCmdInline{show LoRa enableABP}. The “set” command parameter is boolean {\tt 0} or {\tt 1}. OTAA is the default mode.
+
+\subsection{LoRaWAN devEUI}
+User-defined devEUI (\docKCCmdInline{set LoRa enableCustomDevEUI 1} or manufacturer's devEUI (\docKCCmdInline{set LoRa enableCustomDevEUI 0}) can be used. The selected option can be checked via \docKCCmdInline{show LoRa enableCustomDevEUI} command. The user-defined devEUI can be configured by \docKCCmdInline{set LoRa devEUICustom} command. Manufacturer's devEUI is used by default.
+
+\clearpage
+
+\begin{docCodeExampleTitled}{Set user-defined devEUI}
+\begin{verbatim}
+>> set LoRa devEUICustom 1122334455667788
+>> set LoRa enableCustomDevEUI 1
+>> reload
+
+>> show LoRa devEUICustom
+
+Custom devEUI is displayed ...
+\end{verbatim}
+\end{docCodeExampleTitled}
+
+\begin{docCodeExampleTitled}{Use Manufacturer's devEUI}
+\begin{verbatim}
+>> set LoRa enableCustomDevEUI 0
+>> reload
+
+>> show LoRa devEUIBoard
+
+Board devEUI is displayed ...
+\end{verbatim}
+\end{docCodeExampleTitled}
+
+\subsubsection{LoRaWAN OTAA Parameters}
+The LoRaWAN appEUI and appKey can be set by using \docKCCmdInline{LoRa appEUI} and \docKCCmdInline{set LoRa appKey} commands and checked by using \docKCCmdInline{show LoRa appEUI} and \docKCCmdInline{show LoRa appKey} commands.
+  
+\begin{docCodeExampleTitled}{Set OTAA parameters}
+\begin{verbatim}
+>> set LoRa appEUI 1122334455667788
+>> set LoRa appKey 11223344556677881122334455667788
+\end{verbatim}
+\end{docCodeExampleTitled}
+  
+\subsubsection{LoRaWAN ABP Parameters}
+The LoRaWAN appSKey and nwkSKey can be set by using \docKCCmdInline{set LoRa appSKey} and \docKCCmdInline{set LoRa nwkSKey} commands and checked by using \docKCCmdInline{show LoRa appSKey} and \docKCCmdInline{show LoRa nwkSKey} commands. The static device address i configured via  \docKCCmdInline{set LoRa devAddr} command and checked via  \docKCCmdInline{show LoRa devAddr} command.
+  
+\begin{docCodeExampleTitled}{Set ABP parameters}
+\begin{verbatim}
+>> set LoRa devAddr DEADBEEF
+>> set LoRa appSKey 1122334455667788
+>> set LoRa nwkSKey 11223344556677881122334455667788
+\end{verbatim}
+\end{docCodeExampleTitled}
+
+\subsubsection{LoRaWAN Period}
+The period of data transmission is given by the {\it basePeriod} -- see the KETCube Datasheet \cite{ZCU:KETCube:05-2018}.
+
+\subsubsection{LoRaWAN Ports}
+
+  The periodical messages are transmitted by using LoRaWAN port 2. Asynchronous messages (particular modules can indicate errors asynchronously, push-button event) are transmitted by using LoRaWAN port 3 if and only if the \docKCModName{AsyncTx} is enabled.
+
+\clearpage
+\subsection{StarNetNode Module}
+
+\clearpage
+\subsection{StarNetConcentrator Module}
+
+% ====================
+\clearpage
+\section{KETCube Sensing Modules}
+
+\subsection{HDC1080 Module}
+
+The HDC1080 is on-board {\it Relative Humidity} and {\it Temperature} sensor allowing RH+T measurement. It can be enabled the same way as any other module -- see Section \ref{sec:activation}.
+
+\subsubsection{HDC1080 Module Configuration}
+  The \docKCModName{HDC1080} only allows to configure severity level, other configuration options are not available.
+  
+\begin{docCodeExample}
+\begin{verbatim}
+>> enable HDC1080 2
+
+   ...
+>> reload
+Executing command: reload
+
+Performing system reset and reloading KETCube configuration ...  
+\end{verbatim}
+\end{docCodeExample}
+  
+  Once reloaded, the \docKCModName{HDC1080} measures RH+T periodically. 
+  
+  For debugging purposes, it may be useful to watch RH+T output in console. The output for the severity level 2 (INFO) is shown below:
+
+\begin{docCodeExample}
+\begin{verbatim}
+>> HDC1080 :: Temperature: 25, RH: 57
+\end{verbatim}
+\end{docCodeExample}
+
+\subsubsection{HDC1080 Module Output}
+  The \docKCModName{HDC1080} output consist of 4 bytes:
+  
+\begin{tikzpicture}
+ \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=0cm](10/5){$T_{MSB}$};
+ \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=2cm](10/5){$T_{LSB}$};
+ \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=4cm](10/5){$RH_{MSB}$};
+ \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=6cm](10/5){$RH_{LSB}$};
+\end{tikzpicture}
+
+  Temperature is encoded in BigEndian as unsigned integer in additive code. The value units are degrees of Celsius.
+  
+  To compute actual temperature, use the following equation:
+  
+  $T = ((T_{MSB} << 8 ~|~ T_{LSB}) - 10000) / 10 ~[°C]$
+  
+  Relative Humidity is encoded in BigEndian format as unsigned integer in additive code. The value units are \% RH.
+  
+  To compute actual RH, use the following equation:
+  
+  $RH = (RH_{MSB} << 8 ~|~ RH_{LSB}) / 10 ~[\%]$
+  
+  An error for both temperature and humidity is indicated by out-of-the range values from the unsigned word (16-bit) range -- see ranges in Section \ref{spec:OC}.
+
+% ------------------
+\clearpage
+\subsection{BatMeas Module}
+  
+The \docKCModName{BatMeas} module allows to monitor KETCube battery (if connected). 
+
+The \docKCModName{BatMeas} can be enabled the same way as any other module -- see Section \ref{sec:activation}.
+
+\subsection{BatMeas Module Configuration}
+  Use the commands {\tt list} and {\tt bat} to select connected battery.
+  
+  The sample configuration procedure:
+  
+\begin{docCodeExample}
+\begin{verbatim}
+>> show batMeas list
+Executing command: list
+Available batteries:
+0)       CR2032 (Up to 560mAh battery)
+1)       LS33600 (15 Ah battery)
+>> set batMeas bat 0
+Executing command: bat
+
+Write success!
+
+>> enable BatMeas
+Executing command: enable
+
+Setting module BatMeas:     success!
+>> reload
+Executing command: reload
+
+Performing system reset and reloading KETCube configuration ...
+\end{verbatim}
+\end{docCodeExample}
+
+  Once reloaded, the \docKCModName{BatMeas} measures battery voltage periodically (voltage at KETCube 3V3 PIN). 
+  
+For debugging purposes, it may be useful to watch the \docKCModName{BatMeas} output in console. The output for the severity level 2 (INFO) is shown below:
+
+\begin{docCodeExample}
+\begin{verbatim}
+>> batLevel :: 0
+\end{verbatim}
+\end{docCodeExample}
+
+\subsection{BatMeas Module Output}
+  The \docKCModName{BatMeas} output consist of a single byte only.
+  
+  The \docKCModName{BatMeas} output value (B) meaning is as follows:
+  
+  \begin{itemize}
+    \item 0x00: battery is (almost) discharged
+    \item 0x01 -- 0xFE: battery voltage scaled to 1 -- 254
+    \item 0xFF: RFU
+  \end{itemize}
+  
+  To compute actual battery voltage, use the following equation:
+  
+  $V = (B/254 \cdot 0.7) + V_{min} ~[mV]$
+  
+  $V_{min}$ is the lowest voltage value -- battery is considered as discharged. $V_{min}$ and $V_{nom}$ (nominal voltage) values for supported batteries are in the following table:
+  
+  \begin{table*}[!ht]
+    %\hspace*{-4cm}
+    \begin{tabular}{| p{3.5cm} | p{2cm} | p{2cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Battery} & $V_{min}$ [V] & $V_{nom}$ [V] \\
+        \hline
+        \hline
+        CR2032 & 2.9 & 3.3 \\
+        \hline
+        LS33600 & 2.9 & 3.6 \\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Supported Batteries}
+    \label{tab:spec:AMR}
+   \end{table*}
+  
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube appNote Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/tail.tex}
+
