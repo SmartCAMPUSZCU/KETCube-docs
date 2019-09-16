@@ -56,6 +56,7 @@ The additional sensors can be connected to the main board by connecting KETCube 
   \vhEntry{02/2018}{16.02.2018}{JB}{Initial version (v0.1.0)}
   \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Text review, minor fixes}
   \vhEntry{0.1.1}{25.01.2019}{JB}{KETCube-fw 0.1.1 updates}
+  \vhEntry{0.2.0*}{16.09.2019*}{JB}{KETCube-fw 0.2.0 updates}
 \end{versionhistory}
 
 % history table ... do not number
@@ -340,9 +341,39 @@ As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sock
  
  It can be equipped with the magnetic holder enabling the box fastening to a metal surface.
 
-% Serial CmdLine
+ % =================
 \clearpage
-\section{KETCube Terminal}
+\section{Operation Basics}\label{sec:opBasics}
+KETCube is designed as a modular device, which can be equipped with several sensors, actuators and communication interfaces.
+
+The device operation is driven by the {\it basePeriod} time value. This amount of time (configurable in milliseconds) determines the period between two sensing events. When this period elapses, KETCube performs all sensing-like actions (e.g. measure temperature and humidity, \dots) and transmits measurement results. The rest of the time, the device remains in low-power mode. The {\it basePeriod} can be configured by the {\tt set core basePeriod} command  (plus {\tt reload} to apply configuration changes). The setting of {\it basePeriod} depends strictly on application and may vary from few seconds to several days.
+
+The other configurable amount of time is {\it startDelay}. The {\it startDelay} determines the delay between the device power-on and the first sensing event (as defined by  {\it basePeriod}). The {\it startDelay} can be configured by the {\tt set core startDelay} command  (plus {\tt reload} to apply configuration changes). It is recommended to set {\it startDelay} to few seconds.
+
+\subsection{Sensor Data Transmission and Interpretation}
+
+As KETCube is modular, data from all available and enabled sensors are read sequentially. Thereafter sensor data are serialized given the module order, e.g:
+
+\begin{tikzpicture}
+ \node[draw,fill=SeaGreen3!30!,minimum height=1cm,minimum width = 3cm,xshift=0cm](10/5){HDC1080 -- Temp.};
+ \node[draw,fill=SeaGreen3!10!,minimum height=1cm,minimum width = 3cm,xshift=3cm](10/5){HDC1080 -- RH};
+ \node[draw,fill=SeaGreen3!90!,minimum height=1cm,minimum width = 1cm,xshift=5.2cm](10/5){BatMeas};
+ \node[draw,fill=red!30!,minimum height=1cm,minimum width = 1cm,xshift=6.8cm](10/5){BMEX80};
+ \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=8.6cm](10/5){\dots};
+\end{tikzpicture}
+
+The resulting frame is then transmitted using enabled communication interfaces (e.g. LoRa). 
+
+To properly decode and interpret received data, you need to know:
+\begin{itemize}
+  \item list of enabled modules and their order (can be obtained from command line -- see Section \ref{sec:terminal})
+  \item the module data length and format -- see the module documentation
+\end{itemize}
+
+% =================
+
+\clearpage
+\section{KETCube Terminal}\label{sec:terminal}
 When programmed by the supplied software stack, the KETCube serial line called {\it KETCube Terminal} is available on USART1 (IO1 and IO2) -- see Figure \ref{fig:terminal:putty}. KETCube Terminal allows to configure KETCube modules (e.g. HDC1080, batVoltage, LoRa ...) and module parameters (e.g. devEUI, appKEY, ... for LoRa module). The KETCube terminal is case-sensitive.
 
 The Terminal commands follow the hierarchical tree arrangement. The basic help including root commands is printed after device reset. The command {\tt help} can be used anytime to display root commands.
@@ -376,6 +407,30 @@ All settings are applied after device reset (use command {\tt reload}).
   \item HW Flow control: No
   \item End-of-line: CR+LF or LF
 \end{itemize}
+
+\subsection{KETCube Remote Terminal}
+When programmed by the supplied software stack, the {\it KETCube Remote Terminal} feature is available in KETCube. The {\it KETCube Remote Terminal} allows to execute KETCube commands remotely. Only the LoRaWAN network is currently supported (loraserver.io with MQTT interface was the test platform). Note, that the remote execution is enabled for ``safe'' commands only.
+
+To control KETCube over LoRaWAN, you need a well-configured KETCube connected to the LoRaWAN network (reliable downlink is required). The {\it KETCube Remote Terminal} tool\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-remote-terminal}} is used to configure KETCube remotely.
+
+The {\it KETCube Remote Terminal} uses a configuration file \docFileName{config.ini}, where connection settings to the LoRaWAN application server are defined (e.g. server address, timeout, Rx and Tx topics). After writing settings into \docFileName{config.ini}, the {\it KETCube Remote Terminal} tool can be executed:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+$ ./ketcube-remote-terminal
+\end{Verbatim}
+
+The tool accepts KETCube commands in the same form as the KETCube serial Terminal. Note, that the response to the command may be delayed significantly, depending on the KETCube and the network settings and the link reliability. 
+
+Due to increased latency given by network communication, {\it KETCube Remote Terminal} tool implements the {\it batch mode} allowing the command sequence execution:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+!batch
+enable ADC
+disable TxDisplay
+set core basePeriod 360000
+!commit
+reload
+\end{Verbatim}
 
 % ============================
 

@@ -78,6 +78,18 @@
 \end{tcolorbox}
 }
 
+\newenvironment{docCodeExampleTitled}[1]
+{
+\par
+\addvspace{0.5cm}
+\subsubsection*{~\hspace{0.2cm}\textcolor{gray}{\Huge \faCogs\,}}
+\vspace{-1.5cm}
+\begin{tcolorbox}[breakable,colback=white,colframe=gray,width=\dimexpr\textwidth+32mm\relax,enlarge left by=-32mm, title = Example: #1]
+}
+{
+\end{tcolorbox}
+}
+
 % --- Filesystem Names 
 \newcommand\docPath[1]{{\tt #1}}
 \newcommand\docFileName[1]{{\tt #1}}
@@ -89,6 +101,7 @@
 
 % --- KETCube Terms
 \newcommand\docKCModName[1]{{\it #1} module}
+\newcommand\docKCCmdInline[1]{{\tt #1}}
 \newcommand\docKCCmd[1]{{\tt > #1}}
 
 % --- NICE sections

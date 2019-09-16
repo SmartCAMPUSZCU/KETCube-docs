@@ -69,7 +69,7 @@ Most of the LoRaWAN parameters can be set by using the KETCube Terminal interfac
 Write command {\tt show LoRa} or {\tt set LoRa} to display commands related to LoRa:
 
 \begin{Verbatim}[frame=single, fontsize=\small]
-> show LoRa
+>> show LoRa
 ABP          Is ABP enabled?
 OTAA         Is OTAA enabled?
 appEUI       Show LoRa application EUI.
@@ -81,7 +81,7 @@ devEUIType   Show LoRa device EUI type: custom (user-defined)
              or deviceID-based.
 nwkSKey      Show LoRa network session Key.
 
-> set LoRa
+>> set LoRa
 ABP          Enable ABP.
 OTAA         Enable OTAA.
 appEUI       Set LoRa application EUI.
@@ -102,11 +102,11 @@ User-defined devEUI ({\tt set LoRa devEUICustom} and {\tt set LoRa devEUI}), or 
 
 \subsubsection*{Example: Set user-defined devEUI}
 \begin{Verbatim}[frame=single, fontsize=\small]
-> set LoRa devEUI 1122334455667788
-> set LoRa devEUICustom
-> reload
+>> set LoRa devEUI 1122334455667788
+>> set LoRa devEUICustom
+>> reload
 
-> show LoRa devEUI
+>> show LoRa devEUI
 
 Custom devEUI is displayed ...
 
@@ -114,10 +114,10 @@ Custom devEUI is displayed ...
 
 \subsubsection*{Example: Use Manufacturer's devEUI}
 \begin{Verbatim}[frame=single, fontsize=\small]
-> set LoRa devEUIBoard
-> reload
+>> set LoRa devEUIBoard
+>> reload
 
-> show LoRa devEUI
+>> show LoRa devEUI
 
 Board devEUI is displayed ...
 \end{Verbatim}
@@ -127,8 +127,8 @@ The LoRaWAN appEUI and appKey can be set by using {\tt set LoRa appEUI} and {\tt
   
 \subsubsection*{Example: Set OTAA parameters}
 \begin{Verbatim}[frame=single, fontsize=\small]
-> set LoRa appEUI 1122334455667788
-> set LoRa appKey 11223344556677881122334455667788
+>> set LoRa appEUI 1122334455667788
+>> set LoRa appKey 11223344556677881122334455667788
 \end{Verbatim}
   
 \subsection{LoRaWAN ABP Parameters}
@@ -136,9 +136,9 @@ The LoRaWAN appSKey and nwkSKey can be set by using {\tt set LoRa appSKey} and {
   
 \subsubsection*{Example: Set ABP parameters}
 \begin{Verbatim}[frame=single, fontsize=\small]
-> set LoRa devAddr DEADBEEF
-> set LoRa appSKey 1122334455667788
-> set LoRa nwkSKey 11223344556677881122334455667788
+>> set LoRa devAddr DEADBEEF
+>> set LoRa appSKey 1122334455667788
+>> set LoRa nwkSKey 11223344556677881122334455667788
 \end{Verbatim}
 
 \subsection{LoRaWAN Period}
@@ -193,10 +193,10 @@ To test uplink, configure KETCube LoRaWAN parameters as described in sections ab
 Then enable some of the KETCube sensing modules and KETCube LoRa module and by using the KETCube Terminal interface. Don't forget to reload KETCube to apply configuration:
 
 \begin{Verbatim}[frame=single, fontsize=\small]
-> enable BatMeas
-> enable HDC1080
-> enable LoRa
-> reload
+>> enable BatMeas
+>> enable HDC1080
+>> enable LoRa
+>> reload
 \end{Verbatim}
 
 After reload, you should observe incoming packets at your LoRaWAN server.
@@ -208,9 +208,9 @@ For downlink tests, LoRa ports 10 and 11 are dedicated in KETCube. When KETCube 
 
 To perform basic functional test, configure KETCube as follows:
 \begin{Verbatim}[frame=single, fontsize=\small]
-> enable RxDisplay
-> enable LoRa
-> reload
+>> enable RxDisplay
+>> enable LoRa
+>> reload
 \end{Verbatim}
 
 After that, send data to KETCube LoRaWAN node to port 10 or 11 and watch KETCube Terminal.
