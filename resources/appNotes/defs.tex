@@ -1,34 +1,4 @@
-\documentclass[twoside,a4paper]{refart}
-\usepackage[utf8x]{inputenc}
-%\usepackage[czech]{babel}
-\usepackage[pdftex]{graphicx}
-\usepackage{caption}% for \captionof
-\usepackage{mwe}% contains example-image
-\input{resources/authors.tex}
-\usepackage[owncaptions]{vhistory}
-\usepackage{hyperref}
-%\usepackage[superscript,biblabel]{cite}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-
-\usepackage[table, x11names]{xcolor}
-\usepackage{fancyvrb}
-\usepackage{fontawesome}
-\usepackage[many]{tcolorbox}
-\usepackage{listings}
-\usepackage{tikz}
-\usepackage{verbatimbox}
-
-\usepackage{array, booktabs, boldline} %
-\usepackage{mathtools}
-
-\pdfinfo
-{
-  /Title       (The KETCube Project AppNote)
-  /Creator     (LaTeX)
-  /Author      (The SmartCAMPUS Team)
-}
+\input{resources/defs.tex}
 
 % declare the path(s) where your graphic files are
 % extract presenattion number to create include path for images
@@ -43,77 +13,11 @@
 \graphicspath{{resources/images/}{resources/appNotes/\NUMBER/images/}}
 \graphicspath{{resources/images/}{resources/appNotes/003/images/}}
 
-\newsavebox{\tempbox}
-\newlength{\tempheight}
-
-\newcommand\ToDo[1]{\textcolor{red}{ToDo: #1}}
-
-\newcommand\docNote[1]{
-\subsubsection*{~\hspace{0.2cm}\textcolor{cyan}{\Huge \faCommentingO\,}}
-\vspace{-1.5cm}
-\begin{tcolorbox}[breakable,colback=white,colframe=cyan,width=\dimexpr\textwidth+32mm\relax,enlarge left by=-32mm, title = Note]
-\it \small #1
-\end{tcolorbox}
-}
-
-\newcommand\docWarn[1]{
-\subsubsection*{~\hspace{0.2cm}\textcolor{orange}{\Huge \faWarning\,}}
-\vspace{-1.5cm}
-\begin{tcolorbox}[breakable,colback=white,colframe=orange,width=\dimexpr\textwidth+32mm\relax,enlarge left by=-32mm, title = Warning]
-\it #1
-\end{tcolorbox}
-}
-
-\newcommand\docExample[1]{
-\subsubsection*{~\hspace{0.2cm}\textcolor{gray}{\Huge \faCogs\,}}
-\vspace{-1.5cm}
-\begin{tcolorbox}[breakable,colback=white,colframe=gray,width=\dimexpr\textwidth+32mm\relax,enlarge left by=-32mm, title = Example]
-#1
-\end{tcolorbox}
-}
-
-
-\newenvironment{docCodeExample}
+\pdfinfo
 {
-\subsubsection*{~\hspace{0.2cm}\textcolor{gray}{\Huge \faCogs\,}}
-\vspace{-1.5cm}
-\begin{tcolorbox}[breakable,colback=white,colframe=gray,width=\dimexpr\textwidth+32mm\relax,enlarge left by=-32mm, title = Example]
-}
-{
-\end{tcolorbox}
+  /Title       (The KETCube Project AppNote)
+  /Creator     (LaTeX)
+  /Author      (The SmartCAMPUS Team)
 }
 
-\newenvironment{docCodeListing}
-{
-\subsubsection*{~\hspace{0.2cm}\textcolor{cyan}{\Huge \faStickyNoteO\,}}
-\vspace{-1.5cm}
-\begin{tcolorbox}[breakable,colback=white,colframe=cyan,width=\dimexpr\textwidth+32mm\relax,enlarge left by=-32mm, title = Listing]
-}
-{
-\end{tcolorbox}
-}
 
-\newcommand\docFileName[1]{{\tt #1}}
-\newcommand\docVarName[1]{{\tt #1}}
-
-%skryt barevny obdelnik kolem odkazu
-\hypersetup{
-    colorlinks=false,
-    pdfborder={0 0 0},
-}
-
-% vhistory
-\renewcommand{\vhhistoryname}{Revision History}
-\renewcommand{\vhchangename}{Note}
-\renewcommand{\vhversionname}{Revision}
-\renewcommand{\vhdatename}{Date}
-\renewcommand{\vhauthorname}{Author}
-\renewcommand \vhAuthorColWidth{0.8\hsize}
-\renewcommand \vhChangeColWidth{1.2\hsize}
-
-\DeclareRobustCommand{\UWBLogo}{%
-   \begin{wrapfigure}{l}{2.1cm}
-    \vspace{-1.35cm}
-    \includegraphics[width=2cm]{ZCU_logo.pdf}
-   \end{wrapfigure}
-}

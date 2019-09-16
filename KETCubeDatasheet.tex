@@ -1,52 +1,10 @@
-\documentclass[twoside,a4paper]{refart}
-\usepackage[utf8x]{inputenc}
-%\usepackage[czech]{babel}
-\usepackage[pdftex]{graphicx}
-\graphicspath{{resources/images/}}
-\usepackage{caption}% for \captionof
-\usepackage{mwe}% contains example-image
+\input{resources/defs.tex}
 
-\input{resources/authors.tex}
-
-\usepackage[owncaptions]{vhistory}
-\usepackage{hyperref}
-%\usepackage[superscript,biblabel]{cite}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{siunitx}
-\usepackage{fontawesome}
-\usepackage[table, x11names]{xcolor}
-\usepackage{array, booktabs, boldline} %
-
-\usepackage[T1]{fontenc}% Needed for \textquotedbl
-\DeclareSIUnit[number-unit-product = {}]{\inchQ}{\textquotedbl}
-
-\newsavebox{\tempbox}
-\newlength{\tempheight}
-
-\newcommand\ToDo[1]{\textcolor{red}{ToDo: #1}}
-
-%skryt barevny obdelnik kolem odkazu
-\hypersetup{
-    colorlinks=false,
-    pdfborder={0 0 0},
-}
-
-% vhistory
-\renewcommand{\vhhistoryname}{Revision History}
-\renewcommand{\vhchangename}{Note}
-\renewcommand{\vhversionname}{Revision}
-\renewcommand{\vhdatename}{Date}
-\renewcommand{\vhauthorname}{Author}
-\renewcommand \vhAuthorColWidth{0.8\hsize}
-\renewcommand \vhChangeColWidth{1.2\hsize}
-
-\DeclareRobustCommand{\UWBLogo}{%
-   \begin{wrapfigure}{l}{2.1cm}
-    \vspace{-1.35cm}
-    \includegraphics[width=2cm]{ZCU_logo.pdf}
-   \end{wrapfigure}
+\pdfinfo
+{
+  /Title       (The KETCube Datasheet)
+  /Creator     (LaTeX)
+  /Author      (The SmartCAMPUS Team)
 }
 
 \title{\UWBLogo KETCube (\vhCurrentVersion)}
