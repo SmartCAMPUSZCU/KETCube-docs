@@ -116,6 +116,7 @@ The extension board contains the voltage divider and additional components to en
   
   Make sure, that $Vref$ on KETCube main board is connected to supply voltage -- see KETCube specification \cite{ZCU:KETCube:05-2018}.
   
+\clearpage
 \subsection{Operation}
   The measured voltage should be connected to pads $A$ (a positive terminal) and $B$ (a negative -- common -- terminal) respectively. The polarity of the measured voltage is $A \rightarrow B$. 
 
@@ -123,10 +124,9 @@ The extension board contains the voltage divider and additional components to en
 
   When the measured voltage source is connected incorrectly ($B \rightarrow A$), no current flows through the circuit and the partial voltage at $ADCin$ is equal to 0V.
   
-  KETCube ADC module uses 12-bit ADC, this results in measurement resolution of $\approx$ 0.025V.
+  KETCube \docKCModName{ADC} uses 12-bit ADC, this results in measurement resolution of $\approx$ 0.025V.
 
-\subsection*{Note}
-  The measured voltage source is constantly loaded by current $I \leq 100 ~\mu$A
+\docNote{The measured voltage source is constantly loaded by current $I \leq 100 ~\mu$A}
   
 \subsection{Protections}
 \subsubsection*{Over-Current}
@@ -174,7 +174,18 @@ When the polarity of voltage source connected to pads is wrong, i.e. $B \rightar
 % ============================
 \clearpage
 \section{KETCube Settings}
-  In KETCube terminal (see KETCube specification \cite{ZCU:KETCube:05-2018}) enable {\it ADC module} and configure any module for data delivery e.g. {\it LoRa} module: {\tt enable ADC}, {\tt enable LoRa}, {\tt setLoRa appEUI}, \dots
+  In KETCube terminal (see KETCube specification \cite{ZCU:KETCube:05-2018}), enable \docKCModName{ADC} and configure any module for data delivery:
+  
+\begin{docCodeExample}
+\begin{verbatim}
+> enable ADC
+> enable LoRa 
+> set LoRa appEUI 001122 ...
+
+  ...
+  
+\end{verbatim}
+\end{docCodeExample}
 
 % ============================
 
@@ -189,11 +200,9 @@ When the polarity of voltage source connected to pads is wrong, i.e. $B \rightar
    \end{dcases}
 \]
 
-\subsection*{Note A}
-  The extension board enables measurement for $U_{A \rightarrow B} \geq U_{DFW}$ only.
+\docNote{The extension board enables measurement for $U_{A \rightarrow B} \geq U_{DFW}$ only.}
 
-\subsection*{Note B}
-  When this extension board is used in conjunction with {\it LoRa} module, apply the above equation to the received value on the application server.
+\docNote{When this extension board is used in conjunction with {\it LoRa} module, apply the above equation to the received value on the application server.}
 
   
 % ============================
