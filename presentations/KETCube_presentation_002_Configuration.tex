@@ -1,0 +1,143 @@
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube Presentation Defines
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/beamer/beamerDefs.tex}
+
+\title{KETCube User Configuration}
+\subtitle{}
+\author{The SmartCAMPUS Team, University of West Bohemia}
+\authorcontact[The SmartCAMPUS Team]{The SmartCAMPUS Team\\ UWB, Czech Republic\\www.smartcampus.cz}
+\institute{University of West Bohemia}
+\instituteaddress{Pilsen, Czech Republic}
+% Use for document title and subtitle
+\thisdochead[KETCube -- the Prototyping and Educational Platform for IoT]{KETCube Platform Release 0.2}
+
+% this will occupy the last - "Thank you" - slide
+\summary{
+  KETCube Firmware \& Terminal:
+  
+  \begin{itemize}
+    \item {\bf easy-to-use} and {\bf easy-to-extend} IoT platform
+    \item {\bf modular design}
+    \item {\bf persistent} (EEPROM) {\bf and running} (RAM) configuration
+  \end{itemize}
+}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube Presentation Head
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/beamer/beamerHead.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube Presentation Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\bsection{KETCube Modular Design}
+
+\subsection{Board Modular Design}
+
+\begin{frame}%[allowframebreaks]
+  \centering
+  
+    \begin{columns}
+      \begin{column}{0.6\paperwidth}
+         \centering
+         \begin{itemize}
+           \item Re-use of existing standard for sensor development/evaluation boards: {\bf mikroBUS\texttrademark~socket} support (click-boards)
+           \item Board-stack design: custom {\bf KETCube boards can be stacked} almost {\bf infinite} (pass-thru connectors)
+           \item Small footprint enabling development board in-field usage
+         \end{itemize}
+      \end{column}
+      \begin{column}{0.4\paperwidth}
+         \centering
+         \includegraphics[width=0.35\paperwidth]{thunder_click.jpg}
+         \vfill
+         \includegraphics[width=0.2\paperwidth]{ketCube_pinout.pdf}
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\subsection{Firmware Modular Design}
+
+\begin{frame}%[allowframebreaks]
+  \centering
+      
+    \begin{columns}
+      \begin{column}{0.5\paperwidth}
+         \centering
+         \begin{itemize}
+           \item Simple {\bf architecture reflecting} IoT node {\bf use-case}
+           \item {\bf Easy to} re-{\bf use} software modules
+           \item Enable/disable software module in compile- and run-time
+         \end{itemize}
+         \vfill
+         \includegraphics[width=0.45\paperwidth]{fw_stack.pdf}
+      \end{column}
+      
+      \begin{column}{0.4\paperwidth}
+           \begin{itemize}
+           \item[$\rightarrow$] connect extension boards to KETCube mainBoard
+           \item[$\rightarrow$] activate modules controlling the extension boards
+         \end{itemize}
+       \end{column}
+    \end{columns}
+  
+\end{frame}
+
+\bsection{KETCube Terminal}
+
+\begin{frame}%[allowframebreaks]
+    
+  
+\end{frame}
+
+\bsection{KETCube Modules}
+
+\begin{frame}%[allowframebreaks]
+    
+  
+\end{frame}
+
+
+\bsection{KETCube Remote Terminal}
+
+\begin{frame}%[allowframebreaks]
+    
+  
+\end{frame}
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube Presentation Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube Presentation Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/beamer/beamerTail.tex}

@@ -185,68 +185,63 @@ The period of data transmission is given by the {\it basePeriod} -- see the KETC
 
   The periodical messages are transmitted by using LoRaWAN port 2. Asynchronous messages (particular modules can indicate errors asynchronously, push-button event) are transmitted by using LoRaWAN port 3 if and only if the \docKCModName{AsyncTx} is enabled.
 
+% ---------------
+\clearpage
+\subsection{StarNetConcentrator Module}
+
+\docWarn{This module is undocumented!}
+
+% ---------------
 \clearpage
 \subsection{StarNetNode Module}
 
-\clearpage
-\subsection{StarNetConcentrator Module}
+\docWarn{This module is undocumented!}
+
 
 % ====================
 \clearpage
 \section{KETCube Sensing Modules}
 
-\subsection{HDC1080 Module}
+\subsection{ADC Module}
+\docKCModName{ADC} allows to monitor DC Voltage at the KETCube AN PIN. It can be enabled the same way as any other module -- see Section \ref{sec:activation}.
 
-The HDC1080 is on-board {\it Relative Humidity} and {\it Temperature} sensor allowing RH+T measurement. It can be enabled the same way as any other module -- see Section \ref{sec:activation}.
-
-\subsubsection{HDC1080 Module Configuration}
-  The \docKCModName{HDC1080} only allows to configure severity level, other configuration options are not available.
+\subsubsection{ADC Module Configuration}
+  The \docKCModName{ADC} only allows to configure severity level, other configuration options are not available.
+  
+  The sample configuration procedure:
   
 \begin{docCodeExample}
 \begin{verbatim}
->> enable HDC1080 2
+>> enable ADC
+Executing command: enable
 
-   ...
+Setting module ADC:     success!
 >> reload
 Executing command: reload
 
-Performing system reset and reloading KETCube configuration ...  
+Performing system reset and reloading KETCube configuration ...
 \end{verbatim}
 \end{docCodeExample}
   
-  Once reloaded, the \docKCModName{HDC1080} measures RH+T periodically. 
+  Once reloaded, the \docKCModName{ADC} measures connected voltage periodically. 
   
-  For debugging purposes, it may be useful to watch RH+T output in console. The output for the severity level 2 (INFO) is shown below:
-
+  For debugging purposes, it may be useful to watch measured voltage in terminal. The output for the severity level 2 (INFO) is shown below:
+  
 \begin{docCodeExample}
 \begin{verbatim}
->> HDC1080 :: Temperature: 25, RH: 57
+>> ADC :: Voltage@PA4: 133 mV
 \end{verbatim}
 \end{docCodeExample}
 
-\subsubsection{HDC1080 Module Output}
-  The \docKCModName{HDC1080} output consist of 4 bytes:
+\subsubsection{ADC Module Output}
+  The \docKCModName{ADC} output consist of one two-byte word (16-bit unsigned int):
   
 \begin{tikzpicture}
- \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=0cm](10/5){$T_{MSB}$};
- \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=2cm](10/5){$T_{LSB}$};
- \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=4cm](10/5){$RH_{MSB}$};
- \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=6cm](10/5){$RH_{LSB}$};
+ \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=0cm](10/5){$ADC_{MSB}$};
+ \node[draw,fill=SeaGreen2,minimum height=1cm,minimum width = 2cm,xshift=2cm](10/5){$ADC_{LSB}$};
 \end{tikzpicture}
 
-  Temperature is encoded in BigEndian as unsigned integer in additive code. The value units are degrees of Celsius.
-  
-  To compute actual temperature, use the following equation:
-  
-  $T = ((T_{MSB} << 8 ~|~ T_{LSB}) - 10000) / 10 ~[°C]$
-  
-  Relative Humidity is encoded in BigEndian format as unsigned integer in additive code. The value units are \% RH.
-  
-  To compute actual RH, use the following equation:
-  
-  $RH = (RH_{MSB} << 8 ~|~ RH_{LSB}) / 10 ~[\%]$
-  
-  An error for both temperature and humidity is indicated by out-of-the range values from the unsigned word (16-bit) range -- see ranges in Section \ref{spec:OC}.
+  Measured value represents the measured Voltage in millivolts. It is encoded in BigEndian format as unsigned integer.
 
 % ------------------
 \clearpage
@@ -326,6 +321,83 @@ For debugging purposes, it may be useful to watch the \docKCModName{BatMeas} out
     \addcontentsline{lot}{table}{Supported Batteries}
     \label{tab:spec:AMR}
    \end{table*}
+  
+% --------------
+
+\clearpage
+\subsection{BMEX80 Module}
+
+\docWarn{This module is undocumented!}
+  
+% --------------
+
+\clearpage
+\subsection{HDC1080 Module}
+
+The HDC1080 is on-board {\it Relative Humidity} and {\it Temperature} sensor allowing RH+T measurement. It can be enabled the same way as any other module -- see Section \ref{sec:activation}.
+
+\subsubsection{HDC1080 Module Configuration}
+  The \docKCModName{HDC1080} only allows to configure severity level, other configuration options are not available.
+  
+\begin{docCodeExample}
+\begin{verbatim}
+>> enable HDC1080 2
+
+   ...
+>> reload
+Executing command: reload
+
+Performing system reset and reloading KETCube configuration ...  
+\end{verbatim}
+\end{docCodeExample}
+  
+  Once reloaded, the \docKCModName{HDC1080} measures RH+T periodically. 
+  
+  For debugging purposes, it may be useful to watch RH+T output in console. The output for the severity level 2 (INFO) is shown below:
+
+\begin{docCodeExample}
+\begin{verbatim}
+>> HDC1080 :: Temperature: 25, RH: 57
+\end{verbatim}
+\end{docCodeExample}
+
+\subsubsection{HDC1080 Module Output}
+  The \docKCModName{HDC1080} output consist of 4 bytes:
+  
+\begin{tikzpicture}
+ \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=0cm](10/5){$T_{MSB}$};
+ \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=2cm](10/5){$T_{LSB}$};
+ \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=4cm](10/5){$RH_{MSB}$};
+ \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=6cm](10/5){$RH_{LSB}$};
+\end{tikzpicture}
+
+  Temperature is encoded in BigEndian as unsigned integer in additive code. The value units are degrees of Celsius.
+  
+  To compute actual temperature, use the following equation:
+  
+  $T = ((T_{MSB} << 8 ~|~ T_{LSB}) - 10000) / 10 ~[°C]$
+  
+  Relative Humidity is encoded in BigEndian format as unsigned integer in additive code. The value units are \% RH.
+  
+  To compute actual RH, use the following equation:
+  
+  $RH = (RH_{MSB} << 8 ~|~ RH_{LSB}) / 10 ~[\%]$
+  
+  An error for both temperature and humidity is indicated by out-of-the range values from the unsigned word (16-bit) range -- see ranges in Section \ref{spec:OC}.
+  
+% --------------
+
+\clearpage
+\subsection{ICS43432 Module}
+
+\docWarn{This module is undocumented!}
+
+% --------------
+
+\clearpage
+\subsection{LIS2HH12 Module}
+
+\docWarn{This module is undocumented!}
   
 % ------------------------------------------------------------
 % ------------------------------------------------------------

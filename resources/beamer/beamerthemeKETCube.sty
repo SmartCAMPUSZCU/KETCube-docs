@@ -73,8 +73,8 @@
     %\insertshortauthor~|~
     %\insertshorttitle
     
-    \ifdefined\insertthisdocsub
-      \insertthisdoc$~|~$\insertthisdocsub 
+    \ifdefined\insertthisdocheadsub
+      \insertthisdochead$~|~$\insertthisdocheadsub 
       \vspace{-0.2cm}
     \fi
     
@@ -109,11 +109,11 @@
 \makeatother
 
 \makeatletter         
-\newcommand{\thisdoc}{\@dblarg\beamer@thisdoc}
-\long\def\beamer@thisdoc[#1]#2{%
-  \def\insertthisdocsub{#2}%
-  \def\beamer@shortthisdoc{#1}%
-  \def\insertthisdoc{#1}
+\newcommand{\thisdochead}{\@dblarg\beamer@thisdochead}
+\long\def\beamer@thisdochead[#1]#2{%
+  \def\insertthisdocheadsub{#2}%
+  \def\beamer@shortthisdochead{#1}%
+  \def\insertthisdochead{#1}
   }
 \makeatother
 
@@ -125,6 +125,12 @@
   \def\insertshortsummary{#1}
   }
 \makeatother
+  
+\newcommand{\bsection}[1]{
+\section{#1}
+% ToC at the section start
+\usebeamertemplate{tocsection}
+}
   
 \usepackage{amsmath}% http://ctan.org/pkg/amsmath
 \newcommand{\notimplies}{%
@@ -144,11 +150,11 @@
     
     \vspace{-1cm}
     \begin{beamercolorbox}[sep=8pt,center]{date}
-      \usebeamerfont{date}\color{riceBlue}\it\ifdefined\insertthisdoc\insertthisdoc\fi
+      \usebeamerfont{date}\color{riceBlue}\it\ifdefined\insertthisdochead\insertthisdochead\fi
     \end{beamercolorbox}
     
      \begin{beamercolorbox}[sep=3pt,center]{date}
-      \usebeamerfont{date}\color{riceBlue}\it\footnotesize\ifdefined\insertthisdocsub\insertthisdocsub\fi
+      \usebeamerfont{date}\color{riceBlue}\it\footnotesize\ifdefined\insertthisdocheadsub\insertthisdocheadsub\fi
     \end{beamercolorbox}\vskip0.5em
     
     \begin{beamercolorbox}[sep=20pt,center]{title}
