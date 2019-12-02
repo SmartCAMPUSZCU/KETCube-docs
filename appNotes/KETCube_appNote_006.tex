@@ -96,12 +96,13 @@ The commands \docKCCmdInline{show(r)}/\docKCCmdInline{set(r)} are used to show/s
 \section{KETCube Communication Modules}
 
 \subsection{LoRa Module}
-\docKCModName{LoRa} allows to use KETCube as a LoRaWAN node device. 
+\docKCModName{LoRa} allows to use KETCube as a LoRaWAN node device. In KETCube are supported two versions of the LoRaWAN protocol: 1.1.0 and 1.0.3. The LoRaWAN version is specified in compile-time and cannot be changed by user.
 
 The \docKCModName{LoRa} can be enabled the same way as any other module -- see Section \ref{sec:activation}. Most of the LoRaWAN parameters can be set by using the KETCube Terminal interface.
 
 Write command \docKCCmdInline{show LoRa} or \docKCCmdInline{set LoRa} to display commands related to the \docKCModName{LoRa}:
-\begin{docCodeExample}
+
+\begin{docCodeExampleTitled}{LoRa command set for LoRaWAN 1.0.3}
 \begin{verbatim}
 >> show LoRa
 appEUI              LoRa application EUI
@@ -124,7 +125,38 @@ enableABP           Enable ABP
 enableCustomDevEUI  Custom (user-defined) LoRa device EUI
 nwkSKey             LoRa network session Key
 \end{verbatim}
-\end{docCodeExample}
+\end{docCodeExampleTitled}
+
+\begin{docCodeExampleTitled}{LoRa command set for LoRaWAN 1.1.0}
+\begin{verbatim}
+>> show LoRa
+appEUI              LoRa application EUI
+appKey              LoRa application key
+appSKey             LoRa app session Key
+devAddr             LoRa device address
+devEUIBoard         Board (boardID-based) LoRa device EUI
+devEUICustom        Custom LoRa device EUI
+enableABP           Enable ABP
+enableCustomDevEUI  Custom (user-defined) LoRa device EUI
+fNwkSIntKey         Forwarding Network session integrity key
+nwkKey              Network key
+nwkSEncKey          Network session encryption key
+sNwkSIntKey         Serving Network session integrity key
+
+>> set LoRa
+appEUI              LoRa application EUI
+appKey              LoRa application key
+appSKey             LoRa app session Key
+devAddr             LoRa device address
+devEUICustom        Custom LoRa device EUI
+enableABP           Enable ABP
+enableCustomDevEUI  Custom (user-defined) LoRa device EUI
+fNwkSIntKey         Forwarding Network session integrity key
+nwkKey              Network key
+nwkSEncKey          Network session encryption key
+sNwkSIntKey         Serving Network session integrity key
+\end{verbatim}
+\end{docCodeExampleTitled}
 
 \subsubsection{LoRaWAN Node Activation}
 To select or check OTAA/ABP mode settings, the following commands are used: \docKCCmdInline{set LoRa enableABP {0|1}}/\docKCCmdInline{show LoRa enableABP}. The “set” command parameter is boolean {\tt 0} or {\tt 1}. OTAA is the default mode.

@@ -34,8 +34,9 @@
 \section*{About this Document}
 \input{resources/about.tex}
 
-This document describes how to set-up the KETCube as a LoRaWAN class A device.
+This document covers advanced configuration and testing of the KETCube LoRa module incorporating the LoRaWAN protocol Stack. 
 
+The user-level documentation of the LoRa module is provided in AppNote 006 \cite{ZCU:KETCubeAppNote006:09-2019}.
 
 \setcounter{tocdepth}{1}
 \tableofcontents
@@ -46,6 +47,7 @@ This document describes how to set-up the KETCube as a LoRaWAN class A device.
 \begin{versionhistory}
   \vhEntry{03/2018}{03.03.2018}{JB}{Initial version}
   \vhEntry{05/2018}{07.05.2018}{JB|KV|MU}{Terminal configuration, text review, minor fixes}
+  \vhEntry{0.2.0*}{xx.12.2019*}{JB}{KETCube-fw 0.2.0 update}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}
@@ -57,131 +59,62 @@ This document describes how to set-up the KETCube as a LoRaWAN class A device.
 \clearpage
 \clearpage
 \section{Introduction}
-  KETCube can be used as a LoRaWAN Class A device. Many LoRaWAN parameters can be set through KETCube Terminal -- see KETCube specification \cite{ZCU:KETCube:05-2018}. Some parameters can be set by using Terminal or statically (KETCube Terminal configuration will be ignored when static configuration is used) or only statically (it is not possible to configure all parameters through KETCube Terminal).
+  KETCube can be used as a LoRaWAN Class A, B or C device. The LoRaWAN stack supports 1.1.0 and 1.0.3 standards, whose can be selected in compile time, thus KETCube in it's binary form contains support for just a one of the standard versions.
+  
+  Many LoRaWAN parameters can be set dynamicaly -- through KETCube Terminal -- see KETCube specification \cite{ZCU:KETCube:05-2018} and AppNote 006 \cite{ZCU:KETCubeAppNote006:09-2019}. However, some of the core parameters can be set statically in compile-time.
 
   This document does not cover the LoRaWAN standard or terminology. Please refer the Lora Alliance websites\footnote{https://lora-alliance.org/}, LoRaWAN specification\footnote{https://lora-alliance.org/lorawan-for-developers} or see one of the knowledge bases on the web: the TTN documentation is a good starting point \footnote{https://www.thethingsnetwork.org/docs/lorawan/}.
   
 \clearpage
 
-\section{LoRaWAN Stack Terminal Configuration}
-Most of the LoRaWAN parameters can be set by using the KETCube Terminal interface. The KETCube Terminal basics are described in KETCube Datasheet \cite{ZCU:KETCube:05-2018}.
 
-Write command {\tt show LoRa} or {\tt set LoRa} to display commands related to LoRa:
+\section{LoRaWAN Stack Compile-Time Configuration}
 
-\begin{Verbatim}[frame=single, fontsize=\small]
->> show LoRa
-ABP          Is ABP enabled?
-OTAA         Is OTAA enabled?
-appEUI       Show LoRa application EUI.
-appKey       Show LoRa application key.
-appSKey      Show LoRa app session Key
-devAddr      Show LoRa device address.
-devEUI       Show LoRa device EUI.
-devEUIType   Show LoRa device EUI type: custom (user-defined) 
-             or deviceID-based.
-nwkSKey      Show LoRa network session Key.
+KETCube is designed as a memory-configured device. However, the LoRaWAN Stack can be (pre-)configured in compile-time. 
 
->> set LoRa
-ABP          Enable ABP.
-OTAA         Enable OTAA.
-appEUI       Set LoRa application EUI.
-appKey       Set LoRa application key.
-appSKey      Set LoRa app session Key
-devAddr      Set LoRa device address.
-devEUI       Set LoRa device EUI.
-devEUICustom Use custom (user-defined) LoRa device EUI
-devEUIBoard  Use board (boardID-based) LoRa device EUI
-nwkSKey      Set LoRa network session Key.
-\end{Verbatim}
+\subsection{LoRaWAN Stack Static Parameters}
+To set-up some of the LoRaWAN stack parameters statically, use the \docFileName{Comissioning.h} file, which is the original Semtech's LoRaWAN configuration file. To enable static configuration from the \docFileName{Comissioning.h} file, set \docVarName{KETCUBE\_LORA\_SELCFG\_SELECTED} in \docFileName{ketCube\_lora.h} to\break \docVarName{KETCUBE\_LORA\_SELCFG\_STATIC}.
 
-\subsection{LoRaWAN Node Activation}
-To set OTAA/ABP mode or show which mode is enabled/disabled, use following commands: {\tt show LoRa OTAA}/{\tt show LoRa ABP} and {\tt set LoRa OTAA}/{\tt set LoRa ABP}
+The folowing settings are available in \docFileName{Comissioning.h}:
 
-\subsection{LoRaWAN devEUI}
-User-defined devEUI ({\tt set LoRa devEUICustom} and {\tt set LoRa devEUI}), or manufacturer's devEUI ({\tt set LoRa devEUIBoard}) can be used. The selected option can be checked via {\tt show LoRa devEUIType} and {\tt show LoRa devEUI} commands.
+\subsection*{Over the Air Activation}
+The OTAA or ABP selection is configured here by setting the \break\docVarName{OVER\_THE\_AIR\_ACTIVATION} define to 1 for OTAA or to 0 for ABP.
 
-\subsubsection*{Example: Set user-defined devEUI}
-\begin{Verbatim}[frame=single, fontsize=\small]
->> set LoRa devEUI 1122334455667788
->> set LoRa devEUICustom
->> reload
+\subsection*{Device EUI}
+The \docVarName{LORAWAN\_DEVICE\_EUI} define represents a static devEUI if \break\docVarName{STATIC\_DEVICE\_EUI} macro is set to 1.
 
->> show LoRa devEUI
+\subsection*{Application EUI and Application Key}
+The define \docVarName{LORAWAN\_APPLICATION\_EUI} represents the Application EUI (AppEUI) for the OTAA mode.
+The define \docVarName{LORAWAN\_APPLICATION\_KEY} represents the Application Key (AppKey) for the OTAA mode.
 
-Custom devEUI is displayed ...
+\subsection*{Device Address}
+The define \docVarName{LORAWAN\_DEVICE\_ADDRESS} represents a static device address when \docVarName{STATIC\_DEVICE\_ADDRESS} define is set to 1.
 
-\end{Verbatim}
+\subsection*{LoRaWAN Session}
+The define \docVarName{LORAWAN\_NWKSKEY} represents the LoRaWAN static Network Session Key (nwkSKey) used when ABP mode is used.
+The define \docVarName{LORAWAN\_APPSKEY} represents the LoRaWAN static Application Session Key (appSKey) used when ABP mode is used.
 
-\subsubsection*{Example: Use Manufacturer's devEUI}
-\begin{Verbatim}[frame=single, fontsize=\small]
->> set LoRa devEUIBoard
->> reload
+\subsection{LoRaWAN Stack Static Behavioral Parameters}
+Some of the important behavioral parameters should be configured in the \docFileName{ketCube\_lora.c} file. 
 
->> show LoRa devEUI
+\subsection*{Adaptive Data Rate}
+The define \docVarName{LORAWAN\_ADR\_ON} allows to enable/disable LoRaWAN adaptive data rate.
 
-Board devEUI is displayed ...
-\end{Verbatim}
+\subsection*{Acknowladgement Configuration}
+Th define \docVarName{LORAWAN\_CONFIRMED\_MSG} allows to enable/disable LoRaWAN confirmed messages.
 
-\subsection{LoRaWAN OTAA Parameters}
-The LoRaWAN appEUI and appKey can be set by using {\tt set LoRa appEUI} and {\tt set LoRa appKey} commands and checked by using {\tt show LoRa appEUI} and {\tt show LoRa appKey} commands.
-  
-\subsubsection*{Example: Set OTAA parameters}
-\begin{Verbatim}[frame=single, fontsize=\small]
->> set LoRa appEUI 1122334455667788
->> set LoRa appKey 11223344556677881122334455667788
-\end{Verbatim}
-  
-\subsection{LoRaWAN ABP Parameters}
-The LoRaWAN appSKey and nwkSKey can be set by using {\tt set LoRa appSKey} and {\tt set LoRa nwkSKey} commands and checked by using {\tt show LoRa appSKey} and {\tt show LoRa nwkSKey} commands. The static device address i configured via  {\tt set LoRa devAddr} command and checked via  {\tt show LoRa devAddr} command.
-  
-\subsubsection*{Example: Set ABP parameters}
-\begin{Verbatim}[frame=single, fontsize=\small]
->> set LoRa devAddr DEADBEEF
->> set LoRa appSKey 1122334455667788
->> set LoRa nwkSKey 11223344556677881122334455667788
-\end{Verbatim}
+\subsection*{Application Ports} 
+KETCube uses port numbers for pre-defined message types. The port numbers can be redefined in \docFileName{ketCube\_lora.c}.
+\begin{itemize}
+  \item \docVarName{LORAWAN\_APP\_PORT} -- for standard application uplink data
+  \item \docVarName{LORAWAN\_ASYNCAPP\_PORT} -- for asynchronous application uplink data (e.g. push-buton)
+  \item \docVarName{LORAWAN\_HEX\_DISPLAY\_PORT} -- for debugging; data received on this port are printed to terminal as HEX number(s)
+  \item \docVarName{LORAWAN\_STRING\_DISPLAY\_PORT} -- for debugging; data received on this port are printed to terminal as string
+  \item \docVarName{LORAWAN\_CUSTOM\_DATA\_PORT} -- data received on this port are processed by a callback function \docFnName{ketCube\_lora\_processCustomData()}
+  \item \docVarName{LORAWAN\_REMOTE\_TERMINAL\_PORT} -- for remote terminal communication
+\end{itemize}
 
-\subsection{LoRaWAN Period}
-The period of data transmission is given by KETCube {\it base period}. Use {\tt set core basePeriod} command to set period of data transmission for LoRa Class A device.
-  
-\clearpage
-\section{LoRaWAN Stack Static Configuration}
-
-\subsection{File Comissioning.h}
-The {\it Comissioning.h} file is the original Semtech's LoRaWAN configuration file. 
-
-\subsubsection{OVER\_THE\_AIR\_ACTIVATION}
-The OTAA or ABP selection is configured here by setting this macro to 1 for OTAA or to 0 for ABP.
-
-\subsubsection{LORAWAN\_DEVICE\_EUI} 
-Defines a static devEUI if {\bf STATIC\_DEVICE\_EUI} macro is set to 1.
-
-\subsubsection{LORAWAN\_APPLICATION\_EUI}
-AppEUI for the OTAA mode.
-
-\subsubsection{LORAWAN\_APPLICATION\_KEY} 
-AppKey for the OTAA mode.
-
-\subsubsection{LORAWAN\_DEVICE\_ADDRESS} 
-Defines a static device address when {\bf STATIC\_DEVICE\_ADDRESS} is set to 1.
-
-\subsubsection{LORAWAN\_NWKSKEY}
-Defines the LoRa NWK Key used when ABP mode is used.
-
-\subsubsection{LORAWAN\_APPSKEY} 
-Defines the LoRa APP Key used when ABP mode is used.
-
-\subsection{File ketCube\_lora.c}
-The {\it ketCube\_lora.c} file currently contains defines for advanced LoRaWAN configuration.
-
-\subsubsection{LORAWAN\_ADR\_ON}
-This define allows to enable/disable LoRaWAN adaptive data rate.
-
-\subsubsection{LORAWAN\_CONFIRMED\_MSG}
-This define allows to enable/disable LoRaWAN confirmed messages.
-
-\subsubsection{LORAWAN\_APP\_PORT}
-This define allows to set-up the KETCube LoRaWAN uplink message port.
+\docNote{\docFnName{ketCube\_lora\_processCustomData()} function is defined \docVarName{weak} and can be redefined in user-code.}
 
 \clearpage
 \section{Application Testing}
@@ -192,30 +125,32 @@ To test uplink, configure KETCube LoRaWAN parameters as described in sections ab
 
 Then enable some of the KETCube sensing modules and KETCube LoRa module and by using the KETCube Terminal interface. Don't forget to reload KETCube to apply configuration:
 
-\begin{Verbatim}[frame=single, fontsize=\small]
+\begin{docCodeExampleTitled}{Basic Uplink Test Configuration}
+\begin{verbatim}
 >> enable BatMeas
 >> enable HDC1080
->> enable LoRa
+>> enable LoRa 2
 >> reload
-\end{Verbatim}
+\end{verbatim}
+\end{docCodeExampleTitled}
 
 After reload, you should observe incoming packets at your LoRaWAN server.
 
 \subsection{LoRaWAN Downlink Test}
 In LoRaWAN, the term {\it downlink} denotes the direction of the data transmission from the LoRaWAN network server to the LoRaWAN node.
 
-For downlink tests, LoRa ports 10 and 11 are dedicated in KETCube. When KETCube {\it RxDisplay} module is enabled, data received on port 10 are displayed in KETCube Terminal as HEX string and data received on port 11 as string.
+For downlink tests, the following LoRaWAN ports are dedicated:\break \docVarName{LORAWAN\_HEX\_DISPLAY\_PORT} and \docVarName{LORAWAN\_STRING\_DISPLAY\_PORT} -- default values are 10 and 11. Data received on port 10 are displayed in KETCube Terminal as HEX string and data received on port 11 as string.
 
-To perform basic functional test, configure KETCube as follows:
-\begin{Verbatim}[frame=single, fontsize=\small]
->> enable RxDisplay
->> enable LoRa
+\begin{docCodeExampleTitled}{Basic Downlink Test Configuration}
+\begin{verbatim}
+>> enable LoRa 2
 >> reload
-\end{Verbatim}
+\end{verbatim}
+\end{docCodeExampleTitled}
 
 After that, send data to KETCube LoRaWAN node to port 10 or 11 and watch KETCube Terminal.
 
-If you use the open {\it LoRa Server} ({https://www.loraserver.io/}), you can use the KETCube tool {\it ketCube\_LoRaDownlink.py} located in the {\it KETCube-tools} repository. The script automates the process of sending debug downlink packets to KETCube's port 11.
+\docNote{If you use the open {\it LoRa Server} ({https://www.loraserver.io/}), you can use the KETCube tool \docFileName{ketCube\_LoRaDownlink.py} located in the {\it KETCube-tools} repository. The script automates the process of sending debug downlink packets to KETCube's port 11.}
 
 % ============================
 
