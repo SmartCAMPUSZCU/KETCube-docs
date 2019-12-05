@@ -357,9 +357,66 @@ For debugging purposes, it may be useful to watch the \docKCModName{BatMeas} out
 % --------------
 
 \clearpage
-\subsection{BMEX80 Module}
+\subsection{BMEx80 Module}
 
-\docWarn{This module is undocumented!}
+The \docKCModName{BMEx80} module supports the BME280 and BME680 {\it Relative Humidity}, {\it Temperature} and {\it Preassure} sensors  allowing RH+T+P measurements.
+  
+\subsubsection{BMEx80 Module Configuration}
+  
+The \docKCModName{BMEx80} only allows to configure severity level, other configuration options are not available (some parameters can be configured in compile-time).
+  
+\begin{docCodeExample}
+\begin{verbatim}
+>> enable BMEx80 2
+
+   ...
+>> reload
+Executing command: reload
+
+Performing system reset and reloading KETCube configuration ...  
+\end{verbatim}
+\end{docCodeExample}
+  
+  Once reloaded, the \docKCModName{BMEx80} measures RH+T+P periodically. 
+  
+  For debugging purposes, it may be useful to watch RH+T output in console. The output for the severity level 2 (INFO) is shown below:
+
+\begin{docCodeExample}
+\begin{verbatim}
+>> BMEx80 :: Type: BME 680, Temperature: 25.23, RH: 57.15, Pressure: 1112.35
+\end{verbatim}
+\end{docCodeExample}
+
+\subsubsection{BMEx80 Module Output}
+  The \docKCModName{BMEx80} output consist of 4 bytes:
+  
+\begin{tikzpicture}
+ \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=0cm](10/5){$RH_m$};
+ \node[draw,fill=white,minimum height=1cm,minimum width = 2cm,xshift=2cm](10/5){$T_m$};
+ \node[draw,fill=SkyBlue,minimum height=1cm,minimum width = 2cm,xshift=4cm](10/5){$P_{MSB}$};
+ \node[draw,fill=SkyBlue,minimum height=1cm,minimum width = 2cm,xshift=6cm](10/5){$P_{LSB}$};
+\end{tikzpicture}
+
+  Relative Humidity is encoded as unsigned integer. The value units are \% RH.
+  
+  To compute actual RH, use the following equation:
+  
+  $RH = RH_m / 2 ~[\%]$
+
+  Temperature is encoded as unsigned integer in additive code. The value units are degrees of Celsius.
+  
+  To compute actual temperature, use the following equation:
+  
+  $T = T_m / 2 - 40 ~[°C]$
+  
+  Preassure is encoded as unsigned integer. The value units are hecto Pascals.
+  
+  To compute actual preassure, use the following equation:
+  
+  $P = (P_{MSB} << 8 ~|~ P_{LSB}) / 2 ~[hPa]$
+  
+  
+  An error for temperature, humidity and preassure is indicated by out-of-the range temperature/humidity/preassure values, particularly 0xFF or 0xFFFF values are used.
   
 % --------------
 
@@ -415,7 +472,7 @@ Performing system reset and reloading KETCube configuration ...
   
   $RH = (RH_{MSB} << 8 ~|~ RH_{LSB}) / 10 ~[\%]$
   
-  An error for both temperature and humidity is indicated by out-of-the range values from the unsigned word (16-bit) range -- see ranges in Section \ref{spec:OC}.
+  An error for both temperature and humidity is indicated by out-of-the range temperature/humidity values, particularly 0xFFFF values are used.
   
 % --------------
 
