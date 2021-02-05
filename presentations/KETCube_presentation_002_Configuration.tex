@@ -101,15 +101,71 @@
 
 \bsection{KETCube Terminal}
 
+\defverbatim[colored]\terminalCommandStructure{
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,keywordstyle=\color{red}]
+[root command] [module name] [variable name] [parameters ...]
+
+Example:
+  >> show LoRa devEUI
+\end{lstlisting}
+}
+
+\defverbatim[colored]\terminalRootCommands{
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,keywordstyle=\color{red}]
+  about     Print ABOUT information: Copyright, License, ...
+  help      Print HELP
+  disable   Disable KETCube module
+  enable    Enable KETCube module
+  list      List available KETCube modules
+  reload    Reload KETCube
+  show      Show LoRa, SigFox ... parameters
+  showr     Show LoRa, SigFox ... RUNNING parameters 
+  set       Set LoRa, SigFox ... parameters
+  setr      Set LoRa, SigFox ... RUNNING parameters
+\end{lstlisting}
+}
+
 \begin{frame}%[allowframebreaks]
-    
+  Command Tree Structure:
+
+  \terminalCommandStructure
   
+  KETCube Root Commands:
+  
+  \terminalRootCommands
+
 \end{frame}
 
 \bsection{KETCube Modules}
 
+\defverbatim[colored]\moduleListCommand{
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,keywordstyle=\color{red}]
+>> list
+ E  I  LoRa        LoRa radio
+ E  R  HDC1080     On-board RHT sensor based on TI HDC1080
+ D  R  batMeas     On-chip battery voltage measurement
+ D  R  ADC         Measure mVolts on PA4
+
+ ...
+  
+Module State: E == Module Enabled; D == Module Disabled
+Module severity: N = NONE, R = ERROR; I = INFO; D = DEBUG
+\end{lstlisting}
+}
+
 \begin{frame}%[allowframebreaks]
-    
+  Display Available modules:
+  
+  \moduleListCommand
+  
+  \scriptsize
+  List of modules contains following informations:
+  \begin{itemize}
+    \item enabled/disabled -- state of the module \dots E/D
+    \item severity level -- specifies how many information display in terminal \dots N/R/I/D
+    \item module name
+    \item module description
+  \end{itemize}
   
 \end{frame}
 
@@ -118,6 +174,11 @@
 
 \begin{frame}%[allowframebreaks]
     
+  \begin{itemize}
+    \item a console application (currently in alpha) running on Windows or GNU/Linux opperating systems
+    \item allows to execute the native KETCube commands remotely -- over LoRaWAN
+    \item some of the -- potentially dangerous -- commands are disabled for the remote execution
+  \end{itemize}
   
 \end{frame}
 

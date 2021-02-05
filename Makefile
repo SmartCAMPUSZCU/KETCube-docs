@@ -3,7 +3,7 @@ BIBTEX = bibtex
 
 .PHONY: all clean
 
-all: datasheet appnotes presentations
+all: template datasheet appnotes presentations
 
 clean: clean_build clean_appnotes clean_presentations clean_datasheet
 
@@ -26,6 +26,7 @@ presentations/%.pdf: presentations/%.tex
 	${LATEX} $<
 	mv build/$(notdir $@) $(patsubst %.tex,%.pdf,$<)
 
+template: template.pdf
 datasheet: KETCubeDatasheet.pdf
 
 clean_datasheet: 

@@ -1,0 +1,163 @@
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Defines
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/defs.tex}
+
+\title{\UWBLogo KETCube AppNote 005:\\ KETCube Terminal (\vhCurrentVersion)}
+
+\author{Author: \vhListAllAuthorsLongWithAbbrev}
+\date{Version \vhCurrentVersion\ from \vhCurrentDate}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Head
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/head.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\section*{About this Document}
+\input{resources/about.tex}
+
+This document describes KETCube Terminal. 
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+\listoffigures
+\listoftables
+\begin{versionhistory}
+  \vhEntry{0.2.0*}{5.1.2021}{JB}{Initial version}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage 
+\pagenumbering{arabic} 
+\pagestyle{headings} 
+
+\clearpage 
+\section{KETCube Terminal Interface}
+When programmed by the supplied software stack, the KETCube serial interface called {\it KETCube Terminal} is available on USART1 (IO1 and IO2) -- see Figure \ref{fig:terminal:putty}. KETCube Terminal allows to configure KETCube platform, KETCube modules (e.g. HDC1080, batVoltage, LoRa ...) and module parameters (e.g. devEUI, appKEY, ... for LoRa module). The KETCube terminal is case-sensitive.
+
+The interface physical settings are as follows:
+
+\begin{itemize}
+  \item Tx PIN: PA9
+  \item Rx PIN: PA10
+  \item Speed: 9600 bps
+  \item Data bits: 8
+  \item Stop bits: 1
+  \item Parity: No
+  \item HW Flow control: No
+  \item End-of-line: CR+LF or LF
+\end{itemize}
+
+\clearpage
+\section{KETCube Command Set}
+The Terminal commands follow the hierarchical tree arrangement. The basic help including root commands is printed after device reset. The command \docKCCmdInline{help} can be used anytime to display root commands.
+
+Inline help is displayed when \docKCCmdInline{[TAB]} key is pushed (e.g. write \docKCCmdInline{s[TAB]} and all commands with leading \docKCCmdInline{s} will be printed -- these are: \docKCCmdInline{set}, \docKCCmdInline{show}, \docKCCmdInline{setr} and \docKCCmdInline{showr}). Inline help is usefull especially for commands hidden deeply in the tree structure.
+
+To display list of modules use \docKCCmdInline{list} command. Commands \docKCCmdInline{enable}/\docKCCmdInline{disable} are used to turn ON/OFF KETCube modules (e.g. \docKCCmdInline{enable HDCX080}). 
+
+The \docKCCmdInline{enable} command can be additionally used to set the severity level -- the second (optional) parameter of the command sets the module {\it severity level}. The {\it severity level} defines the amount of information provided by the specified module to the Terminal. Use the following command to enable {\it HDCX080}, while setting the {\it severity level} to {\it INFO}: \docKCCmdInline{enable HDCX080 2}.
+
+Commands \docKCCmdInline{show}/\docKCCmdInline{set} are used to show/set KETCube settings (e.g. \docKCCmdInline{show LoRa devEUI}). Parameters are saved into on-chip EEPROM and take effect after the device reset (command \docKCCmdInline{reload} or power-cycle).
+
+Commands \docKCCmdInline{showr}/\docKCCmdInline{setr} are used to show/set KETCube running settings (e.g. \docKCCmdInline{showr LoRa devAddr}). Parameters are saved into RAM and take effect immediately.
+
+The commands \docKCCmdInline{show(r)}/\docKCCmdInline{set(r)} are used to show/set KETCube (module) settings. The commands are organized in a tree-like manner: the \docKCCmdInline{show(r)}/\docKCCmdInline{set(r)} command is the root command, it is followed by the module name (or the keyword \docKCCmdInline{core} for the KETCube platform settings) and by the module (or core) parameter, which is to be set/show. 
+
+KETCube Terminal provides also the command history, which is available through {\tt <} and {\tt >} keys.
+
+\marginlabel{\captionof{figure}{KETCube Terminal in Putty}\label{fig:terminal:putty}}
+\raisebox{-\height}{\includegraphics[width=0.5\paperwidth]{ketCube_terminal_putty.png}}
+
+\clearpage
+\section{KETCube Modules}\label{sec:modules}
+KETCube is a modular platform, where number of modules is included in the platform release. Any module can be individually enabled or disabled based on user needs and extension boards connected to the KETCube {\it Main Board}. For details, please refer to the KETCube Datasheet \cite{ZCU:KETCube:05-2018} or appNote 006 \cite{ZCU:KETCubeAppNote006:09-2019}, where module parameters are described.
+
+To display list of available modules, open the KETCube Terminal and use \docKCCmdInline{list} command. Commands \docKCCmdInline{enable}/\docKCCmdInline{disable} are used to turn ON/OFF modules (e.g. \docKCCmdInline{enable HDCX080}). When module is enabled, it starts to perform defined operation (e.g. measure RH and Temperature).
+
+Debug messages are useful when device is initially configured or in case, that unexpected behavior occurred.
+
+Debug messages are printed to serial terminal interface. They can be configured on the per-module basis by setting the {\it severity level} to the selected module or to the KETCube core.
+
+Four severity levels are defined:
+\begin{itemize}
+  \item[0 --] NONE -- no messages enabled
+  \item[1 --] ERROR -- only error messages enabled (default severity)
+  \item[2 --] INFO -- error and informational messages enabled
+  \item[3 --] DEBUG -- previous message groups and debug information are enabled
+\end{itemize}
+
+The second (optional) parameter of the \docKCCmdInline{enable} command is used to configure the {\it severity level} of the selected module (e.g. \docKCCmdInline{enable HDC1080 3} enables debug messages for HDCX080 module). The default  {\it severity level} is {\it ERROR}. The command \docKCCmdInline{set core severity} is used to configure \docKCCmdInline{severity level} of the KETCube core and command \docKCCmdInline{set driver severity} is used to configure {\it severity level} of the KETCube low-level drivers.
+
+\docNote{Debug messages may cause a situation, where it may be difficult to write commands (terminal echo is foggy due to lot of debug messages produced by KETCube)}.
+
+\clearpage 
+\section{KETCube Remote Terminal}
+When programmed by the supplied software stack, the {\it KETCube Remote Terminal} feature is available in KETCube. The {\it KETCube Remote Terminal} allows to execute KETCube commands remotely. Only the LoRaWAN network is currently supported (loraserver.io with MQTT interface was the test platform). Note, that the remote execution is enabled for ``safe'' commands only.
+
+To control KETCube over LoRaWAN, you need a well-configured KETCube connected to the LoRaWAN network (reliable downlink is required). The {\it KETCube Remote Terminal} tool\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-remote-terminal}} is used to configure KETCube remotely.
+
+The {\it KETCube Remote Terminal} uses a configuration file \docFileName{config.ini}, where connection settings to the LoRaWAN application server are defined (e.g. server address, timeout, Rx and Tx topics). After writing settings into \docFileName{config.ini}, the {\it KETCube Remote Terminal} tool can be executed:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+$ ./ketcube-remote-terminal
+\end{Verbatim}
+
+The tool accepts KETCube commands in the same form as the KETCube serial Terminal. Note, that the response to the command may be delayed significantly, depending on the KETCube and the network settings and the link reliability. 
+
+Due to increased latency given by network communication, {\it KETCube Remote Terminal} tool implements the {\it batch mode} allowing the command sequence execution:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+!batch
+enable ADC
+disable TxDisplay
+set core basePeriod 360000
+!commit
+reload
+\end{Verbatim}
+
+
+\clearpage 
+\section{KETCube Remote Terminal Protocol}
+  
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube appNote Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/tail.tex}
+

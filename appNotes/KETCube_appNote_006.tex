@@ -130,7 +130,7 @@ nwkSKey             LoRa network session Key
 \begin{docCodeExampleTitled}{LoRa command set for LoRaWAN 1.1.0}
 \begin{verbatim}
 >> show LoRa
-appEUI              LoRa application EUI
+joinEUI             LoRa join EUI
 appKey              LoRa application key
 appSKey             LoRa app session Key
 devAddr             LoRa device address
@@ -144,7 +144,7 @@ nwkSEncKey          Network session encryption key
 sNwkSIntKey         Serving Network session integrity key
 
 >> set LoRa
-appEUI              LoRa application EUI
+joinEUI             LoRa join EUI
 appKey              LoRa application key
 appSKey             LoRa app session Key
 devAddr             LoRa device address
@@ -161,7 +161,7 @@ sNwkSIntKey         Serving Network session integrity key
 \subsubsection{LoRaWAN Node Activation}
 To select or check OTAA/ABP mode settings, the following commands are used: \docKCCmdInline{set LoRa enableABP {0|1}}/\docKCCmdInline{show LoRa enableABP}. The “set” command parameter is boolean {\tt 0} or {\tt 1}. OTAA is the default mode.
 
-\subsection{LoRaWAN devEUI}
+\subsubsection{LoRaWAN devEUI}
 User-defined devEUI (\docKCCmdInline{set LoRa enableCustomDevEUI 1} or manufacturer's devEUI (\docKCCmdInline{set LoRa enableCustomDevEUI 0}) can be used. The selected option can be checked via \docKCCmdInline{show LoRa enableCustomDevEUI} command. The user-defined devEUI can be configured by \docKCCmdInline{set LoRa devEUICustom} command. Manufacturer's devEUI is used by default.
 
 \clearpage

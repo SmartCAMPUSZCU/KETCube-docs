@@ -21,7 +21,7 @@
 \section*{General Description}
 % Do not include about.tex -- use in appnotes only
 %\input{resources/about.tex}
-{\it KETCube} is the prototyping and demo platform developed at the Department of Technologies and Measurement (KET), University of West Bohemia in Pilsen. 
+{\it KETCube} is the prototyping and demo platform developed at the Department of Materials and Technology (KET), University of West Bohemia in Pilsen. 
 
 KETCube platform consist of a {\it main board} and {\it extension boards}.
 These boards can be stacked to achieve the intended functionality. The basic autonomous battery-powered RHT (Relative Humidity \& Temperature) sensor node functionality is achieved by stacking main and battery boards only. 
@@ -154,8 +154,8 @@ The mikroBUS\textsuperscript{TM} pinout is defined in the mikroBUS\textsuperscri
 
 As the KETCUBE socket is the superset of mikroBUS\textsuperscript{TM}, both sockets can be placed on the same board to enable both -- mikroBUS\textsuperscript{TM} and KETCube -- module connection. If pass-through sockets are assembled, KETCube pinout enables (almost) infinite stacking of KETCube pinout-compatible boards.
 
-\marginlabel{\captionof{figure}{KETCube Pinout}\label{fig:pinout:pinout}}
-\raisebox{-\height}{\includegraphics[width=0.3\paperwidth]{ketCube_pinout.pdf}}
+\marginlabel{\captionof{figure}{KETCube Pinout\\(not-to-scale)}\label{fig:pinout:pinout}}
+\raisebox{-\height}{\includegraphics[width=0.5\paperwidth]{ketCube_pinout.pdf}}
 
 % Boards
 \clearpage
@@ -384,11 +384,11 @@ To display list of modules use {\tt list} command. Commands {\tt enable}/{\tt di
 
 The {\tt enable} command can be additionally used for debugging -- the second (optional) parameter of the command sets the module {\it severity level}. The {\it severity levels} are: {\it NONE (1)}, {\it ERROR (1)}, {\it INFO (2)} and {\it DEBUG (3)}. The {\it severity level} defines the amount of information provided by the specified module to the {\it terminal} interface. The default  {\it severity level} is {\it ERROR}. Use the following command to enable {\tt HDC1080}, while setting the {\it severity level} to {\it INFO}: {\tt enable HDC1080 2}.
 
-Commands {\tt show}/{\tt set} are used to show/set KETCube settings (e.g. {\tt show LoRa devEUI}). Parameters are saved into on-chip EEPROM.
+Commands {\tt show}/{\tt set} are used to show/set KETCube settings (e.g. {\tt show LoRa devEUI}). Parameters are saved into on-chip EEPROM and take effect after the device reset (command {\tt reload} or power-cycle).
 
-The command history is available through {\tt +} and {\tt -} keys.
+Commands {\tt showr}/{\tt setr} are used to show/set KETCube running settings (e.g. {\tt show LoRa devEUI}). Parameters are saved into RAM and take effect immediately.
 
-All settings are applied after device reset (use command {\tt reload}).
+The command history is available through {\tt <} and {\tt >} keys.
 
 \marginlabel{\captionof{figure}{KETCube Terminal in Putty}\label{fig:terminal:putty}}
 \raisebox{-\height}{\includegraphics[width=0.5\paperwidth]{ketCube_terminal_putty.png}}
