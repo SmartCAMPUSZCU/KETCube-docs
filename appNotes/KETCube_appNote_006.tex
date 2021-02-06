@@ -43,6 +43,8 @@ This document describes KETCube upstream modules.
 \listoffigures
 \listoftables
 \begin{versionhistory}
+% the star-marked versions should be merged into a single version when releasing KETCube
+  \vhEntry{0.2.0*}{06.02.2021}{JB}{Integration of private modules and minor text update}
   \vhEntry{0.2.0*}{16.09.2019}{JB}{Initial version}
 \end{versionhistory}
 % history table ... do not number
@@ -57,7 +59,7 @@ This document describes KETCube upstream modules.
 \section{Module Activation}\label{sec:activation}
 KETCube is a modular platform, where number of modules is included in the platform release. Any module can be individually enabled or disabled based on user needs and extension boards connected to the KETCube {\it Main Board}. For details, please refer to the KETCube Datasheet \cite{ZCU:KETCube:05-2018}.
 
-To display list of available modules, open the KETCube Terminal and use \docKCCmdInline{list} command. Commands \docKCCmdInline{enable}/\docKCCmdInline{disable} are used to turn ON/OFF modules (e.g. \docKCCmdInline{enable HDC1080}). When module is enabled, it starts to perform defined operation (e.g. measure RH and Temperature).
+To display list of available modules, open the KETCube Terminal and use \docKCCmdInline{list} command. Commands \docKCCmdInline{enable}/\docKCCmdInline{disable} are used to turn ON/OFF modules (e.g. \docKCCmdInline{enable HDCX080}). When module is enabled, it starts to perform defined operation (e.g. measure RH and Temperature).
 
 Debug messages are useful when device is initially configured or in case, that unexpected behavior occurred.
 
@@ -71,7 +73,7 @@ Four severity levels are defined:
   \item[3 --] DEBUG -- previous message groups and debug information are enabled
 \end{itemize}
 
-The second (optional) parameter of the “enable” command is used to configure the {\it severity level} of the selected module (e.g. \docKCCmdInline{enable HDC1080 3} enables debug messages for HDC1080 module). The command \docKCCmdInline{set core severity} is used to configure \docKCCmdInline{severity level} of the KETCube core and command \docKCCmdInline{set driver severity} is used to configure {\it severity level} of the KETCube low-level drivers.
+The second (optional) parameter of the “enable” command is used to configure the {\it severity level} of the selected module (e.g. \docKCCmdInline{enable HDCX080 3} enables debug messages for HDCX080 module). The command \docKCCmdInline{set core severity} is used to configure \docKCCmdInline{severity level} of the KETCube core and command \docKCCmdInline{set driver severity} is used to configure {\it severity level} of the KETCube low-level drivers.
 
 \docNote{Debug messages may cause a situation, where it may be difficult to write commands (terminal echo is foggy due to lot of debug messages produced by KETCube)}.
 
@@ -114,6 +116,7 @@ devEUICustom        Custom LoRa device EUI
 enableABP           Enable ABP
 enableCustomDevEUI  Custom (user-defined) LoRa device EUI
 nwkSKey             LoRa network session Key
+txDatarate          Uplink datarate (0-15)
 
 >> set LoRa
 appEUI              LoRa application EUI
@@ -124,6 +127,7 @@ devEUICustom        Custom LoRa device EUI
 enableABP           Enable ABP
 enableCustomDevEUI  Custom (user-defined) LoRa device EUI
 nwkSKey             LoRa network session Key
+txDatarate          Uplink datarate (0-15)
 \end{verbatim}
 \end{docCodeExampleTitled}
 
@@ -142,6 +146,7 @@ fNwkSIntKey         Forwarding Network session integrity key
 nwkKey              Network key
 nwkSEncKey          Network session encryption key
 sNwkSIntKey         Serving Network session integrity key
+txDatarate          Uplink datarate (0-15)
 
 >> set LoRa
 joinEUI             LoRa join EUI
@@ -155,6 +160,7 @@ fNwkSIntKey         Forwarding Network session integrity key
 nwkKey              Network key
 nwkSEncKey          Network session encryption key
 sNwkSIntKey         Serving Network session integrity key
+txDatarate          Uplink datarate (0-15)
 \end{verbatim}
 \end{docCodeExampleTitled}
 
@@ -213,21 +219,42 @@ The LoRaWAN appSKey and nwkSKey can be set by using \docKCCmdInline{set LoRa app
 \subsubsection{LoRaWAN Period}
 The period of data transmission is given by the {\it basePeriod} -- see the KETCube Datasheet \cite{ZCU:KETCube:05-2018}.
 
+\subsubsection{LoRaWAN Tx Data Rate}
+The Tx Data Rate is an important factor influencing the modulation, the spreading factor, and bandwidth. Lower numbers lead to a higher air-time, but higher transmission resilience, while higher numbers lead to a lower air-time, increased bitrate but lower transmission resilience.
+
 \subsubsection{LoRaWAN Ports}
 
-  The periodical messages are transmitted by using LoRaWAN port 2. Asynchronous messages (particular modules can indicate errors asynchronously, push-button event) are transmitted by using LoRaWAN port 3 if and only if the \docKCModName{AsyncTx} is enabled.
+  The periodical messages are transmitted by using LoRaWAN port 2. Asynchronous messages (particular modules can indicate errors asynchronously, push-button event) are transmitted by using LoRaWAN port 3 if and only if the helper \docKCModName{AsyncTx} is enabled.
+  
+  If the helper module \docKCModName{RxDisplay} is enabled, the downlink messages received on the LoRaWAN port 10 are displayed in HEX format and those received on the LoRaWAN port 11 are displayed as a string (ASCII string expected).
+  
+  LoRaWAN port 12 is dedicated to custom ad-hoc LoRaWAN messaging implementations.
+  
+  LoRaWAN port 13 is dedicated for {\it KETCube Remote Terminal}.
+  
+  LoRaWAN port 14 is dedicated for the \docKCModName{UART2WAN} module.
+  
+  LoRaWAN port 14 is dedicated for the \docKCModName{Arduino} module.
 
 % ---------------
 \clearpage
 \subsection{StarNetConcentrator Module}
 
-\docWarn{This module is undocumented!}
+\docWarn{This module is currently undocumented, as it remains in the alpha state!}
 
 % ---------------
 \clearpage
 \subsection{StarNetNode Module}
 
-\docWarn{This module is undocumented!}
+\docWarn{This module is currently undocumented, as it remains in the alpha state!}
+
+% ---------------
+\clearpage
+\subsection{TestRadio Module}
+
+\docWarn{This module is intended for validation, not production! Please refer to source files, if you need to get a deep-in idea about its operation.}
+
+\docNote{This module command set allows to invoke a continuous wave, set its power and frequency, or get the temperature of the radio module.}
 
 
 % ====================
@@ -275,6 +302,16 @@ Performing system reset and reloading KETCube configuration ...
 
   Measured value represents the measured Voltage in millivolts. It is encoded in BigEndian format as unsigned integer.
 
+% ---------------
+\clearpage
+\subsection{Arduino Module}
+
+The Arduino module is the enabler of KETCube in Arduino IDE. We recently added the KETCube support to the Arduino IDE allowing us to create the KETCube module in Arduino IDE, upload and maintain the KETCube from the Arduino IDE environment.
+
+By enabling this module, the Arduino-deployed code is activated.
+
+\docWarn{This module and the Arduino IDE operation is currently documented in Czech only! See \url{http://edu.ketcube.cz/}}
+  
 % ------------------
 \clearpage
 \subsection{BatMeas Module}
@@ -421,16 +458,16 @@ Performing system reset and reloading KETCube configuration ...
 % --------------
 
 \clearpage
-\subsection{HDC1080 Module}
+\subsection{HDCX080 Module}
 
-The HDC1080 is on-board {\it Relative Humidity} and {\it Temperature} sensor allowing RH+T measurement. It can be enabled the same way as any other module -- see Section \ref{sec:activation}.
+The HDC1080 and HDC2080 are {\it Relative Humidity} and {\it Temperature} sensors allowing RH+T measurement. One of them is assembled on-board. The HDCX080 module can be enabled the same way as any other module -- see Section \ref{sec:activation}.
 
-\subsubsection{HDC1080 Module Configuration}
-  The \docKCModName{HDC1080} only allows to configure severity level, other configuration options are not available.
+\subsubsection{HDCX080 Module Configuration}
+  The \docKCModName{HDCX080} only allows to configure severity level, other configuration options are not available.
   
 \begin{docCodeExample}
 \begin{verbatim}
->> enable HDC1080 2
+>> enable HDCX080 2
 
    ...
 >> reload
@@ -440,18 +477,18 @@ Performing system reset and reloading KETCube configuration ...
 \end{verbatim}
 \end{docCodeExample}
   
-  Once reloaded, the \docKCModName{HDC1080} measures RH+T periodically. 
+  Once reloaded, the \docKCModName{HDCX080} measures RH+T periodically. 
   
   For debugging purposes, it may be useful to watch RH+T output in console. The output for the severity level 2 (INFO) is shown below:
 
 \begin{docCodeExample}
 \begin{verbatim}
->> HDC1080 :: Temperature: 25, RH: 57
+>> HDCX080 :: Temperature: 25, RH: 57
 \end{verbatim}
 \end{docCodeExample}
 
-\subsubsection{HDC1080 Module Output}
-  The \docKCModName{HDC1080} output consist of 4 bytes:
+\subsubsection{HDCX080 Module Output}
+  The \docKCModName{HDCX080} output consist of 4 bytes:
   
 \begin{tikzpicture}
  \node[draw,fill=SeaGreen3,minimum height=1cm,minimum width = 2cm,xshift=0cm](10/5){$T_{MSB}$};
@@ -472,22 +509,35 @@ Performing system reset and reloading KETCube configuration ...
   
   $RH = (RH_{MSB} << 8 ~|~ RH_{LSB}) / 10 ~[\%]$
   
-  An error for both temperature and humidity is indicated by out-of-the range temperature/humidity values, particularly 0xFFFF values are used.
+  An error for both temperature and humidity is indicated by out-of-the range temperature/humidity values, particularly 0xFFXX values are used, where XX indicates the error source:
+
+\begin{itemize}
+  \item {\tt 0x01} -- sensor (auto)detection failed
+  \item {\tt 011} -- I2C write error
+  \item {\tt 012} -- I2C write address error
+  \item {\tt 021} -- I2C read error
+\end{itemize}
   
 % --------------
 
 \clearpage
 \subsection{ICS43432 Module}
 
-\docWarn{This module is undocumented!}
+\docWarn{This module is orphaned! It will be removed from the upstream release in a near future!}
 
 % --------------
 
 \clearpage
 \subsection{LIS2HH12 Module}
 
-\docWarn{This module is undocumented!}
-  
+\docWarn{This module is orphaned! It will be removed from the upstream release in a near future!}
+
+% ---------------
+\clearpage
+\subsection{UART2WAN Module}
+
+\docWarn{This module is currently undocumented, as it remains in the alpha state!}
+
 % ------------------------------------------------------------
 % ------------------------------------------------------------
   
