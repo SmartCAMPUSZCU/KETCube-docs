@@ -140,6 +140,133 @@ reload
 
 \clearpage 
 \section{KETCube Remote Terminal Protocol}
+
+The remote terminal protocol is an application protocol built on top of any supported undelying general-purpose application protocol like MQTT. Thus, it is designed to contain only application-level logic. Each packet starts with a fixed-size header. Its structure is as follows.
+
+\begin{tikzpicture}
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{Opcode}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{16bf}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=red!20,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{RFU}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{Seq}};
+ \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Core\_API\_version}};
+ \node[anchor=north west,yshift=2.0cm,xshift=-0.5cm,fill=white] {0};
+ \node[anchor=north west,yshift=2.0cm,xshift=+3.75cm,fill=white] {4};
+ \node[anchor=north west,yshift=2.0cm,xshift=+8.0cm,fill=white] {8};
+ 
+ \node[anchor=north west,yshift=0.75cm,xshift=-0.5cm,fill=white] {8};
+\end{tikzpicture}
+
+\begin{itemize}
+	\item \texttt{Opcode} - [2b] operation code
+		\begin{itemize}
+			\item \texttt{CMD} (value 0) - the packet comprises a single command
+			\item \texttt{BATCH} (value 1) - the packet comprises a batch of commands
+		\end{itemize}
+	\item \texttt{16bf} - [1b] 16bit module ID flag
+		\begin{itemize}
+			\item if set, all module IDs present in payload are encoded as 16bit unsigned integers
+			\item otherwise, 8bit unsigned integer encoding is used
+		\end{itemize}
+	\item \texttt{RFU} - [1b] Reserved for Future Use
+	\item \texttt{Seq} - [4b] sequence number
+		\begin{itemize}
+			\item command sequence number for pairing requests with responses
+		\end{itemize}
+	\item \texttt{Core\_API\_version} - [8b] version of core API
+		\begin{itemize}
+			\item core API versions should match on both sides
+			\item mismatch may lead to command rejection
+		\end{itemize}
+\end{itemize}
+
+The payload structure differs by used opcode. All values are encoded as little-endian.
+
+\subsection{Single command packet payload}
+
+A single command packet payload structure is as follows:
+
+\begin{itemize}
+	\item \texttt{module ID} - [8b or 16b] ID of module from global enumeration
+		\begin{itemize}
+			\item marks that the command targets a specified module ID
+			\item generic or non-targetted commands is assumed to target the core API (\texttt{KETCUBE\_MODULEID\_CORE\_API})
+		\end{itemize}
+	\item \texttt{command tree path} - [at least 8b] an array of 1-byte indexes to terminal command tree
+		\begin{itemize}
+			\item each field represents an index in the command (sub-)tree
+			\item parsing is ended implicitly when a leaf (specific command) is reached
+		\end{itemize}
+	\item \texttt{parameter payload} - [variable length] serialized parameters of a given command
+		\begin{itemize}
+			\item if the command does not require any parameters, this field is missing
+			\item parameters are serialized by custom rules mentioned below
+		\end{itemize}
+\end{itemize}
+
+The command tree path is retrieved by traversing the terminal command tree. If a generic command is addressed, module ID is ignored. Parsing may go through 3 phases:
+
+\begin{itemize}
+	\item \texttt{root} - looking for the root command subtree (always a generic entry)
+	\item \texttt{module} - looking for a module in given subtree - this avoids conflicts between same base versions with different module set selected during compilation; this level is thus not identified by index to an array, but rather by module ID itself
+	\item \texttt{subtree} - looking for a specific subtree or command
+\end{itemize}
+
+\subsection{Batch packet payload}
+
+A batch packet payload structure is as follows:
+
+\begin{itemize}
+	\item \texttt{length} - [8b] length of the payload
+		\begin{itemize}
+			\item excludes fixed-size common header and self
+		\end{itemize}
+	\item \texttt{module ID} - [8b or 16b] module ID, unused for now
+		\begin{itemize}
+			\item reserved, set to 0 for all batch packets
+		\end{itemize}
+	\item \texttt{command array} - [variable length] an array of single command packet payloads
+\end{itemize}
+
+\docNote{The \textit{16bf} field of the common header is set, if any of commands in the batch addresses a module with 16-bit ID. Thus, this bit affects every command encoded within this batch.}.
+
+\subsection{Parameter encoding rules}
+
+The parameters are encoded in minimalistic fashion due to the fact, that both sides of communication are informed about transfered data types, their limitations and sizes.
+
+\begin{itemize}
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_BOOLEAN} - encoded as a one-byte unsigned character, 0 represents \textit{false}, any other value represents \textit{true}
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_BYTE} - encoded as a one-byte unsigned character
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_MODULEID} - encoded as a pair of 16bit module ID (always 16bit, regardless the \textit{16bf} flag) and a 8bit severity identifier
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_INT32} - encoded as a 32-bit signed integer in target machine representation
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_UINT32} - encoded as a 32-bit unsigned integer
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_STRING} - encoded as a sequence of bytes terminated with zero-character; the array itself has a fixed-size of \texttt{KETCUBE\_TERMINAL\_PARAM\_STR\_MAX\_LENGTH}
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_INT32\_PAIR} - encoded as two subsequent 32-bit signed integers in target machine representation
+	\item \texttt{KETCUBE\_TERMINAL\_PARAMS\_BYTE\_ARRAY} - encoded as a fixed-length byte array and a 16bit length; the length represents the actual number of bytes used within the given fixed-size array; the array size is \texttt{KETCUBE\_TERMINAL\_PARAM\_BYTE\_ARRAY\_MAX\_LENGTH}
+\end{itemize}
+
+All values are encoded as little-endian.
+
+\subsection{Command response}
+
+The response always contains the same header, as the request. To properly pair the request with response, a packet opcode and its sequence number is used. If any of those fields does not match the expected header fields, the response shoult be discarded and an error should be displayed.
+
+Once the response is properly paired with a request, following fields are extracted:
+
+\begin{itemize}
+	\item \texttt{error code} - an 8bit unsigned character representing the command evaluation outcome on the remote side
+	\item \texttt{output parameter} - a single output parameter decoded by the same rules as an input parameter
+\end{itemize}
+
+The response processing procedure is identical for batch packets, except the extraction procedure is repeated for every command issued in given batch.
+
+To properly identify errors, the remote terminal uses an additional values in \texttt{ketCube\_terminal\_command\_errorCode\_t} enumerator. For more information, please, refer to the source code.
+
+\subsection{Flow}
+
+The protocol uses a simple \textit{Stop-and-wait} communication scheme. This means, that the received and sender window has a length of 1 packet, and no other packet should be sent until the last one is acknowledged (i.e.; a response is received and parsed). No other packet flow-control is required, nor supported. Therefore, this protocol completely relies on underlying protocols to ensure data transfer reliability.
+
+Due to increased latency in network communication, and base period set in the ketCube core configuration, the timeout for remote terminal command responses should be set to a reasonably high value. If the timeout value is exceeded during wait, the command is discarded and no response is further anticipated.
+
   
 % ------------------------------------------------------------
 % ------------------------------------------------------------
