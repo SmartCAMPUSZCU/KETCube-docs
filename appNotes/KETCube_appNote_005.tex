@@ -141,7 +141,7 @@ reload
 \clearpage 
 \section{KETCube Remote Terminal Protocol}
 
-The remote terminal protocol is an application protocol built on top of any supported undelying general-purpose application protocol like MQTT. Thus, it is designed to contain only application-level logic. Each packet starts with a fixed-size header. Its structure is as follows.
+The remote terminal protocol is an application protocol built on top of any supported undelying general-purpose application protocol like MQTT. Thus, it is designed to contain only application-level logic. Each packet starts with a 16-bit header. Its structure is as follows.
 
 \begin{tikzpicture}
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{Opcode}};
@@ -166,6 +166,7 @@ The remote terminal protocol is an application protocol built on top of any supp
 		\begin{itemize}
 			\item if set, all module IDs present in payload are encoded as 16bit unsigned integers
 			\item otherwise, 8bit unsigned integer encoding is used
+			\item 16bit IDs can be used anytime; 8bit IDs save payload, but they are only allowed when all IDs in a single command are lower than 256 (typically for \texttt{core} command)
 		\end{itemize}
 	\item \texttt{RFU} - [1b] Reserved for Future Use
 	\item \texttt{Seq} - [4b] sequence number
@@ -176,6 +177,7 @@ The remote terminal protocol is an application protocol built on top of any supp
 		\begin{itemize}
 			\item core API versions should match on both sides
 			\item mismatch may lead to command rejection
+			\item the core API version for KETCube v0.2 is \texttt{0x04}
 		\end{itemize}
 \end{itemize}
 
@@ -183,7 +185,15 @@ The payload structure differs by used opcode. All values are encoded as little-e
 
 \subsection{Single command packet payload}
 
-A single command packet payload structure is as follows:
+A single command packet payload structure is as follows.
+
+\begin{tikzpicture}
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{module ID}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{i$_0$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=blue!20,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{\dots}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=4cm]{\texttt{i$_n$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 5cm,xshift=5cm]{\texttt{parameter payload}};
+\end{tikzpicture}
 
 \begin{itemize}
 	\item \texttt{module ID} - [8b or 16b] ID of module from global enumeration
@@ -195,6 +205,7 @@ A single command packet payload structure is as follows:
 		\begin{itemize}
 			\item each field represents an index in the command (sub-)tree
 			\item parsing is ended implicitly when a leaf (specific command) is reached
+			\item module index in the \texttt{set}/\texttt{setr} and \texttt{show}/\texttt{showr} tree is skipped, as the moduleID specifies the module
 		\end{itemize}
 	\item \texttt{parameter payload} - [variable length] serialized parameters of a given command
 		\begin{itemize}
@@ -211,6 +222,58 @@ The command tree path is retrieved by traversing the terminal command tree. If a
 	\item \texttt{subtree} - looking for a specific subtree or command
 \end{itemize}
 
+\docExample{
+Command with 8bit module ID and 4byte payload encoding:
+\vspace{0.4cm}
+
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{Opcode}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{16bf}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{RFU}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{Seq}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{Core\_API\_version}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{module ID}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{i$_0$}};
+ \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{i$_1$}};
+ \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{payload$_0$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{payload$_1$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{payload$_2$}};
+ \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{payload$_3$}};
+ 
+ \node[anchor=north west,yshift=5.0cm,xshift=-0.25cm,fill=white] {0};
+ \node[anchor=north west,yshift=5.0cm,xshift=+7.75cm,fill=white] {8};
+ \node[anchor=north west,yshift=5.0cm,xshift=+16.0cm,fill=white] {16};
+\end{tikzpicture}
+}
+
+\vspace{0.5cm}
+Command \docKCCmdInline{set core basePeriod 10000} encoding:
+\vspace{0.4cm}
+
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{0b00}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{0b0}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{0b0}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{0X0}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x04}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x00} (\docKCCmdInline{core})};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x08} (\docKCCmdInline{set})};
+ \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x00} (\docKCCmdInline{basePeriod})};
+ \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x10}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x27}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x00}};
+ \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x00}};
+ 
+ \node[anchor=north west,yshift=5.0cm,xshift=-0.25cm,fill=white] {0};
+ \node[anchor=north west,yshift=5.0cm,xshift=+7.75cm,fill=white] {8};
+ \node[anchor=north west,yshift=5.0cm,xshift=+16.0cm,fill=white] {16};
+\end{tikzpicture}
+}
+}
+
+\clearpage
 \subsection{Batch packet payload}
 
 A batch packet payload structure is as follows:
