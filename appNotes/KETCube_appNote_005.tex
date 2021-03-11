@@ -148,16 +148,23 @@ The remote terminal protocol is an application protocol built on top of any supp
 \noindent Each packet starts with a 16-bit header. Its structure is as follows.
 
 \begin{tikzpicture}
- \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{Opcode}};
- \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{16bf}};
- \node[draw,anchor=north west,yshift=1.5cm,fill=red!20,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{RFU}};
- \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{Seq}};
- \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Core\_API\_version}};
- \node[anchor=north west,yshift=2.0cm,xshift=-0.5cm,fill=white] {0};
- \node[anchor=north west,yshift=2.0cm,xshift=+3.75cm,fill=white] {4};
- \node[anchor=north west,yshift=2.0cm,xshift=+8.0cm,fill=white] {8};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{Opcode}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{16bf}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=red!20,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{RFU}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{Seq}};
+ \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Core\_API\_version}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Module ID$_{LSB}$}};
+ \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Module ID$_{MSB}$}};
+ \node[anchor=north west,yshift=4.0cm,xshift=-0.5cm,fill=white] {0};
+ \node[anchor=north west,yshift=4.0cm,xshift=+3.75cm,fill=white] {4};
+ \node[anchor=north west,yshift=4.0cm,xshift=+8.0cm,fill=white] {8};
  
- \node[anchor=north west,yshift=0.75cm,xshift=-0.5cm,fill=white] {8};
+ \node[anchor=north west,yshift=2.75cm,xshift=-0.5cm,fill=white] {8};
+ \node[anchor=north west,yshift=1.75cm,xshift=-0.65cm,fill=white] {16};
+ \node[anchor=north west,yshift=2.75cm,xshift=+8.05cm,fill=white] {16};
+ \node[anchor=north west,yshift=1.75cm,xshift=+8.05cm,fill=white] {24};
+ \node[anchor=north west,yshift=0.75cm,xshift=-0.65cm,fill=white] {24};
+ \node[anchor=north west,yshift=0.75cm,xshift=+8.05cm,fill=white] {32};
 \end{tikzpicture}
 
 \begin{itemize}
@@ -183,6 +190,12 @@ The remote terminal protocol is an application protocol built on top of any supp
 			\item mismatch may lead to command rejection
 			\item the core API version for KETCube v0.2 is \texttt{0x04}
 		\end{itemize}
+    \item \texttt{module ID} - [8b or 16b] ID of module from global enumeration
+		\begin{itemize}
+			\item marks that the command targets a specified module ID
+			\item generic or non-targetted commands is assumed to target the core API (\texttt{Core\_API\_version})
+			\item for batch, this field is RFU, set to 0 for batch packets
+		\end{itemize}
 \end{itemize}
 
 The payload structure differs by used opcode. All values are encoded as little-endian.
@@ -193,7 +206,6 @@ The payload structure differs by used opcode. All values are encoded as little-e
 A single command packet payload structure is as follows.
 
 \begin{tikzpicture}
- \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{module ID}};
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{i$_0$}};
  \node[draw,anchor=north west,yshift=1.5cm,fill=blue!20,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{\dots}};
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=4cm]{\texttt{i$_n$}};
@@ -201,11 +213,6 @@ A single command packet payload structure is as follows.
 \end{tikzpicture}
 
 \begin{itemize}
-	\item \texttt{module ID} - [8b or 16b] ID of module from global enumeration
-		\begin{itemize}
-			\item marks that the command targets a specified module ID
-			\item generic or non-targetted commands is assumed to target the core API (\texttt{KETCUBE\_MODULEID\_CORE\_API})
-		\end{itemize}
 	\item \texttt{command tree path} - [at least 8b] an array of 1-byte indexes to terminal command tree
 		\begin{itemize}
 			\item each field represents an index in the command (sub-)tree
@@ -308,21 +315,13 @@ Where each command (CMD$_i$) has the following structure:
 
 \begin{itemize}
 	\item \texttt{length} - [8b] sum of the \texttt{parameter payload} and the \texttt{command tree path} lengths
-		\begin{itemize}
-			\item \sout{excludes fixed-size common header and self}
-		\end{itemize}
-	\item \texttt{module ID} - [8b or 16b] module ID\sout{, unused for now}
-		\begin{itemize}
-			\item \sout{reserved, set to 0 for all batch packets}
-		\end{itemize}
+	\item \texttt{module ID} - [8b or 16b] module ID
 	\item \texttt{parameter payload} - [variable length] serialized parameters of a given command
 		\begin{itemize}
 			\item if the command does not require any parameters, this field is missing
 			\item parameters are serialized by custom rules mentioned below
 		\end{itemize}
 \end{itemize}
-
-\sout{The payload structure is repeated for each batch command.}
 
 \docNote{The \textit{16bf} field of the common header is set, if any of commands in the batch addresses a module with 16-bit ID. Thus, this bit affects every command encoded within this batch.}.
 
