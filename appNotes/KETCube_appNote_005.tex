@@ -141,7 +141,11 @@ reload
 \clearpage 
 \section{KETCube Remote Terminal Protocol}
 
-The remote terminal protocol is an application protocol built on top of any supported undelying general-purpose application protocol like MQTT. Thus, it is designed to contain only application-level logic. Each packet starts with a 16-bit header. Its structure is as follows.
+The remote terminal protocol is an application protocol built on top of any supported undelying general-purpose application protocol like MQTT. Thus, it is designed to contain only application-level logic.
+
+\docNote{In LoRaWAN, port \textit{13} is dedicated for Remote Terminal.}
+
+\noindent Each packet starts with a 16-bit header. Its structure is as follows.
 
 \begin{tikzpicture}
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{Opcode}};
@@ -183,6 +187,7 @@ The remote terminal protocol is an application protocol built on top of any supp
 
 The payload structure differs by used opcode. All values are encoded as little-endian.
 
+\clearpage
 \subsection{Single command packet payload}
 
 A single command packet payload structure is as follows.
@@ -222,6 +227,11 @@ The command tree path is retrieved by traversing the terminal command tree. If a
 	\item \texttt{subtree} - looking for a specific subtree or command
 \end{itemize}
 
+\docNote{
+To get the list of command indexes and module IDs for your KETCube build, execute \docKCCmdInline{show core commandSet} command in KETCube Terminal.
+}
+
+\clearpage
 \docExample{
 Command with 8bit module ID and 4byte payload encoding:
 \vspace{0.4cm}
@@ -233,7 +243,7 @@ Command with 8bit module ID and 4byte payload encoding:
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{RFU}};
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{Seq}};
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{Core\_API\_version}};
- \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{module ID}};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{module ID} (\texttt{Core\_API\_version} for \docKCCmdInline{core})};
  \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{i$_0$}};
  \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{i$_1$}};
  \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{payload$_0$}};
@@ -256,9 +266,9 @@ Command \docKCCmdInline{set core basePeriod 10000} encoding:
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{0b00}};
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=2cm]{\texttt{0b0}};
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{0b0}};
- \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{0X0}};
+ \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 4cm,xshift=4cm]{\texttt{0x0}};
  \node[draw,anchor=north west,yshift=4.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x04}};
- \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x00} (\docKCCmdInline{core})};
+ \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x04} (\docKCCmdInline{core})};
  \node[draw,anchor=north west,yshift=3.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x08} (\docKCCmdInline{set})};
  \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x00} (\docKCCmdInline{basePeriod})};
  \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x10}};
@@ -278,17 +288,41 @@ Command \docKCCmdInline{set core basePeriod 10000} encoding:
 
 A batch packet payload structure is as follows:
 
+\begin{tikzpicture}
+\node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=0cm,]{\texttt{CMD$_0$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=2cm,]{\texttt{CMD$_1$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=blue!20,minimum height=1cm,minimum width = 2cm,xshift=4cm]{\texttt{...}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=6cm]{\texttt{CMD$_n$}};
+\end{tikzpicture}
+
+Where each command (CMD$_i$) has the following structure:
+
+\begin{tikzpicture}
+\node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=0cm,]{\texttt{len.}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 2cm,xshift=1cm,]{\texttt{module ID}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=3cm]{\texttt{i$_0$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=blue!20,minimum height=1cm,minimum width = 1cm,xshift=4cm]{\texttt{\dots}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 1cm,xshift=5cm]{\texttt{i$_n$}};
+ \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 5cm,xshift=6cm]{\texttt{parameter payload}};
+\end{tikzpicture}
+
 \begin{itemize}
-	\item \texttt{length} - [8b] length of the payload
+	\item \texttt{length} - [8b] sum of the \texttt{parameter payload} and the \texttt{command tree path} lengths
 		\begin{itemize}
-			\item excludes fixed-size common header and self
+			\item \sout{excludes fixed-size common header and self}
 		\end{itemize}
-	\item \texttt{module ID} - [8b or 16b] module ID, unused for now
+	\item \texttt{module ID} - [8b or 16b] module ID\sout{, unused for now}
 		\begin{itemize}
-			\item reserved, set to 0 for all batch packets
+			\item \sout{reserved, set to 0 for all batch packets}
 		\end{itemize}
-	\item \texttt{command array} - [variable length] an array of single command packet payloads
+	\item \texttt{parameter payload} - [variable length] serialized parameters of a given command
+		\begin{itemize}
+			\item if the command does not require any parameters, this field is missing
+			\item parameters are serialized by custom rules mentioned below
+		\end{itemize}
 \end{itemize}
+
+\sout{The payload structure is repeated for each batch command.}
 
 \docNote{The \textit{16bf} field of the common header is set, if any of commands in the batch addresses a module with 16-bit ID. Thus, this bit affects every command encoded within this batch.}.
 
@@ -322,13 +356,25 @@ Once the response is properly paired with a request, following fields are extrac
 
 The response processing procedure is identical for batch packets, except the extraction procedure is repeated for every command issued in given batch.
 
-To properly identify errors, the remote terminal uses an additional values in \texttt{ketCube\_terminal\_command\_errorCode\_t} enumerator. For more information, please, refer to the source code.
+To properly identify errors, the remote terminal currently supports following error codes:
 
-\subsection{Flow}
+\begin{itemize}
+  \item \texttt{OK} = 0,
+  \item \texttt{INVALID\_PARAMS} = 1
+  \item \texttt{MEMORY\_IO\_FAIL} = 2
+  \item \texttt{COMMAND\_NOT\_FOUND} = 3
+  \item \texttt{MODULE\_NOT\_FOUND} = 4
+  \item \texttt{FAILED\_CONTEXT} = 5
+  \item \texttt{UNSPECIFIED\_ERROR} = 6
+  \item \texttt{NOT\_SUPPORTED} = 7
+  \item \texttt{CORE\_API\_MISMATCH} = 8
+\end{itemize}
+
+\subsection{Communication Flow}
 
 The protocol uses a simple \textit{Stop-and-wait} communication scheme. This means, that the received and sender window has a length of 1 packet, and no other packet should be sent until the last one is acknowledged (i.e.; a response is received and parsed). No other packet flow-control is required, nor supported. Therefore, this protocol completely relies on underlying protocols to ensure data transfer reliability.
 
-Due to increased latency in network communication, and base period set in the ketCube core configuration, the timeout for remote terminal command responses should be set to a reasonably high value. If the timeout value is exceeded during wait, the command is discarded and no response is further anticipated.
+Due to increased latency in network communication, and base period set in the KETCube core configuration, the timeout for remote terminal command responses should be set to a reasonably high value. 
 
   
 % ------------------------------------------------------------
