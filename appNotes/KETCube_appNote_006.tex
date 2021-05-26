@@ -371,7 +371,7 @@ For debugging purposes, it may be useful to watch the \docKCModName{BatMeas} out
   
   To compute actual battery voltage, use the following equation:
   
-  $V = (B/254 \cdot 0.7) + V_{min} ~[mV]$
+  $V = (V_{nom} - V_{min}) \cdot B/254 + V_{min} ~[mV]$
   
   $V_{min}$ is the lowest voltage value -- battery is considered as discharged. $V_{min}$ and $V_{nom}$ (nominal voltage) values for supported batteries are in the following table:
   
