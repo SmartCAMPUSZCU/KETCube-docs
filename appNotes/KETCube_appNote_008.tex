@@ -1,0 +1,627 @@
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Defines
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/defs.tex}
+
+\title{\UWBLogo KETCube AppNote 008:\\ KETCube Bootloader (\vhCurrentVersion)}
+
+\author{Author: \vhListAllAuthorsLongWithAbbrev}
+\date{Version \vhCurrentVersion\ from \vhCurrentDate}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Head
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/head.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\section*{KETCube Bootloader: the STM Bootloader Re-Invented}
+\input{resources/about.tex}
+
+This document describes the KETCube Bootloader. The bootloader is in part compatible with the standard ROM STM32 bootloader \cite{STM32:AN3155}.
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+\listoffigures
+\listoftables
+\begin{versionhistory}
+  \vhEntry{0.2.0*}{8.6.2021}{JB}{Initial version}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage 
+\pagenumbering{arabic} 
+\pagestyle{headings} 
+
+\clearpage
+\section{Supported Interfaces}
+\subsection{UART1 Settings}
+
+\begin{itemize}
+  \item Tx PIN: PA9
+  \item Rx PIN: PA10
+  \item Default Baud Rate: 57600 bps
+  \item Data bits: 8
+  \item Stop bits: 1
+  \item Parity: Even
+  \item HW Flow control: No
+\end{itemize}
+
+\clearpage
+\section{Supported Devices}\label{sec:supportedDevices}
+
+\docNote{This bootloader is designed to be generic, however it is currently tested only on STM32L0[7,8][1-3] devices.}
+
+\subsection{Adding a New Device}
+
+To add a new device, insert the device definition to the \docFileName{device.h} file. For the device specification details, see Table 149 in \cite{STM32:AN2606}.
+
+Always use the macro conditional expression to add a new device, e.g. \docVarName{\#if defined(STM32L071xx)}.
+
+\docNote{To select the device, set \docVarName{DEVICE} variable in the Makefile to the device-speciffic string, e.g. to \docVarName{STM32L071xx} to select STM32l071 device.}
+
+\clearpage
+\section{Supported Flash Tools}
+
+The primary tool intended for use in connection with this bootloader is {\it stm32flash\footnote{\url{https://sourceforge.net/projects/stm32flash/}}}.
+
+\begin{docCodeExampleTitled}{Test Bootloader Connection}
+\begin{verbatim}
+$ ./stm32flash -c /dev/ttyUSB0 
+stm32flash 0.5_KETCube
+
+http://stm32flash.sourceforge.net/
+
+Interface serial_posix: 57600 8E1
+Version      : 0x01
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0447 (STM32L07xxx/08xxx)
+- RAM        : Up to 20KiB  (8192b reserved by bootloader)
+- Flash      : Up to 192KiB (size first sector: 32x128)
+- Option RAM : 32b
+- System RAM : 8KiB
+\end{verbatim}
+\end{docCodeExampleTitled}
+
+\clearpage
+\section{USART Bootloader Operation}
+
+\marginlabel{\captionof{figure}{Bootloader operation sequence}\label{fig:bootOp:sequence}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { 0x7F received on\\USARTx Rx pin };
+
+\node[draw,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=1cm,
+    align=center
+] (block2) { USART1 selected };
+
+\node[draw,
+    below=of block2,
+    minimum width=3cm,
+    minimum height=3cm,
+    align=center
+] (block3) { Auto-baud rate sequence\\send ACK byte \& disable\\unused peripherals\footnotemark };
+
+\node[coordinate,below=1cm of block3] (blockCmdWait) {};
+
+\node[draw,
+    diamond,
+    below=1cm of blockCmdWait,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block4) { Wait for a\\command };
+ 
+\node[coordinate,below=1cm of block4] (blockCmdRecv) {};
+
+\node[draw,
+    below left=of blockCmdRecv,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block6) { GET cmd\\routine };
+
+\node[draw,
+    right=of block6,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block7) { READ cmd\\routine };
+
+\node[draw,
+    right=of block7,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block8) { GO cmd\\routine };
+ 
+\node[coordinate,below=1cm of block7] (blockCmdExec) {};
+\node[coordinate,below=1cm of blockCmdExec] (blockCmdExec2) {};
+\node[coordinate,left=8cm of blockCmdExec2] (blockCmdExec3) {};
+ 
+% Arrows
+\draw[-latex] (block1) edge (block2)
+              (block2) edge (block3)
+              (block3) -- (blockCmdWait)
+              (blockCmdWait) -| (block4)
+              (block4) edge (blockCmdRecv);
+              
+\draw[->] (blockCmdRecv) -| (block6);
+\draw[->] (blockCmdRecv) -| (block7);
+\draw[->] (blockCmdRecv) -| (block8);
+
+\draw[] (block6) |- (blockCmdExec);
+\draw[] (block7) |- (blockCmdExec);
+\draw[] (block8) |- (blockCmdExec);
+
+\draw[] (blockCmdExec) |- (blockCmdExec2)
+        (blockCmdExec2) |- (blockCmdExec3);
+\draw[->] (blockCmdExec3) |- (blockCmdWait);
+ 
+\end{tikzpicture}}}
+\footnotetext{autobaudrate is currently NOT supported by this bootloader}
+
+\subsection{Auto-Baud Rate}
+\docNote{The auto-baud rate is currently not implemented.}
+
+
+\clearpage
+\section{Boootloader Command Set}
+
+  \begin{table*}[!ht]
+    \hspace*{-4cm}
+    \begin{tabular}{| p{4cm} | p{2cm} | p{7cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Command} & {\bf CMD Code} & {\bf Description} \\
+        \hline
+        \hline
+        \nameref{cmd:get} & 0x00 & Get bootloader version and the list of commands supported by bootloader \\
+        \hline
+        \nameref{cmd:getVersion} & 0x01 & Get bootloader version \\
+        \hline
+        \nameref{cmd:getID} & 0x02 & Get the Chip ID \\
+        \hline
+        \nameref{cmd:readMem} & 0x11 & Read Memory \\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Bootloader Command Set}
+    \label{tab:cmdset}
+   \end{table*}
+
+\clearpage
+\subsection{Get} \label{cmd:get}
+
+\marginlabel{\captionof{figure}{Get CMD Flow Diagram}\label{fig:cmd:get}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start Get };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x00,0xFF };
+
+\node[draw,
+    right=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3N) { Send NACK };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block4) { Send the number of\\supported commands };
+
+\node[draw,
+    below=of block4,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block5) { Send the\\bootloader version\footnotemark };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send the\\supported commands };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Send ACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block7,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block8) { End of Get };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -- (block3N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6);
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+
+\draw[->] (block3N) |- (block8);
+
+\end{tikzpicture}}}
+\footnotetext{The version is represented by a single byte, where MSB nibble represents the major version number, while the LSB nibble represents the minor version number. The version byte can be adjusted by setting the Makefile directive \docVarName{VERSION}}
+
+\clearpage
+\subsection{Get Version} \label{cmd:getVersion}
+
+\marginlabel{\captionof{figure}{Get version CMD Flow Diagram}\label{fig:cmd:getVersion}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Get Version };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x01,0xFE };
+
+\node[draw,
+    right=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3N) { Send NACK };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block4) { Send the\\bootloader version\footnotemark };
+
+\node[draw,
+    below=of block4,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block5) { Send 0x00\footnotemark };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send 0x00\footnotemark[\value{footnote}] };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Send ACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block7,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block8) { End of\\Get Version };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -- (block3N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6);
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+
+\draw[->] (block3N) |- (block8);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-1}
+\footnotetext{The version is represented by a single byte, where MSB nibble represents the major version number, while the LSB nibble represents the minor version number. The version byte can be adjusted by setting the Makefile directive \docVarName{VERSION}}
+\addtocounter{footnote}{+1}
+\footnotetext{STM bootloader protocol defines two Option Bytes, here the option bytes are fixed to 0x00}
+
+
+\clearpage
+\subsection{Get ID} \label{cmd:getID}
+
+\marginlabel{\captionof{figure}{Get ID CMD Flow Diagram}\label{fig:cmd:getID}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Get ID };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x02,0xFD };
+
+\node[draw,
+    right=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3N) { Send NACK };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block4) { Send 0x01\footnotemark };
+
+\node[draw,
+    below=of block4,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block5) { Send ID$_{MSB}$\footnotemark };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send ID$_{LSB}$\footnotemark[\value{footnote}] };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Send ACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block7,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block8) { End of\\Get ID };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -- (block3N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6);
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+
+\draw[->] (block3N) |- (block8);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-1}
+\footnotetext{The first byte is fixed to 0x01 for STM32 devices}
+\addtocounter{footnote}{+1}
+\footnotetext{ID is sent MSB-first, the emulated device bootloader can be selected by the Makefile variable \docVarName{DEVICE} -- see Section \ref{sec:supportedDevices}}
+
+\clearpage
+\subsection{Read Memory} \label{cmd:readMem}
+
+\marginlabel{\captionof{figure}{read Memory CMD Flow Diagram}\label{fig:cmd:readMem}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Read Memory };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x11,0xEE };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK\footnotemark };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=2cm,
+    align=center
+] (block4) { Receive\\Start Address\\and Checksum\footnotemark };
+
+\node[draw,
+    diamond,
+    below=of block4,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block5) { Address\\\& Checksum };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send ACK };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Receive\\Number of bytes\\and checksum\footnotemark };
+ 
+\node[draw,
+    diamond,
+    below=of block7,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block8) { Checksum };
+ 
+\node[draw,
+    below=of block8,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9) { Send ACK };
+
+\node[draw,
+    right=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9N) { Send NACK };
+
+\node[draw,
+    below=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block10) { Send data to host };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block11) { End of\\Read Memory };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6);
+\draw[->] (block5) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+\draw[->] (block8) -- (block9);
+\draw[->] (block8) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block9) -- (block10);
+\draw[->] (block10) -- (block11);
+
+\draw[->] (block9N) |- (block11);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-2}
+\footnotetext{Read protection is not checked, ACK is always sent}
+\addtocounter{footnote}{+1}
+\footnotetext{4-byte address is received MSB-first, and the checksum is XOR of address bytes}
+\addtocounter{footnote}{+1}
+\footnotetext{Number of bytes -1; the max value of this byte is 255 meaning 256 bytes will be sent; checksum is the complement to the number of bytes}
+  
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube appNote Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/tail.tex}
+
