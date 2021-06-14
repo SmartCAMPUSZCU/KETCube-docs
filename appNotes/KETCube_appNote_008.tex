@@ -210,6 +210,10 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
         \hline
         \nameref{cmd:readMem} & 0x11 & Read Memory \\
         \hline
+        \nameref{cmd:writeMem} & 0x31 & Write Memory \\
+        \hline
+        \nameref{cmd:eraseMem} & 0x43 & Erase Memory \\
+        \hline
     \end{tabular}
     \addcontentsline{lot}{table}{Bootloader Command Set}
     \label{tab:cmdset}
@@ -409,10 +413,10 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 \node[draw,
     diamond,
     below=of block1,
-    minimum width=3cm,
-    minimum height=2cm,
+    minimum width=5cm,
+    minimum height=3cm,
     align=center
-] (block2) { Received\\0x02,0xFD };
+] (block2) { Received\\0x02,0xFD\\\&\\Device Match\footnotemark };
 
 \node[draw,
     right=of block2,
@@ -478,7 +482,9 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 \draw[->] (block3N) |- (block8);
 
 \end{tikzpicture}}}
-\addtocounter{footnote}{-1}
+\addtocounter{footnote}{-2}
+\footnotetext{The additional check is added to check if bootloader configuration match the device where it is executed}
+\addtocounter{footnote}{+1}
 \footnotetext{The first byte is fixed to 0x01 for STM32 devices}
 \addtocounter{footnote}{+1}
 \footnotetext{ID is sent MSB-first, the emulated device bootloader can be selected by the Makefile variable \docVarName{DEVICE} -- see Section \ref{sec:supportedDevices}}
@@ -486,7 +492,7 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 \clearpage
 \subsection{Read Memory} \label{cmd:readMem}
 
-\marginlabel{\captionof{figure}{read Memory CMD Flow Diagram}\label{fig:cmd:readMem}}
+\marginlabel{\captionof{figure}{Read Memory CMD Flow Diagram}\label{fig:cmd:readMem}}
 \raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
  
 \node[draw,
@@ -584,12 +590,12 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 
 \draw[->] (block3Y) -- (block4);
 \draw[->] (block4) -- (block5);
-\draw[->] (block5) -- (block6);
+\draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { Yes };
 \draw[->] (block5) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
 
 \draw[->] (block6) -- (block7);
 \draw[->] (block7) -- (block8);
-\draw[->] (block8) -- (block9);
+\draw[->] (block8) -- (block9) node [pos=0.5,right,font=\footnotesize] { Yes };
 \draw[->] (block8) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
 
 \draw[->] (block9) -- (block10);
@@ -603,7 +609,265 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 \addtocounter{footnote}{+1}
 \footnotetext{4-byte address is received MSB-first, and the checksum is XOR of address bytes}
 \addtocounter{footnote}{+1}
-\footnotetext{Number of bytes -1; the max value of this byte is 255 meaning 256 bytes will be sent; checksum is the complement to the number of bytes}
+\footnotetext{Number of bytes - 1; the max value of this byte is 255 meaning 256 bytes will be sent; checksum is the complement to the number of bytes}
+
+\clearpage
+\subsection{Write Memory} \label{cmd:writeMem}
+
+\marginlabel{\captionof{figure}{Write Memory CMD Flow Diagram}\label{fig:cmd:writeMem}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Write Memory };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x31,0xCE };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK\footnotemark };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=2cm,
+    align=center
+] (block4) { Receive\\Start Address\\and Checksum\footnotemark };
+
+\node[draw,
+    diamond,
+    below=of block4,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block5) { Address\\\& Checksum };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send ACK };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Receive\\Number of bytes\\data and checksum\footnotemark };
+ 
+\node[draw,
+    diamond,
+    below=of block7,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block8) { Checksum\\\& address range\footnotemark };
+
+ 
+\node[draw,
+    below=of block8,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9) { Write data to\\destination memory };
+ 
+\node[draw,
+    below=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block10) { Send ACK };
+
+\node[draw,
+    right=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9N) { Send NACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block11) { End of\\Write Memory };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block5) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+\draw[->] (block8) -- (block9) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block8) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block9) -- (block10);
+\draw[->] (block10) -- (block11);
+
+\draw[->] (block9N) |- (block11);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-3}
+\footnotetext{Read protection is not checked, ACK is always sent}
+\addtocounter{footnote}{+1}
+\footnotetext{4-byte address is received MSB-first, and the checksum is XOR of address bytes}
+\addtocounter{footnote}{+1}
+\footnotetext{Number of bytes - 1; the max value of this byte is 255 meaning 256 bytes will be received, while the value must be multiple of four; checksum is computed as a XOR of the length and all received data bytes}
+\addtocounter{footnote}{+1}
+\footnotetext{Option byte writes are currently not supported}
+  
+
+
+\clearpage
+\subsection{Erase Memory} \label{cmd:eraseMem}
+
+\marginlabel{\captionof{figure}{Erase Memory CMD Flow Diagram}\label{fig:cmd:eraseMem}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Erase Memory };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x43,0xBC };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK\footnotemark };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=2cm,
+    align=center
+] (block4) { Receive\\the number of\\pages to be erased\footnotemark };
+
+\node[draw,
+    diamond,
+    below=of block4,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block5) { Received\\0xFF };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Receive\\page codes };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Receive\\the checksum };
+ 
+\node[draw,
+    diamond,
+    below=of block7,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block8) { Checksum };
+
+ 
+\node[draw,
+    below=of block8,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9) { Erase selected\\pages };
+ 
+\node[draw,
+    left=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6Y) { Global erase\\(Mass Erase) };
+ 
+\node[draw,
+    below=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block10) { Send ACK };
+
+\node[draw,
+    right=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9N) { Send NACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block11) { End of\\Erase Memory };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { No };
+\draw[->] (block5) -| (block6Y) node [pos=0.3,above,font=\footnotesize] { Yes };
+
+\draw[->] (block6Y) |- (block10);
+
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+\draw[->] (block8) -- (block9) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block8) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block9) -- (block10);
+\draw[->] (block10) -- (block11);
+
+\draw[->] (block9N) |- (block11);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-1}
+\footnotetext{Read protection is not checked, ACK is always sent}
+\addtocounter{footnote}{+1}
+\footnotetext{Number of pages to be erased decreased by 1; 0xFF is a special value and it starts Mass Erase}
+  
   
 % ------------------------------------------------------------
 % ------------------------------------------------------------
