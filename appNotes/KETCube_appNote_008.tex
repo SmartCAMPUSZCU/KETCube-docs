@@ -266,15 +266,24 @@ $ All test cases PASSED!
         \hline
         \nameref{cmd:readMem} & 0x11 & Read Memory \\
         \hline
+        \nameref{cmd:go} & 0x21 & Go \\
+        \hline
         \nameref{cmd:writeMem} & 0x31 & Write Memory \\
         \hline
-        \nameref{cmd:eraseMem} & 0x43 & Erase Memory \\
+        \nameref{cmd:extEraseMem} & 0x44 & Extended Erase Memory \\
+        \hline
+        \hline
+        \rowcolor{Pink3!60!} \multicolumn{3}{| l |}{ \bf Deprecated Commands (Disabled By Default)}\\
+        \hline
+        \hline\nameref{cmd:eraseMem}\footnotemark & 0x43 & Erase Memory \\
         \hline
     \end{tabular}
     \addcontentsline{lot}{table}{Bootloader Command Set}
     \label{tab:cmdset}
    \end{table*}
-
+\footnotetext{Define the \docVarName{ENABLE\_CMD\_ERASE\_MEM} macro to enable the deprecated \docVarName{\nameref{cmd:eraseMem}} command}
+   
+   
 \clearpage
 \subsection{Get} \label{cmd:get}
 
@@ -668,6 +677,94 @@ $ All test cases PASSED!
 \footnotetext{Number of bytes - 1; the max value of this byte is 255 meaning 256 bytes will be sent; checksum is the complement to the number of bytes}
 
 \clearpage
+\subsection{Go} \label{cmd:go}
+
+\marginlabel{\captionof{figure}{Go CMD Flow Diagram}\label{fig:cmd:go}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Go };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x21,0xDE };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK\footnotemark };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=2cm,
+    align=center
+] (block4) { Receive\\Start Address\\and Checksum\footnotemark };
+
+\node[draw,
+    diamond,
+    below=of block4,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block5) { Address\\\& Checksum };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send ACK };
+
+\node[draw,
+    right=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6N) { Send NACK };
+
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block6N,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { End of\\Go };
+
+\node[below=of block6, fill=white] (blockJumpAddr) {Jump To Adress};
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block6N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block5) -| (block6N) node [pos=0.3,above,font=\footnotesize] { No };
+\draw[->] (block6) -- (blockJumpAddr);
+
+\draw[->] (block6N) -- (block7);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-1}
+\footnotetext{Read protection is not checked, ACK is always sent}
+\addtocounter{footnote}{+1}
+\footnotetext{4-byte address is received MSB-first, and the checksum is XOR of address bytes}
+\addtocounter{footnote}{+1}
+
+\clearpage
 \subsection{Write Memory} \label{cmd:writeMem}
 
 \marginlabel{\captionof{figure}{Write Memory CMD Flow Diagram}\label{fig:cmd:writeMem}}
@@ -923,7 +1020,164 @@ $ All test cases PASSED!
 \footnotetext{Read protection is not checked, ACK is always sent}
 \addtocounter{footnote}{+1}
 \footnotetext{Number of pages to be erased decreased by 1; 0xFF is a special value and it starts Mass Erase}
-  
+
+
+\clearpage
+\subsection{Extended Erase Memory} \label{cmd:extEraseMem}
+
+\marginlabel{\captionof{figure}{Extended Erase Memory CMD Flow Diagram}\label{fig:cmd:extEraseMem}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Extended Erase\\Memory };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x44,0xBB };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK\footnotemark };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=2cm,
+    align=center
+] (block4) { Receive\\the number of\\pages to be erased\footnotemark };
+
+\node[draw,
+    diamond,
+    below=of block4,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block5) { Received\\0xFFFx };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Receive\\page codes\footnotemark };
+
+\node[draw,
+    diamond,
+    left=of block6,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (blockMassYN) { Received\\0xFFFF, 0x0000\footnotemark };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Receive\\the checksum\footnotemark };
+ 
+\node[draw,
+    diamond,
+    below=of block7,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block8) { Checksum };
+
+ 
+\node[draw,
+    below=of block8,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9) { Erase selected\\pages };
+ 
+\node[draw,
+    left=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6Y) { Global erase\\(Mass Erase) };
+ 
+\node[draw,
+    below=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block10) { Send ACK };
+
+\node[draw,
+    right=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9N) { Send NACK };
+
+\node[draw,
+    left=3.5cm of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (blockMassNACK) { Send NACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block11) { End of\\Extended Erase\\Memory };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { No };
+
+\draw[->] (block5) -| (blockMassYN) node [pos=0.3,above,font=\footnotesize] { Yes };
+\draw[->] (blockMassYN) -- (block6Y)  node [pos=0.1,right,font=\footnotesize] { Yes };
+\draw[->] (blockMassYN) -| (blockMassNACK)  node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block6Y) |- (block10);
+
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+\draw[->] (block8) -- (block9) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block8) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block9) -- (block10);
+\draw[->] (block10) -- (block11);
+
+\draw[->] (block9N) |- (block11);
+\draw[->] (blockMassNACK) |- (block11);
+
+\end{tikzpicture}}}
+\addtocounter{footnote}{-4}
+\footnotetext{Read protection is not checked, ACK is always sent}
+\addtocounter{footnote}{+1}
+\footnotetext{Number of pages to be erased encoded on two bytes (MSB-first) decreased by 1 -- maximum is 512 pages; 0xFFFx encode special values (0xFFFF is Mass Erase, while the other values are RFU)}
+\addtocounter{footnote}{+1}
+\footnotetext{Each page is encoded by two bytes (MSB-first)}
+\addtocounter{footnote}{+1}
+\footnotetext{Receive 2 bytes (MSB-first) encoding special value and another 2 bytes (MSB-first), as the commandm complement: 0xFFFF code encodes Mass Erase}
+\addtocounter{footnote}{+1}
+\footnotetext{Checksum is a single byte computed over all bytes received since the number of pages - 1 bytes (included)}
+
+
   
 % ------------------------------------------------------------
 % ------------------------------------------------------------
