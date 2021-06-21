@@ -1,0 +1,111 @@
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Defines
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/defs.tex}
+
+\title{\UWBLogo KETCube Document Template (\vhCurrentVersion)}
+
+\author{Author: \vhListAllAuthorsLongWithAbbrev}
+\date{Version \vhCurrentVersion\ from \vhCurrentDate}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube AppNote Head
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/head.tex}
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% BEGIN of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\section*{About this Document}
+\input{resources/about.tex}
+
+This document describes KETCube upstream modules. 
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+
+\listoffigures
+\listoftables
+\begin{versionhistory}
+  \vhEntry{0.2.0*}{30.11.2020}{JB}{Initial version}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage 
+\pagenumbering{arabic} 
+\pagestyle{headings} 
+
+\clearpage
+\section{How to Write the KETCube Document}
+
+\docWarn{This is the WARNING BOX}
+
+\docNote{This is the NOTE BOX}
+
+\begin{docCodeExample}
+\begin{verbatim}
+This is the CODE EXAMPLE
+\end{verbatim}
+\end{docCodeExample}
+
+\marginlabel{\captionof{figure}{Full-Width Image}\label{fig:general:parts}}
+\raisebox{-\height}{\includegraphics[width=0.5\paperwidth]{ketCube_all_photo_fullQ.jpg}}
+
+\marginlabel{\captionof{figure}{Half-Width Images}\label{fig:general:stacked}}
+\raisebox{-\height}{\includegraphics[width=0.25\paperwidth]{ketCube_all_stacked_photo_fullQ.jpg}}
+\raisebox{-\height}{\includegraphics[width=0.25\paperwidth]{ketCube_all_inBox_photo_fullQ.jpg}}
+
+\subsection{Table Example}
+  \begin{table*}[!ht]
+    %\hspace*{-4cm}
+    \begin{tabular}{| p{3.5cm} | p{2cm} | p{2cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Battery} & $V_{min}$ [V] & $V_{nom}$ [V] \\
+        \hline
+        \hline
+        CR2032 & 2.9 & 3.3 \\
+        \hline
+        LS33600 & 2.9 & 3.6 \\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Table Example}
+    \label{tab:spec:AMR}
+   \end{table*}
+  
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% END of the KETCube appNote Content
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+  
+% Insert the common KETCube appNote Tail
+
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+
+\input{resources/appNotes/tail.tex}
+
