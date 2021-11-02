@@ -53,7 +53,7 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \pagestyle{headings} 
 
 \clearpage
-\section{Bootloader Architecture}
+\section{Bootloader Architecture} \label{sec:arch}
 
 \marginlabel{\captionof{figure}{Bootloader operation sequence}\label{fig:bootOp:sequence}}
 \raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
@@ -168,7 +168,7 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \subsubsection{Auto-Baud Rate}
 \docNote{The auto-baud rate is currently not implemented.}
 
-\subsection{Memory Map}
+\subsection{Memory Map} \label{sec:arch:map}
 
 \marginlabel{\captionof{figure}{Program Flash}\label{fig:cmd:get}}
 \raisebox{-\height}{
@@ -179,14 +179,92 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
   
   \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white] {0x08000000};
   \node[anchor=center,yshift=2.5cm,xshift=4cm,fill=white] {0x08004000};
-  \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x08030000};
+  \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x0802FFFF};
   
   \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {Program Flash};
 \end{tikzpicture}
 }
 
-\docWarn{RAM is used by the bootloader with no specific constraints: currently, no content of RAM should be considered untouched by the bootloader.}
+\marginlabel{\captionof{figure}{Non-Volatile Data Memory (EEPROM)}\label{fig:cmd:get}}
+\raisebox{-\height}{
 
+\begin{tikzpicture}
+  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application};
+  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader};
+  
+  \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white]  {0x08080000};
+  \node[anchor=center,yshift=2.5cm,xshift=4cm,fill=white]  {0x08080400};
+  \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x080817FF};
+  
+  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {EEPROM Data Memory};
+\end{tikzpicture}
+}
+
+\marginlabel{\captionof{figure}{Volatile Memory (RAM)}\label{fig:cmd:get}}
+\raisebox{-\height}{
+
+\begin{tikzpicture}
+  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application Only};
+  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader};
+  
+  \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white]  {0x20000000};
+  \node[anchor=center,yshift=2.5cm,xshift=4cm,fill=white]  {0x20000800};
+  \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x20004FFF};
+  
+  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {RAM Data Memory};
+\end{tikzpicture}
+}
+
+\docNote{RAM used by the bootloader cannot be re-used by Application!}
+
+\docNote{Structure of pointers to Bootloader API is provided at the gbeginnig of the RAM area.}
+
+\clearpage
+\subsection{Non-Volatile Bootloader Configuration} \label{sec:arch:nvm}
+
+\docNote{Application can use the bootloader API to set-up the bootloader. Alternativelly, application can write to the bootloader Non-Volatile Configuration memory to affect future bootloader behaviour -- e.g. appliaction can be used to manage bootloader keys.}
+
+\begin{table*}[!ht]
+  \hspace*{-4cm}
+  \begin{tabular}{| p{4cm} | p{9cm} | }
+      \hline
+      \rowcolor{SeaGreen3!30!} {\bf Type} & {\bf Description} \\
+      \hline
+      \hline
+      {\tt startup\_t }  & {\tt 0x00} -- start application code immediatelly (do not enter bootloader);\newline
+                          {\tt 0x01} -- stay in bootloader until timeout;\newline 
+                          {\tt 0x02} -- stay in bootloader until go\\
+      \hline
+      {\tt security\_t } & {\tt 0x00} -- do not verify application code;\newline
+                           {\tt 0x01} -- check application code CMAC;\newline 
+                           {\tt 0x02} -- decrypt application code;\newline
+                           {\tt 0x03} -- decrypt application code and check CMAC\\
+      \hline
+      {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
+      \hline
+      {\tt uint32\_t *}  & Application Code start address;\newline
+                         do not jump to application if {\tt NULL} \\
+      \hline
+      {\tt uint8\_t[16]} & Bootloader Unlock Key (bootloader is unlocked if {\tt NULL}) \\
+      \hline
+      {\tt uint8\_t[16]} & CMAC Key \\
+      \hline
+      {\tt uint8\_t[16]} & Encryption Key \\
+      \hline
+  \end{tabular}
+  \addcontentsline{lot}{table}{Bootloader Configuration Structure}
+  \label{tab:cfgStruct}
+ \end{table*}
+
+ 
+\clearpage
+\subsection{Bootloader API} \label{sec:arch:api}
+\subsubsection*{Set-Up Bootloader}
+
+\subsubsection*{AES}
+
+
+\clearpage
 \subsection{Application Requirements}
 \subsubsection*{Application must}
 \begin{itemize}
@@ -260,7 +338,7 @@ $ All test cases PASSED!
 
   \begin{table*}[!ht]
     \hspace*{-4cm}
-    \begin{tabular}{| p{4cm} | p{2cm} | p{7cm} |}
+    \begin{tabular}{| p{4cm} | p{1.5cm} | p{7.5cm} |}
         \hline
         \rowcolor{SeaGreen3!30!} {\bf Command} & {\bf CMD Code} & {\bf Description} \\
         \hline
@@ -279,6 +357,12 @@ $ All test cases PASSED!
         \hline
         \nameref{cmd:extEraseMem} & 0x44 & Extended Erase Memory \\
         \hline
+        \nameref{cmd:special} & 0x50 & Special Command \\
+        \hline
+        \nameref{cmd:readProtect} & 0x82 & Enable Readout Protection \\
+        \hline
+        \nameref{cmd:readUnProtect} & 0x92 & Disable Readout Protection \\
+        \hline
         \hline
         \rowcolor{Pink3!60!} \multicolumn{3}{| l |}{ \bf Deprecated Commands (Disabled By Default)}\\
         \hline
@@ -289,6 +373,44 @@ $ All test cases PASSED!
     \label{tab:cmdset}
    \end{table*}
 \footnotetext{Define the \docVarName{ENABLE\_CMD\_ERASE\_MEM} macro to enable the deprecated \docVarName{\nameref{cmd:eraseMem}} command}
+   
+   
+\subsection{Bootloader Special Command Set}
+
+\docNote{The special commands are used to execute custom commands supported by this bootloader. Commands are implamented as special comamnds an may be executed in context of the \nameref{cmd:special} bootloader command.}
+
+
+\begin{table*}[!ht]
+  \hspace*{-4cm}
+  \begin{tabular}{| p{3cm} | p{1.5cm} | p{1cm} | p{1cm} | p{1cm} | p{4.5cm} | }
+      \hline
+      \rowcolor{SeaGreen3!30!} {\bf Command} & {\bf CMD Opcode} & {\bf Param len.} & {\bf Resp. len.} & {\bf Status. len.} & {\bf Description} \\
+      \hline
+      \hline
+      Hello World & \texttt{0x0000} & $\leq$ 128 & 12 & $\leq$ 10 & Test Command returning 'Hello World!' string and command parameter in response status packet \\
+      \hline
+      Set Startup & \texttt{0x0100} & 1 & 0 & 0 & Set \texttt{startup\_t} condition -- see Section \ref{sec:arch:nvm} \\
+      \hline
+      Set Security & \texttt{0x0101} & 1 & 0 & 0 & Set \texttt{security\_t} condition -- see Section \ref{sec:arch:nvm} \\
+      \hline
+      Set Timeout & \texttt{0x0102} & 4 & 0 & 0 & Set bootloader timeout -- see Section \ref{sec:arch:nvm} \\
+      \hline
+      Set Unlock Key & \texttt{0x0103} & 16 & 0 & 0 & Set bootloader unlock key -- see Section \ref{sec:arch:nvm} \\
+      \hline
+      Set CMAC Key & \texttt{0x0104} & 16 & 0 & 0 & Set bootloader CMAC key -- see Section \ref{sec:arch:nvm} \\
+      \hline
+      Set Enc Key & \texttt{0x0105} & 16 & 0 & 0 & Set bootloader Encryption key -- see Section \ref{sec:arch:nvm} \\
+      \hline
+      Unlock Request & \texttt{0x0120} & 0 & 16 & 0 & Get Unlock Seed \\
+      \hline
+      Write Unlock Response & \texttt{0x0121} & 16 & 1 & 0 & Write Unlock Seed encrypted by the Unlock Key; \texttt{0x01} is returned when success\\
+      \hline
+      Verify Flash CMAC & \texttt{0x0130} & 16 & 1 & 0 & Write Application CMAC to be verified by CMAC Key; \texttt{0x01} is returned when success\\
+      \hline
+  \end{tabular}
+  \addcontentsline{lot}{table}{Bootloader Special Commands}
+  \label{tab:specCmd}
+ \end{table*}
    
    
 \clearpage
@@ -565,7 +687,7 @@ $ All test cases PASSED!
 \subsection{Read Memory} \label{cmd:readMem}
 
 \marginlabel{\captionof{figure}{Read Memory CMD Flow Diagram}\label{fig:cmd:readMem}}
-\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+\raisebox{-\height}{\scalebox{0.6}{\begin{tikzpicture}[font=\small,thick]
  
 \node[draw,
     rounded rectangle,
@@ -583,14 +705,22 @@ $ All test cases PASSED!
 ] (block2) { Received\\0x11,0xEE };
 
 \node[draw,
+    diamond,
     below=of block2,
-    minimum width=3.5cm,
-    minimum height=1cm,
+    minimum width=3cm,
+    minimum height=2cm,
     align=center
-] (block3Y) { Send ACK\footnotemark };
+] (block3Y) { Readout\\Protection? };
 
 \node[draw,
     below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3YN) { Send ACK};
+
+\node[draw,
+    below=of block3YN,
     minimum width=3.5cm,
     minimum height=2cm,
     align=center
@@ -660,7 +790,10 @@ $ All test cases PASSED!
 \draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
 \draw[->] (block2) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
 
-\draw[->] (block3Y) -- (block4);
+\draw[->] (block3Y) -- (block3YN) node [pos=0.5,right,font=\footnotesize] { No };
+\draw[->] (block3Y) -| (block9N) node [pos=0.3,above,font=\footnotesize] { Yes };
+
+\draw[->] (block3YN) -- (block4);
 \draw[->] (block4) -- (block5);
 \draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { Yes };
 \draw[->] (block5) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
@@ -676,9 +809,7 @@ $ All test cases PASSED!
 \draw[->] (block9N) |- (block11);
 
 \end{tikzpicture}}}
-\addtocounter{footnote}{-2}
-\footnotetext{Read protection is not checked, ACK is always sent}
-\addtocounter{footnote}{+1}
+\addtocounter{footnote}{-1}
 \footnotetext{4-byte address is received MSB-first, and the checksum is XOR of address bytes}
 \addtocounter{footnote}{+1}
 \footnotetext{Number of bytes - 1; the max value of this byte is 255 meaning 256 bytes will be sent; checksum is the complement to the number of bytes}
@@ -775,7 +906,7 @@ $ All test cases PASSED!
 \subsection{Write Memory} \label{cmd:writeMem}
 
 \marginlabel{\captionof{figure}{Write Memory CMD Flow Diagram}\label{fig:cmd:writeMem}}
-\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+\raisebox{-\height}{\scalebox{0.6}{\begin{tikzpicture}[font=\small,thick]
  
 \node[draw,
     rounded rectangle,
@@ -793,14 +924,22 @@ $ All test cases PASSED!
 ] (block2) { Received\\0x31,0xCE };
 
 \node[draw,
+    diamond,
     below=of block2,
-    minimum width=3.5cm,
-    minimum height=1cm,
+    minimum width=3cm,
+    minimum height=2cm,
     align=center
-] (block3Y) { Send ACK\footnotemark };
+] (block3Y) { Readout\\Protection? };
 
 \node[draw,
     below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3YN) { Send ACK };
+
+\node[draw,
+    below=of block3YN,
     minimum width=3.5cm,
     minimum height=2cm,
     align=center
@@ -871,7 +1010,10 @@ $ All test cases PASSED!
 \draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
 \draw[->] (block2) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
 
-\draw[->] (block3Y) -- (block4);
+\draw[->] (block3Y) -- (block3YN) node [pos=0.5,right,font=\footnotesize] { No };
+\draw[->] (block3Y) -| (block9N) node [pos=0.3,above,font=\footnotesize] { Yes };
+
+\draw[->] (block3YN) -- (block4);
 \draw[->] (block4) -- (block5);
 \draw[->] (block5) -- (block6) node [pos=0.5,right,font=\footnotesize] { Yes };
 \draw[->] (block5) -| (block9N) node [pos=0.3,above,font=\footnotesize] { No };
@@ -887,9 +1029,7 @@ $ All test cases PASSED!
 \draw[->] (block9N) |- (block11);
 
 \end{tikzpicture}}}
-\addtocounter{footnote}{-3}
-\footnotetext{Read protection is not checked, ACK is always sent}
-\addtocounter{footnote}{+1}
+\addtocounter{footnote}{-2}
 \footnotetext{4-byte address is received MSB-first, and the checksum is XOR of address bytes}
 \addtocounter{footnote}{+1}
 \footnotetext{Number of bytes - 1; the max value of this byte is 255 meaning 256 bytes will be received, while the value must be multiple of four; checksum is computed as a XOR of the length and all received data bytes}
@@ -1184,6 +1324,313 @@ $ All test cases PASSED!
 \addtocounter{footnote}{+1}
 \footnotetext{Checksum is a single byte computed over all bytes received since the number of pages - 1 bytes (included)}
 
+\clearpage
+\subsection{Special Command} \label{cmd:special}
+
+\marginlabel{\captionof{figure}{Special CMD Flow Diagram}\label{fig:cmd:special}}
+\raisebox{-\height}{\scalebox{0.55}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start\\Special Command };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x50,0xAF };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3) { Send ACK\footnotemark };
+
+\node[draw,
+    below=of block3,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block4) { Receive the subcmd. opcode\footnotemark };
+
+\node[draw,
+    diamond,
+    below=of block4,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block5) { Command valid\\and checksum OK };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send ACK };
+
+\node[draw,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { Receive data length\footnotemark };
+ 
+\node[draw,
+    diamond,
+    below=of block7,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block8) { Data length $\leq$ 128\\and checksum };
+ 
+\node[draw,
+    below=of block8,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block9) { Send ACK };
+ 
+\node[draw,
+    below=of block9,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block10) { Special command execution\footnotemark };
+
+\node[draw,
+    below=of block10,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block11) { Send response length and data\footnotemark };
+
+\node[draw,
+    below=of block11,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block13) { Send status length and data\footnotemark };
+ 
+ 
+\node[draw,
+    below=of block13,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block15) { Send ACK };
+
+\node[draw,
+    right=of block15,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block15N) { Send NACK };
+
+\node[draw,
+    rounded rectangle,
+    below=of block15,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block16) { End of\\Extended Erase\\Memory };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block15N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3) -- (block4);
+\draw[->] (block4) -- (block5)node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block5) -| (block15N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block5) -- (block6);
+\draw[->] (block6) -- (block7);
+\draw[->] (block7) -- (block8);
+\draw[->] (block8) -- (block9) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block8) -| (block15N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block9) -- (block10);
+\draw[->] (block10) -- (block11);
+\draw[->] (block11) -- (block13);
+\draw[->] (block13) -- (block15);
+\draw[->] (block15) -- (block16);
+\draw[->] (block15N) |- (block16);
+
+
+\end{tikzpicture}}}
+
+\addtocounter{footnote}{-5}
+\footnotetext{2 bytes, MSB-first + checksum byte}
+\addtocounter{footnote}{+1}
+\footnotetext{2 bytes, MSB-first + checksum byte}
+\addtocounter{footnote}{+1}
+\footnotetext{2 bytes, MSB first + checksum byte}
+\addtocounter{footnote}{+1}
+\footnotetext{Timing depends on the special command nature}
+\addtocounter{footnote}{+1}
+\footnotetext{2 bytes of response data length, MSB first, no checksum; if length is 0, no data transmitted}
+\addtocounter{footnote}{+1}
+\footnotetext{2 bytes of status data length, MSB first, no checksum; if length is 0, no data transmitted}
+
+
+\clearpage
+\subsection{Readout Protect} \label{cmd:readProtect}
+
+\marginlabel{\captionof{figure}{Readout Protect CMD Flow Diagram}\label{fig:cmd:readProtect}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start Readout Protect };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x82,0x7D };
+
+\node[draw,
+    diamond,
+    below=of block2,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block3Y) { Readout Protect\\ active?\footnotemark };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block4) { Activate Readout protection\\for the Flash memory };
+
+\node[draw,
+    below=of block4,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block5) { Send ACK };
+
+\node[draw,
+    right=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3N) { Send NACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { End of Readout Protect };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block3N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4) node [pos=0.5,right,font=\footnotesize] { No };
+\draw[->] (block3Y) -| (block3N) node [pos=0.3,above,font=\footnotesize] { Yes };
+
+\draw[->] (block4) -- (block5);
+
+\draw[->] (block5) -- (block6);
+\draw[->] (block3N) |- (block6);
+
+\end{tikzpicture}}}
+\footnotetext{If readout protection is active, NACK is returned -- this allows to test if readout protection was active or not.}
+
+\clearpage
+\subsection{Readout Unprotect} \label{cmd:readUnProtect}
+
+\marginlabel{\captionof{figure}{Readout Protect CMD Flow Diagram}\label{fig:cmd:readUnProtect}}
+\raisebox{-\height}{\scalebox{0.7}{\begin{tikzpicture}[font=\small,thick]
+ 
+\node[draw,
+    rounded rectangle,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block1) { Start Readout Unprotect };
+
+\node[draw,
+    diamond,
+    below=of block1,
+    minimum width=3cm,
+    minimum height=2cm,
+    align=center
+] (block2) { Received\\0x92,0x6D };
+
+\node[draw,
+    below=of block2,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3Y) { Send ACK };
+
+\node[draw,
+    below=of block3Y,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block4) { Flash\\Mass Erase };
+
+\node[draw,
+    below=of block4,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block5) { Disable Readout Protection\footnotemark };
+
+\node[draw,
+    below=of block5,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block6) { Send ACK };
+
+\node[draw,
+    right=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block3N) { Send NACK };
+ 
+\node[draw,
+    rounded rectangle,
+    below=of block6,
+    minimum width=3.5cm,
+    minimum height=1cm,
+    align=center
+] (block7) { End of Readout Unprotect };
+
+\draw[->] (block1) -- (block2);
+
+\draw[->] (block2) -- (block3Y) node [pos=0.5,right,font=\footnotesize] { Yes };
+\draw[->] (block2) -| (block3N) node [pos=0.3,above,font=\footnotesize] { No };
+
+\draw[->] (block3Y) -- (block4);
+\draw[->] (block4) -- (block5);
+\draw[->] (block5) -- (block6);
+\draw[->] (block6) -- (block7);
+
+\draw[->] (block3N) |- (block7);
+
+\end{tikzpicture}}}
+\footnotetext{readout protection is disabled after flash Mass Erase is sucesfully finished}
 
   
 % ------------------------------------------------------------
