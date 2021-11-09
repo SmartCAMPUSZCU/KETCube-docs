@@ -43,7 +43,7 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \listoffigures
 \listoftables
 \begin{versionhistory}
-  \vhEntry{0.2.0*}{8.6.2021}{JB}{Initial version}
+  \vhEntry{0.2.0*}{8.11.2021}{JB|KV}{Initial version}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}
@@ -1632,7 +1632,142 @@ $ All test cases PASSED!
 \end{tikzpicture}}}
 \footnotetext{readout protection is disabled after flash Mass Erase is sucesfully finished}
 
-  
+\clearpage
+\section{True Random Number Generator}
+ For compatibility purposes the TRNG is based on general purpose timers by the means of LSI and HSI jitter, as proposed by\cite{Laban:2018:TRNG}.
+ 
+ The following example is based on STM32L07x implementation:\\
+ LSI is connected as capture input to timer TIM21 which is clocked by HSI. Once in eight LSI rising edges (PRSC=8) capture event is generated and TIM21 counter value is captured in CCR1 register. TIM21 capture event also generates trigger output TRGO, which is connected to TIM2. 
+ 
+ TIM2 is clocked by TIM21 TRGO pulses (external clock mode). After predetermined number of TRGO pulses TIM2 reaches its period and reloads. This automatic reload generates trigger output, requesting DMA transfer from TIM21 CCR1 to RAM and resetting TIM21 counter value for next sample. By setting the period of TIM2 counter reload the number of skipped CCR1 read-outs is determined. TIM2 period is called INT for consistency with\cite{Laban:2018:TRNG}.
+ 
+ This interconnection of timers enables generating random bits independently of MCU core without a need for any interrupt, eliminating any SW dependency.
+ 
+ \subsection{TRNG sample distribution and test} 
+ 
+ The output samples of the generator were tested by ENT suite, similarly as in\cite{Laban:2018:TRNG}, with the same acceptance criteria.
+ 
+ \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+ \begin{table*}[!ht]
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1.5cm} | P{2.5cm} | P{3cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+		\hline
+		\rowcolor{SeaGreen3!30!} {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+		\hline
+		\hline
+		$>7,976$ & 0\% & 10\% $ < \chi^2 <$ 90\% & $\approx127,5$ &  $\approx3,14$ & $\approx0$ \\
+		\hline
+	\end{tabular}
+	%\addcontentsline{lot}{table}{Bootloader Special Commands}
+	\label{tab:TRNGacceptance}
+\end{table*}
+
+Results of this test show that for INT setting of 5 or 6, four least significant bits can be used. For INT=5, the following sample distribution was obtained, based on 524,288 samples.
+ 
+\begin{figure}[H]
+	\hspace{-3cm}
+	\includegraphics[width=0.6\paperwidth]{resources/appNotes/008/TRNG_distributions.pdf}
+	%\caption{Sample distribution for INT=5. (524,288 samples)}
+\end{figure}
+
+\begin{table*}[!ht]
+	\hspace*{-4cm}INT=2\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+		\hline
+		\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+		\hline
+		\hline
+		 %INT2 (524288 samples) &
+		1 & 7,996955 & 0\% & 16,59\% & 127,7905 & 3,142648 & 0,002355\\\hline
+		2 & 7,997138 & 0\% & 34,39\% & 127,4779 & 3,141183 & 0,003672\\\hline
+		3 & 7,997295 & 0\% & 64,52\% & 127,4404 & 3,143380 & 0,003257\\\hline
+		4 & \textcolor{red}{7,966528} & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,7564 & 3,057682 & 0,030836\\\hline
+		5 & \textcolor{red}{6,723528} & \textcolor{red}{15\%} & \textcolor{red}{$ < 0,01$\%} & 123,2845 & 2,606849 & 0,411459\\\hline
+		6 & \textcolor{red}{4,395023} & \textcolor{red}{45\%} & \textcolor{red}{$ < 0,01$\%} & 95,4664 & 2,757370 & 0,744699\\\hline
+		7 & \textcolor{red}{3,361964} & \textcolor{red}{57\%} & \textcolor{red}{$ < 0,01$\%} & 76,6856 & 2,984069 & 0,816606\\\hline
+		8 & \textcolor{red}{3,353993} & \textcolor{red}{58\%} & \textcolor{red}{$ < 0,01$\%} & 76,6373 & 2,984069 & 0,817081\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=3\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+		\hline
+		\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+		\hline
+		\hline
+		%INT3 (524288 samples) &
+		1 & 7,997070 & 0\% & 28,54\% & 127,1485 & 3,123238 & 0,005393\\\hline
+		2 & 7,997440 & 0\% & 84,89\% & 127,6212 & 3,146676 & 0,005765\\\hline
+		3 & 7,997036 & 0\% & 27,42\% & 127,7028 & 3,133858 & -0,001002\\\hline
+		4 & 7,995141 & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,3083 & 3,144479 & 0,001381\\\hline
+		5 & \textcolor{red}{7,387480} & \textcolor{red}{7\%} & \textcolor{red}{$ < 0,01$\%} & 126,0138 & 2,782274 & 0,210976\\\hline
+		6 & \textcolor{red}{5,215677} & \textcolor{red}{34\%} & \textcolor{red}{$ < 0,01$\%} & 115,7047 & 2,505402 & 0,642752\\\hline
+		7 & \textcolor{red}{3,909284} & \textcolor{red}{51\%} & \textcolor{red}{$ < 0,01$\%} & 154,0034 & 1,709211 & 0,786683\\\hline
+		8 & \textcolor{red}{0,518753} & \textcolor{red}{93\%} & \textcolor{red}{$ < 0,01$\%} & 249,2199 & 0,099615 & 0,758845\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=4\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+	\hline
+	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+	\hline
+	\hline
+	%INT4 (524288 samples) &
+	1 & 7,997099 & 0\% & 33,34\% & 127,7378 & 3,158030 & 0,000593\\\hline
+	2 & 7,997185 & 0\% & 48,96\% & 127,6762 & 3,133492 & -0,001407\\\hline
+	3 & 7,996617 & 0\% & \textcolor{red}{1,58\%} & 127,6407 & 3,154734 & -0,006683\\\hline
+	4 & 7,997154 & 0\% & 43,34\% & 127,4795 & 3,139718 & -0,008240\\\hline
+	5 & \textcolor{red}{7,744063} & \textcolor{red}{3\%} & \textcolor{red}{$ < 0,01$\%} & 127,3697 & 2,910822 & 0,086066\\\hline
+	6 & \textcolor{red}{5,883025} & \textcolor{red}{26\%} & \textcolor{red}{$ < 0,01$\%} & 127,8551 & 2,353415 & 0,518821\\\hline
+	7 & \textcolor{red}{3,497369} & \textcolor{red}{56\%} & \textcolor{red}{$ < 0,01$\%} & 176,2003 & 1,297931 & 0,786333\\\hline
+	8 & \textcolor{red}{1,645495} & \textcolor{red}{79\%} & \textcolor{red}{$ < 0,01$\%} & 36,3277 & 3,502655 & 0,883243\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=5\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+	\hline
+	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+	\hline
+	\hline
+	%INT5 (524288 samples) &
+	1 & 7,997445 & 0\% & 85,26\% & 127,8543 & 3,120674 & -0,003548\\\hline
+	2 & 7,997096 & 0\% & 34,43\% & 127,4254 & 3,149240 & -0,004049\\\hline
+	3 & 7,997480 & 0\% & 87,49\% & 127,0517 & 3,158396 & 0,006026\\\hline
+	4 & 7,997025 & 0\% & 25,53\% & 127,5354 & 3,142282 & -0,001071\\\hline
+	5 & \textcolor{red}{7,901627} & \textcolor{red}{1\%} & \textcolor{red}{$ < 0,01$\%} & 127,2943 & 2,990295 & 0,038994\\\hline
+	6 & \textcolor{red}{6,417549} & \textcolor{red}{19\%} & \textcolor{red}{$ < 0,01$\%} & 122,2469 & 2,612342 & 0,402473\\\hline
+	7 & \textcolor{red}{4,188586} & \textcolor{red}{47\%} & \textcolor{red}{$ < 0,01$\%} & 87,4719 & 2,922542 & 0,711057\\\hline
+	8 & \textcolor{red}{3,377565} & \textcolor{red}{57\%} & \textcolor{red}{$ < 0,01$\%} & 73,0581 & 3,080388 & 0,774445\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=6\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+	\hline
+	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+	\hline
+	\hline
+	%INT6 (524288 samples) &
+	1 & 7,997334 & 0\% & 71,65\% & 128,2106 & 3,139718 & 0,001314\\\hline
+	2 & 7,997210 & 0\% & 51,73\% & 127,8553 & 3,137521 & 0,001606\\\hline
+	3 & 7,997243 & 0\% & 57,87\% & 128,0486 & 3,140450 & -0,001759\\\hline
+	4 & 7,997307 & 0\% & 66,67\% & 127,3522 & 3,140450 & 0,000769\\\hline
+	5 & \textcolor{red}{7,962631} & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,5400 & 3,045230 & 0,017089\\\hline
+	6 & \textcolor{red}{6,866886} & \textcolor{red}{14\%} & \textcolor{red}{$ < 0,01$\%} & 128,3820 & 2,564732 & 0,293240\\\hline
+	7 & \textcolor{red}{4,736876} & \textcolor{red}{40\%} & \textcolor{red}{$ < 0,01$\%} & 145,2501 & 1,915400 & 0,672422\\\hline
+	8 & \textcolor{red}{2,890833} & \textcolor{red}{63\%} & \textcolor{red}{$ < 0,01$\%} & 176,9694 & 1,293170 & 0,848671\\\hline
+	\end{tabular}
+	\label{tab:TRNGtest}
+\end{table*}
+
+ 
 % ------------------------------------------------------------
 % ------------------------------------------------------------
   
