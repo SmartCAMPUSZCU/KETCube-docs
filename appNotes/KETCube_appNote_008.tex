@@ -1633,19 +1633,44 @@ $ All test cases PASSED!
 \footnotetext{readout protection is disabled after flash Mass Erase is sucesfully finished}
 
 \clearpage
-\section{True Random Number Generator}
- For compatibility purposes the TRNG is based on general purpose timers by the means of LSI and HSI jitter, as proposed by\cite{Laban:2018:TRNG}.
+\section{Cryptographic Functions}
+This section summarizes information on portable (software implemented) cryptographic primitives employed by the KETCube bootloader.
+
+\subsection{Advanced Encryption Standard (AES-128)}
+
+The block-cipher selected for use with the bootloader is NIST standard \textit{Advanced Encryption Standard} (AES)~\cite{NIST:AES} with 128-bit block size. 
+
+The software implementation of the AES module itself is based on third-party open-source implementation originally published by Brian Gladman from Worcester, UK.  This AES implementation is proven by several open source projects -- e.g. LoRaMac-node\footnote{\url{https://github.com/Lora-net/LoRaMac-node/tree/master/src/peripherals/soft-se}} is a reference closely related to the KETCube project. The AES module is distributed under a specific BSD-like license\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-bootloader/blob/main/Modules/aes/LICENSE}}.
+
+During integration, the AES module was optimized for 128-bit operation only, and it was parametrized for performance on STM32L0x MCU.
+
+\docNote{Please note, that no side-channel protection mechanisms are currently employed.}
+
+
+\subsection{Message Authentication Code (MAC)}
+
+\textit{Message authentication code} (MAC) is used to assure, that the message transmitted over an insecure channel has not been altered. In other words, MAC serves as a digital signature of the data block.
+
+As the authentication code, AES-CMAC was selected to effectively utilize the bootloader resources, as it complements the AES-128 module. The AES-CMAC is implemented according to the NIST and IETF recomendations~\cite{NIST:AES-CMAC}~\cite{IETF:AES-CMAC}. 
+
+The AES-CMAC tests were undertaken from the IETF recommendation~\cite{IETF:AES-CMAC}.
+
+\docNote{The block length of the AES-CMAC is 128 bits, while the AES-CMAC implementation is byte-oriented: arbitrary-length, but byte-padded messages are processed correctly.}
+
+\clearpage
+\subsection{True Random Number Generator}
+ For compatibility purposes the TRNG is based on general purpose timers by the means of LSI and HSI jitter, as proposed by~\cite{Laban:2018:TRNG}.
  
  The following example is based on STM32L07x implementation:\\
  LSI is connected as capture input to timer TIM21 which is clocked by HSI. Once in eight LSI rising edges (PRSC=8) capture event is generated and TIM21 counter value is captured in CCR1 register. TIM21 capture event also generates trigger output TRGO, which is connected to TIM2. 
  
- TIM2 is clocked by TIM21 TRGO pulses (external clock mode). After predetermined number of TRGO pulses TIM2 reaches its period and reloads. This automatic reload generates trigger output, requesting DMA transfer from TIM21 CCR1 to RAM and resetting TIM21 counter value for next sample. By setting the period of TIM2 counter reload the number of skipped CCR1 read-outs is determined. TIM2 period is called INT for consistency with\cite{Laban:2018:TRNG}.
+ TIM2 is clocked by TIM21 TRGO pulses (external clock mode). After predetermined number of TRGO pulses TIM2 reaches its period and reloads. This automatic reload generates trigger output, requesting DMA transfer from TIM21 CCR1 to RAM and resetting TIM21 counter value for next sample. By setting the period of TIM2 counter reload the number of skipped CCR1 read-outs is determined. TIM2 period is called INT for consistency with~\cite{Laban:2018:TRNG}.
  
  This interconnection of timers enables generating random bits independently of MCU core without a need for any interrupt, eliminating any SW dependency.
  
- \subsection{TRNG sample distribution and test} 
+ \subsubsection{TRNG Sample Distribution and Test} 
  
- The output samples of the generator were tested by ENT suite, similarly as in\cite{Laban:2018:TRNG}, with the same acceptance criteria.
+ The output samples of the generator were tested by ENT suite, similarly as in~\cite{Laban:2018:TRNG}, with the same acceptance criteria.
  
  \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
  \begin{table*}[!ht]
@@ -1767,6 +1792,12 @@ Results of this test show that for INT setting of 5 or 6, four least significant
 	\label{tab:TRNGtest}
 \end{table*}
 
+  \subsubsection{TRNG Embedded Test}
+  
+  TBD
+  
+  \docNote{KETCube bootloader employs NIST-recommended embedded tests to assure TRNG-output quality.}
+   
  
 % ------------------------------------------------------------
 % ------------------------------------------------------------
