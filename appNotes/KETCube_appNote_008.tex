@@ -231,14 +231,14 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
       \rowcolor{SeaGreen3!30!} {\bf Type} & {\bf Description} \\
       \hline
       \hline
-      {\tt startup\_t }  & {\tt 0x00} -- start application code immediatelly (do not enter bootloader);\newline
-                          {\tt 0x01} -- stay in bootloader until timeout;\newline 
-                          {\tt 0x02} -- stay in bootloader until go\\
+      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- not configured, use default value\newline
+                          {\tt 0x0001} -- start application code immediatelly (do not enter bootloader);\newline
+                          {\tt 0x0002} -- stay in bootloader until timeout;\newline 
+                          {\tt 0x0003} -- stay in bootloader until go\\
       \hline
-      {\tt security\_t } & {\tt 0x00} -- do not verify application code;\newline
-                           {\tt 0x01} -- check application code CMAC;\newline 
-                           {\tt 0x02} -- decrypt application code;\newline
-                           {\tt 0x03} -- decrypt application code and check CMAC\\
+      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- do not protect application code or bootloader;\newline
+                           {\tt 0x0001} -- application memory readout protection;\newline
+                           {\tt 0x0003} -- bootloader locked\\
       \hline
       {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
       \hline
@@ -250,6 +250,10 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
       {\tt uint8\_t[16]} & CMAC Key \\
       \hline
       {\tt uint8\_t[16]} & Encryption Key \\
+      \hline
+      {\tt uint8\_t[68]} & RFU \\
+      \hline
+      {\tt uint8\_t[*]} & Application Data \\
       \hline
   \end{tabular}
   \addcontentsline{lot}{table}{Bootloader Configuration Structure}
@@ -403,9 +407,9 @@ $ All test cases PASSED!
       \hline
       Unlock Request & \texttt{0x0120} & 0 & 16 & 0 & Get Unlock Seed \\
       \hline
-      Write Unlock Response & \texttt{0x0121} & 16 & 1 & 0 & Write Unlock Seed encrypted by the Unlock Key; \texttt{0x01} is returned when success\\
+      Write Unlock Response & \texttt{0x0121} & 16 & 0 & 0 & Write Unlock Seed encrypted by the Unlock Key; \texttt{0x01} is returned when success\\
       \hline
-      Verify Flash CMAC & \texttt{0x0130} & 16 & 1 & 0 & Write Application CMAC to be verified by CMAC Key; \texttt{0x01} is returned when success\\
+      Verify Flash CMAC & \texttt{0x0130} & 16 & 0 & 0 & Write Application CMAC to be verified by CMAC Key; \texttt{0x01} is returned when success\\
       \hline
   \end{tabular}
   \addcontentsline{lot}{table}{Bootloader Special Commands}
