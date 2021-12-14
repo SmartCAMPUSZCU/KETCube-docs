@@ -185,11 +185,11 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \end{tikzpicture}
 }
 
-\marginlabel{\captionof{figure}{Non-Volatile Data Memory (EEPROM)}\label{fig:cmd:get}}
+\marginlabel{\captionof{figure}{Non-Volatile Data Memory (EEPROM) -- Secure Storage}\label{fig:cmd:get}}
 \raisebox{-\height}{
 
 \begin{tikzpicture}
-  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application};
+  \node[draw,fill=SeaGreen1,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application Data};
   \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader};
   
   \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white]  {0x08080000};
@@ -219,6 +219,58 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 
 \docNote{Structure of pointers to Bootloader API is provided at the gbeginnig of the RAM area.}
 
+
+\clearpage
+\subsection{Bootloader States} \label{sec:arch:states}
+
+\begin{itemize}
+  \item \texttt{Locked}
+  \item \texttt{Unlocked}
+\end{itemize}
+
+\docNote{TODO: state transition diagram.}
+
+\subsection{Bootloader Security Modes} \label{sec:arch:secModes}
+
+\begin{itemize}
+  \item \texttt{No protection} -- 0x0000
+  \item \texttt{Readout Protection} -- 0x0001
+  \item \texttt{Bootloader Lock} -- 0x0002
+\end{itemize}
+
+\begin{docCodeSnippetTitled}{Security Mode Transition Algorithm}
+\begin{verbatim}
+bool try_dec_mode(new_mode):
+  if new_mode == 0x000:
+    if(mass_erase() == OK):
+      return TRUE
+    else:
+      return FALSE
+  else:
+    return TRUE
+  
+bool try_inc_mode(new_mode):
+  if (new_mode > 0x0002):
+    return FALSE
+  else:
+    return TRUE
+
+bool reqest_mode(new_mode):
+  mode = load_from_NVM(mode)
+  
+  if (new_mode > mode): 
+    mode = try_inc_mode(new_mode) ? new_mode : mode
+  elsif (new_mode < mode): 
+    mode = try_dec_mode(new_mode) ? new_mode : mode
+
+  if (new_mode == mode):
+    return TRUE
+  else:
+    return FALSE
+  
+\end{verbatim}
+\end{docCodeSnippetTitled}
+
 \clearpage
 \subsection{Non-Volatile Bootloader Configuration} \label{sec:arch:nvm}
 
@@ -236,9 +288,9 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
                           {\tt 0x0002} -- stay in bootloader until timeout;\newline 
                           {\tt 0x0003} -- stay in bootloader until go\\
       \hline
-      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- do not protect application code or bootloader;\newline
-                           {\tt 0x0001} -- application memory readout protection;\newline
-                           {\tt 0x0003} -- bootloader locked\\
+      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- do not protect application/bootloader memory;\newline
+                           {\tt 0x0001} -- application code/data memory readout protection;\newline
+                           {\tt 0x0002} -- bootloader interface locked\\
       \hline
       {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
       \hline
