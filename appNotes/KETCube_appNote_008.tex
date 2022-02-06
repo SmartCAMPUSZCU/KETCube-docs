@@ -147,7 +147,7 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \footnotetext{Autobaudrate is currently NOT supported by this bootloader}
 
 \subsection{Bootloader Configuration}
-  The primary clock source is MSI at 2.097 MHz.
+  The primary clock source is PLLCLK at 32 MHz, derived from HSI.
   
   Independent watchdog (IWDG) is currently not handled by the bootloader -- currently, it might cause problems if previously enabled by the application.
 
