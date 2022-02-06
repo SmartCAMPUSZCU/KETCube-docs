@@ -168,9 +168,10 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \subsubsection{Auto-Baud Rate}
 \docNote{The auto-baud rate is currently not implemented.}
 
-\subsection{Memory Map} \label{sec:arch:map}
+\clearpage
+\subsection{Program Flash Memory Map} \label{sec:arch:flashMap}
 
-\marginlabel{\captionof{figure}{Program Flash}\label{fig:cmd:get}}
+\marginlabel{\captionof{figure}{Program Flash}\label{fig:arch:flashMap}}
 \raisebox{-\height}{
 
 \begin{tikzpicture}
@@ -185,22 +186,128 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \end{tikzpicture}
 }
 
-\marginlabel{\captionof{figure}{Non-Volatile Data Memory (EEPROM) -- Secure Storage}\label{fig:cmd:get}}
+\clearpage
+\subsection{Non-Volatile Data Memory Map -- Secure Storage} \label{sec:arch:EEPROMMap}
+
+The microcontroller Non-Volatile Memory is typically organized in one or more banks.
+The typical EEPROM memory organization with two banks is shown in Figure~\ref{fig:arch:EEPROMMap}.
+
+\docNote{Our default targets (\texttt{STM32l0xx}) are quit typical and employ two EEPROM Banks.}
+
+\marginlabel{\captionof{figure}{Physical\\EEPROM Organization\\(STM32l082)}\label{fig:arch:EEPROMMap}}
 \raisebox{-\height}{
 
 \begin{tikzpicture}
-  \node[draw,fill=SeaGreen1,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application Data};
-  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader};
+  \node[draw,fill=SeaGreen1,    minimum height=3cm,minimum width = 5cm,yshift=0cm](10/5){Bank 1};
+  \node[draw,fill=SeaGreen3,minimum height=3cm,minimum width = 5cm,yshift=3cm](10/5){Bank 0};
   
   \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white]  {0x08080000};
-  \node[anchor=center,yshift=2.5cm,xshift=4cm,fill=white]  {0x08080400};
-  \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x080817FF};
+  \node[anchor=center,yshift=1.5cm,xshift=4cm,fill=white]  {0x08080C00};
+  \node[anchor=center,yshift=-1.5cm,xshift=4cm,fill=white] {0x080817FF};
   
-  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {EEPROM Data Memory};
+  \node[anchor=center,yshift=-2.0cm,xshift=0cm,fill=white] {EEPROM Data Memory};
 \end{tikzpicture}
 }
 
-\marginlabel{\captionof{figure}{Volatile Memory (RAM)}\label{fig:cmd:get}}
+The NVM could be used as a linear address space or independent memory banks could be employed e.g. for concurrent read/write access.
+In our case, the independent banks are unused or used to increase data diversity depending on the bootloader configuration. 
+
+\subsubsection{Logical NVM Organization}\label{sec:arch:EEPROMMap:logical}
+
+To increase the reliability of the storage and to distribute EEPROM writes load equally, the bootloader employs the logical layer above the physical non-volatile memory (NVM). 
+The logical layer decreases the effective size of NVM while increasing the NVM storage reliability and durability. 
+
+Data in the non-volatile memory (NVM) are hold in \textit{blocks}. Blocks employ a mechanism of data versioning, 
+and the recent valid block only is available, while the other blocks serve as backup blocks. The Block structure is shown in Figure \ref{fig:arch:Block}. 
+
+\marginlabel{\captionof{figure}{Logical NVM Organization}\label{fig:arch:Block}}
+\raisebox{-\height}{
+
+\begin{tikzpicture}
+  \node[draw,fill=White,    minimum height=7cm,minimum width = 5cm,yshift=0cm](10/5){};
+  \node[draw,fill=SeaGreen3,minimum height=3cm,minimum width = 5cm,yshift=3cm](10/5){Base fragment};
+  \node[draw,fill=BlueGreen!50!,    minimum height=1cm,minimum width = 5cm,yshift=1cm](10/5){Patch 0 fragment};
+  \node[draw,fill=BlueGreen!60!,    minimum height=1cm,minimum width = 5cm,yshift=0cm](10/5){Patch 1 fragment};
+  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=-1cm](10/5){ ... };
+  \node[draw,fill=BlueGreen!70!,    minimum height=1cm,minimum width = 5cm,yshift=-2cm](10/5){Patch n - 1 fragment};
+  \node[draw,fill=BlueGreen!20!,    minimum height=2cm,minimum width = 5cm,yshift=-3.5cm](10/5){Reserved patch space};
+  
+  \node[anchor=center,yshift=3.0cm,xshift=4cm,fill=white]  {Block Base};
+  \node[anchor=center,yshift=-1.5cm,xshift=4cm,fill=white]  {Patch Area};
+  
+  \node[anchor=center,yshift=-5.0cm,xshift=0cm,fill=white] {NVM Block};
+\end{tikzpicture}
+}
+
+Each NVM block is composed of two main areas: the \textit{Block Base} and the \textit{Patch Area}. 
+Data itself are held in simple containers called \textit{fragments}. NVM contains one or more blocks.
+
+The \textit{Block Base} area holds a single fragment called \textit{base fragment}. 
+The \textit{base fragment} represents an effective size of the NVM block, while its default size is 1kB.
+The \textit{base fragment} represents a plain memory containing the NVM block data in a conventional way.
+
+The \textit{Patch Area} holds multiple fragments called \textit{patch fragments}.
+The default \textit{Patch Area} size is 0.5kB, while the \textit{patch fragment} size is variable.
+Each \textit{patch fragment} holds a patch related to the \textit{base fragment} and previous \textit{patch fragments}.
+by applying all valid patches sequentially to data hold in the \textit{base fragment}, 
+the recent NVM block content is recovered.
+
+Each \textit{fragment} is composed of the fixed-size header and data. The fragment header format is as follows:
+
+\begin{table*}[!ht]
+  \hspace*{0cm}
+  \begin{tabular}{| p{5cm} | p{5.5cm} | }
+      \hline
+      \rowcolor{SeaGreen3!30!} {\bf Field} & {\bf Description} \\
+      \hline
+      \hline
+      {\tt cfg     } ({\tt uint32\_t}) \newline bitfield  & {\tt 0x00000000} -- Base Fragment;\newline
+                          {\tt 0x00000001} -- Patch Fragment;\newline
+                          {\tt others} -- RFU\\
+      \hline
+      {\tt version } ({\tt uint32\_t }) & fragment age/version \newline {\tt [1, INT\_MAX]}\\
+      \hline
+      {\tt offset  } ({\tt uint16\_t })  & Fragment data offset in the block \\
+      \hline
+      {\tt length  } ({\tt uint16\_t })  & Fragment data length \\
+      \hline
+      {\tt crc32   } ({\tt uint32\_t })  & Fragment header and data checksum \\
+      \hline
+  \end{tabular}
+  \addcontentsline{lot}{table}{NVM Fragment Header}
+  \label{tab:nvmFragmentHeader}
+ \end{table*}
+
+\clearpage
+ \docNote{Fragment versions in a single NVM Block is the uninterrupted rising series of integers (incremented by one). In case of a gap (> 1) between the following version numbers, the next fragment is considered invalid.}
+ 
+ \docNote{Note, that there is no need to reset the fragment version field or watch for overflow, because 32-bit version field allows to represent more than 10M of full EEPROM writes (in the pessimistic case, for the smallest possible fragments), which is much above typical EEPROM durability.}
+
+ \docNote{Fragment version field represents the utilization of the memory and if the memory was not completely erased, it might serve as a memory age indicator.}
+ 
+\subsubsection{Failsafe Features}\label{sec:arch:EEPROMMap:failsafe} 
+ 
+ Depending on the bootloader configuration, the physical memory is used logically as a single-bank memory or as a dual-bank mirrored memory with half capacity. 
+
+\docWarn{The dual-bank mirrored case is not implemented yet.}
+ 
+ In the single-bank case, the capacity of the memory is higher allowing more blocks could be stored in NVM. 
+ If memory content is damaged during a write operation, only the latest fragment is damaged. 
+ As fragments employ the self-checking CRC32 mechanism for error-detection, an error is discovered when EEPROM is read and automatic rollback to the previous patch is performed.
+
+ In the mirrored memory organization, blocks are synchronously stored in both banks to increase the diversity of data. 
+ In case of inconsistency, read/write operations in dual-bank arrangement select the newer valid content from both banks and initiate damaged bank recovery.
+ If memory content is damaged during write, no rollback is taken, but the second memory bank content is used to recover recent data and restore consistency.
+ 
+\docWarn{If an EEPROM cell is permanently damaged, the current implementation in the single-bank case is unable to recover - no new patches could be stored.
+On the other hand, in the dual-bank case, the undamaged bank could be used exclusively.}
+ 
+\subsubsection{Security Features}\label{sec:arch:EEPROMMap:sec}
+
+\clearpage
+\subsection{Volatile Data Memory Map} \label{sec:arch:RAMMap}
+
+\marginlabel{\captionof{figure}{Volatile Memory (RAM)}\label{fig:arch:RAMMap}}
 \raisebox{-\height}{
 
 \begin{tikzpicture}
@@ -430,10 +537,10 @@ $ All test cases PASSED!
    \end{table*}
 \footnotetext{Define the \docVarName{ENABLE\_CMD\_ERASE\_MEM} macro to enable the deprecated \docVarName{\nameref{cmd:eraseMem}} command}
    
-   
+\clearpage
 \subsection{Bootloader Special Command Set}
 
-\docNote{The special commands are used to execute custom commands supported by this bootloader. Commands are implamented as special comamnds an may be executed in context of the \nameref{cmd:special} bootloader command.}
+\docNote{The special commands are used to execute custom commands supported by this bootloader. Commands are implemented as special commands and they are executed in the context of the \nameref{cmd:special} bootloader command.}
 
 
 \begin{table*}[!ht]
