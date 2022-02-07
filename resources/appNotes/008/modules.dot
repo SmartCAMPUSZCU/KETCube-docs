@@ -1,0 +1,94 @@
+digraph {
+    rankdir="LR";
+    newrank=true;
+    ratio="fill";
+    margin=0;
+    compound=true;
+    splines=ortho;
+    nodesep=0.5;
+    node [penwidth=1, width=1, fontsize=10 fixedsize=true];
+    edge [arrowhead=normal,arrowtail=normal,penwidth=1, minlen=2, fontsize=8];
+
+    HAL      [shape=box, label="Reduced\nHAL" tooltip="HAL/Hardware drivers\n(SMT32 HAL or STM32 LL Drivers)" height=7 fixedsize=true];
+
+subgraph cluster_Protocol {
+    rankdir="LR";
+    label="PROTOCOL"
+    tooltip="STM32 Bootloader Protocol"
+    fontsize=10 fixedsize=true
+    margin=10
+    
+    subgraph cluster_IFACEs {
+        rankdir="LR";
+        style=filled;
+        color=lightgrey;
+        label="INTERFACE(s)"
+        tooltip="Supported Interfaces"
+        fontsize=10 fixedsize=true
+        margin=10
+        
+        {
+            rank=same;
+            
+            // dummy node
+            cluster_Protocol_DUMMY_start [shape=none, style=invis, width=0, height=0];
+            
+            USART    [shape=circle, label="USART", style=filled, fillcolor=LightCoral, color=darkRed, fontcolor=darkRed];
+            I2C      [shape=circle, label="I2C",   style=dashed, fillcolor=gray,       color=darkRed, fontcolor=darkRed];
+            RS485    [shape=circle, label="RS485", style=dashed, fillcolor=gray,       color=darkRed, fontcolor=darkRed];
+            
+            // dummy node
+            LAST_PROTOCOL [shape=none, label="..."];
+        }
+        
+        
+    }
+
+}
+    
+    // connect clusters
+    LAST_PROTOCOL -> ACL [ltail=cluster_Protocol, style=dashed]
+    
+    {
+        rank=same;
+        USERAPP  [shape=box, label="User\nApplication" tooltip="User Application in Flash/RAM" height=4 color=red fontcolor=red];   
+        ACL        [shape=square, label="Access\nControl" tooltip="Access Control"];
+    }
+    
+    {
+        rank=same;
+        TRNG        [shape=square, label="TRNG" tooltip="True Random Number Generator Module"];
+        AES128      [shape=square, label="AES-128" tooltip="AES-128"];
+    
+        SECBLSTORE  [shape=square, label="Bootloader\nstorage"   tooltip="Secure Bootloader Storage"];
+        SECAPPSTORE [shape=square, label="Application\nstorage"  tooltip="Secure Application Storage"];
+    }
+    
+    SECSTORE    [shape=square, label="Secure\nNVM"     tooltip="Secure Storage (e.g. Secured EEPROM)"];
+
+    TRNG    -> HAL
+    AES128  -> HAL
+    ACL     -> TRNG
+    ACL     -> AES128
+    ACL     -> SECBLSTORE
+    
+    SECSTORE -> HAL
+    
+    SECAPPSTORE -> SECSTORE
+    SECBLSTORE -> SECSTORE
+    
+    
+    USERAPP -> AES128   [style=dashed taillabel="AES-128_API()" labeldistance=15 color=red fontcolor=red]
+    USERAPP -> SECAPPSTORE [style=dashed taillabel="SECSTORE_API()" labeldistance=4 color=red fontcolor=red]
+    USERAPP -> TRNG [style=dashed taillabel="TRNG_API()" labeldistance=5 color=red fontcolor=red]
+    USERAPP -> SECBLSTORE [style=dashed taillabel="CFG_API()" labeldistance=3 color=red fontcolor=red]
+
+    
+    //USART -> HAL
+    LAST_PROTOCOL -> HAL [ltail=cluster_Protocol]
+    
+    // dummy edges
+    cluster_Protocol_DUMMY_start -> USART -> I2C -> RS485 -> LAST_PROTOCOL [style=invis]
+    ACL -> HAL [style=invis]
+    
+}
