@@ -391,8 +391,6 @@ bool reqest_mode(new_mode):
 \clearpage
 \subsection{Non-Volatile Bootloader Configuration} \label{sec:arch:nvm}
 
-\docNote{Application can use the bootloader API to set-up the bootloader. Alternativelly, application can write to the bootloader Non-Volatile Configuration memory to affect future bootloader behaviour -- e.g. appliaction can be used to manage bootloader keys.}
-
 \begin{table*}[!ht]
   \hspace*{-4cm}
   \begin{tabular}{| p{4cm} | p{9cm} | }
@@ -400,34 +398,36 @@ bool reqest_mode(new_mode):
       \rowcolor{SeaGreen3!30!} {\bf Type} & {\bf Description} \\
       \hline
       \hline
-      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- not configured, use default value\newline
+      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- wait for five seconds for command, then start application if available;\newline
                           {\tt 0x0001} -- start application code immediatelly (do not enter bootloader);\newline
                           {\tt 0x0002} -- stay in bootloader until timeout;\newline 
-                          {\tt 0x0003} -- stay in bootloader until go\\
+                          {\tt 0x0003} -- stay in bootloader until go.\\
       \hline
       {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- do not protect application/bootloader memory;\newline
-                           {\tt 0x0001} -- application code/data memory readout protection;\newline
-                           {\tt 0x0002} -- bootloader interface locked\\
+                           {\tt 0x0001} -- application code/data memory readout protection, bootloader interface is open;\newline
+                           {\tt 0x0002} -- application code/data memory readout protection, bootloader interface is password-locked;\newline
+                           {\tt 0x0003} -- application code/data memory readout protection, bootloader interface is key-locked.\\
       \hline
       {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
       \hline
-      {\tt uint32\_t *}  & Application Code start address;\newline
-                         do not jump to application if {\tt NULL} \\
+      {\tt uint32\_t *}  & Application Code start address\newline
+                           (do not jump to application if {\tt NULL}) \\
       \hline
-      {\tt uint8\_t[16]} & Bootloader Unlock Key (bootloader is unlocked if {\tt NULL}) \\
+      {\tt uint8\_t[16]} & Bootloader Password/Unlock Key\newline
+                           (bootloader is unlocked if {\tt NULL}) \\
       \hline
-      {\tt uint8\_t[16]} & CMAC Key \\
+      {\tt uint8\_t[16]} & Application Code CMAC Key \\
       \hline
-      {\tt uint8\_t[16]} & Encryption Key \\
+      {\tt uint8\_t[16]} & Application Code Encryption Key \\
       \hline
       {\tt uint8\_t[68]} & RFU \\
-      \hline
-      {\tt uint8\_t[*]} & Application Data \\
       \hline
   \end{tabular}
   \addcontentsline{lot}{table}{Bootloader Configuration Structure}
   \label{tab:cfgStruct}
  \end{table*}
+ 
+\docNote{The employed threat model states, that a running application is completely trusted by the bootloader. Application can use the bootloader configuration API to set up the bootloader. The application should write to the bootloader Non-Volatile Configuration memory using bootloader configuration API exclusively to ensure configuration correctness. Bootloader configuration API may serve, e.g. for out-of-band bootloader key management.}
 
  
 \clearpage
@@ -454,6 +454,11 @@ bool reqest_mode(new_mode):
   \item the application stack to the value stored at the first word of the application flash area
   \item the interrupt vector to the beginning of the application area
 \end{itemize}
+
+\clearpage
+\subsection{Bootloader Upgrade Procedure}
+\docNote{To upgrade the Bootloader, it is currently recommended to use the ROM bootloader or SWD interface.}
+
 
 \clearpage
 \section{Supported Devices}\label{sec:supportedDevices}
