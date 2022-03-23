@@ -403,10 +403,28 @@ bool reqest_mode(new_mode):
                           {\tt 0x0002} -- stay in bootloader until timeout;\newline 
                           {\tt 0x0003} -- stay in bootloader until go.\\
       \hline
-      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- do not protect application/bootloader memory;\newline
-                           {\tt 0x0001} -- application code/data memory readout protection, bootloader interface is open;\newline
-                           {\tt 0x0002} -- application code/data memory readout protection, bootloader interface is password-locked;\newline
-                           {\tt 0x0003} -- application code/data memory readout protection, bootloader interface is key-locked.\\
+      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- only commands needed for bootloader configuration unlock are enabled;\newline
+                           {\tt 0x0001} -- application code/data memory readout protection, bootloader configuration is key-locked, INFO commands enabled;\newline
+                           {\tt 0x0002} -- application code/data memory readout protection, bootloader configuration is key-locked, memory write enabled;\newline
+                           {\tt 0x0003} -- application code/data memory readout enabled, bootloader configuration is key-locked;\newline
+                           {\tt 0x0004} -- application code/data memory readout enabled, bootloader configuration is unlocked;\newline
+                           {\tt 0x0005} -- application code/data memory readout enabled, bootloader configuration is unlocked, test commands are enabled.\newline
+                           \begin{tabular}{cc|c|c|c|c|c}
+                           	& 
+                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~key unlock}} &
+                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~info commands}} &
+                           	\rotatebox[origin=c]{90}{\parbox{3cm}{\centering application code/\\data memory\\ write}} &
+                           	\rotatebox[origin=c]{90}{\parbox{3cm}{\centering application code/\\data memory\\ readout}} &
+                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~bootloader\\configuration}} &
+                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~test commands}}
+                           	\\\hline
+                           	 0x0000	&Y&&&&&\\\hline
+                            0x0001	&Y&Y&&&&\\\hline
+							0x0002	&Y&Y&Y&&&\\\hline
+							0x0003	&Y&Y&Y&Y&&\\\hline
+							0x0004	&Y&Y&Y&Y&Y&\\\hline
+							0x0005	&Y&Y&Y&Y&Y&Y\\
+                           \end{tabular}\\
       \hline
       {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
       \hline
