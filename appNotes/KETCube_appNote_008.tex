@@ -477,6 +477,28 @@ bool reqest_mode(new_mode):
 \subsection{Bootloader Upgrade Procedure}
 \docNote{To upgrade the Bootloader, it is currently recommended to use the ROM bootloader or SWD interface.}
 
+\clearpage
+\subsection{Bootloader Build Options}
+
+  \begin{table*}[!ht]
+    \hspace*{-4cm}
+    \begin{tabular}{| p{5.5cm} | p{7.5cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Option} & {\bf Description} \\
+        \hline
+        \hline
+        \texttt{IFACE\_BR\_115200} & UART interface baudRate is 115200\\
+        \hline
+        \texttt{IFACE\_PARITY\_NONE} & UART interface parity is NONE\\
+        \hline
+        \texttt{TESTS\_ENABLE} & All test commands are linked and enabled\\
+        \hline
+        \texttt{TEST\_FORCE\_UNLOCK} & Bootloader is unlocked permanently \\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Bootloader Build Options}
+    \label{tab:cmdset}
+   \end{table*}
 
 \clearpage
 \section{Supported Devices}\label{sec:supportedDevices}
