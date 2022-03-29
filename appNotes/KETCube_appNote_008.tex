@@ -499,6 +499,22 @@ bool reqest_mode(new_mode):
     \addcontentsline{lot}{table}{Bootloader Build Options}
     \label{tab:cmdset}
    \end{table*}
+   
+   \begin{table*}[!ht]
+    \hspace*{-4cm}
+    \begin{tabular}{| p{5.5cm} | p{7.5cm} |}
+        \hline
+        \rowcolor{SeaGreen3!30!} {\bf Option} & {\bf Description} \\
+        \hline
+        \hline
+        \texttt{dev\_userInit()} & function is executed after interface initialization\\
+        \hline
+        \texttt{dev\_userAppInit()} & function is executed before application initialization\\
+        \hline
+    \end{tabular}
+    \addcontentsline{lot}{table}{Bootloader Weak Function Hooks}
+    \label{tab:cmdset}
+   \end{table*}
 
 \clearpage
 \section{Supported Devices}\label{sec:supportedDevices}
