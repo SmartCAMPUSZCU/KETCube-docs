@@ -154,30 +154,6 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 	\includegraphics[width=0.6\paperwidth]{resources/appNotes/008/modules.pdf}
 \end{figure}
 
-\clearpage 
-
-\subsection{Bootloader Configuration}
-  The primary clock source is PLLCLK at 32 MHz, derived from HSI.
-  
-  Independent watchdog (IWDG) is currently not handled by the bootloader -- currently, it might cause problems if previously enabled by the application.
-
-\subsection{Interfaces}
-
-\subsubsection{UART1 Settings}
-
-\begin{itemize}
-  \item Tx PIN: PA9
-  \item Rx PIN: PA10
-  \item Default Baud Rate: 57600 bps
-  \item Data bits: 8
-  \item Stop bits: 1
-  \item Parity: Even
-  \item HW Flow control: No
-\end{itemize}
-
-\subsubsection{Auto-Baud Rate}
-\docNote{The auto-baud rate is currently not implemented.}
-
 \clearpage
 \subsection{Program Flash Memory Map} \label{sec:arch:flashMap}
 
@@ -345,7 +321,68 @@ The rest of the bootloaders' RAM is dedicated for initialized and uninitialized 
 
 Application \textbf{must not} use memory reserved for bootloader!}
 
+\clearpage
+\section{Bootloader Configuration} \label{sec:settings}
 
+\subsection{Clock Configuration}
+  The primary clock source is PLLCLK at 32 MHz, derived from HSI.
+  
+  Independent watchdog (IWDG) is currently not handled by the bootloader -- currently, it might cause problems if previously enabled by the application.
+
+\subsection{Interfaces}
+
+\subsubsection{UART1 Settings}
+
+\begin{itemize}
+  \item Tx PIN: PA9
+  \item Rx PIN: PA10
+  \item Default Baud Rate: 57600 bps
+  \item Data bits: 8
+  \item Stop bits: 1
+  \item Parity: Even
+  \item HW Flow control: No
+\end{itemize}
+
+\subsubsection{Auto-Baud Rate}
+\docNote{The auto-baud rate is currently not implemented.}
+
+\clearpage
+\subsection{Non-Volatile Bootloader Configuration} \label{sec:arch:nvm}
+
+\begin{table*}[!ht]
+  \hspace*{-4cm}
+  \begin{tabular}{| p{4cm} | p{9cm} | }
+      \hline
+      \rowcolor{SeaGreen3!30!} {\bf Type} & {\bf Description} \\
+      \hline
+      \hline
+      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- wait for five seconds for command, then start application if available;\newline
+                          {\tt 0x0001} -- start application code immediatelly (do not enter bootloader);\newline
+                          {\tt 0x0002} -- stay in bootloader until timeout;\newline 
+                          {\tt 0x0003} -- stay in bootloader until go.\\
+      \hline
+      {\tt security\_t } \newline ({\tt uint16\_t }) & see \nameref{sec:arch:secModes}\\
+      \hline
+      {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
+      \hline
+      {\tt uint32\_t *}  & Application Code start address\newline
+                           (do not jump to application if {\tt NULL}) \\
+      \hline
+      {\tt uint8\_t[16]} & Bootloader Password/Unlock Key\newline
+                           (bootloader is unlocked if {\tt NULL}) \\
+      \hline
+      {\tt uint8\_t[16]} & Application Code CMAC Key \\
+      \hline
+      {\tt uint8\_t[16]} & Application Code Encryption Key \\
+      \hline
+      {\tt uint8\_t[68]} & RFU \\
+      \hline
+  \end{tabular}
+  \addcontentsline{lot}{table}{Bootloader Configuration Structure}
+  \label{tab:cfgStruct}
+ \end{table*}
+ 
+\docNote{The employed threat model states, that a running application is completely trusted by the bootloader. Application can use the bootloader configuration API to set up the bootloader. The application should write to the bootloader Non-Volatile Configuration memory using bootloader configuration API exclusively to ensure configuration correctness. Bootloader configuration API may serve, e.g. for out-of-band bootloader key management.}
 
 \clearpage
 \subsection{Bootloader Access Control} \label{sec:arch:access}
@@ -394,80 +431,14 @@ The following table summarizes command priviledges and bootloader security modes
 
 \docNote{The bootloader security mode representation in the NVM is inverted: the empty memory implies that all privileges are granted.}
 
-
-\clearpage
-\subsection{Non-Volatile Bootloader Configuration} \label{sec:arch:nvm}
-
-\begin{table*}[!ht]
-  \hspace*{-4cm}
-  \begin{tabular}{| p{4cm} | p{9cm} | }
-      \hline
-      \rowcolor{SeaGreen3!30!} {\bf Type} & {\bf Description} \\
-      \hline
-      \hline
-      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- wait for five seconds for command, then start application if available;\newline
-                          {\tt 0x0001} -- start application code immediatelly (do not enter bootloader);\newline
-                          {\tt 0x0002} -- stay in bootloader until timeout;\newline 
-                          {\tt 0x0003} -- stay in bootloader until go.\\
-      \hline
-      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- see \nameref{sec:arch:secModes}\\
-      \hline
-      {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
-      \hline
-      {\tt uint32\_t *}  & Application Code start address\newline
-                           (do not jump to application if {\tt NULL}) \\
-      \hline
-      {\tt uint8\_t[16]} & Bootloader Password/Unlock Key\newline
-                           (bootloader is unlocked if {\tt NULL}) \\
-      \hline
-      {\tt uint8\_t[16]} & Application Code CMAC Key \\
-      \hline
-      {\tt uint8\_t[16]} & Application Code Encryption Key \\
-      \hline
-      {\tt uint8\_t[68]} & RFU \\
-      \hline
-  \end{tabular}
-  \addcontentsline{lot}{table}{Bootloader Configuration Structure}
-  \label{tab:cfgStruct}
- \end{table*}
- 
-\docNote{The employed threat model states, that a running application is completely trusted by the bootloader. Application can use the bootloader configuration API to set up the bootloader. The application should write to the bootloader Non-Volatile Configuration memory using bootloader configuration API exclusively to ensure configuration correctness. Bootloader configuration API may serve, e.g. for out-of-band bootloader key management.}
-
- 
-\clearpage
-\subsection{Bootloader API} \label{sec:arch:api}
-\subsubsection*{Set-Up Bootloader}
-
-\subsubsection*{AES}
-
-
-\clearpage
-\subsection{Application Requirements}
-\subsubsection*{Application MUST:}
-\begin{itemize}
-  \item respect the memory map defined by the bootloader and use application-only memory
-\end{itemize}
-
-\subsubsection*{Application SHOULD NOT:}
-\begin{itemize}
-  \item modify \docVarName{VTOR}\footnote{\docVarName{Vector Table Offset Register} -- defines the offset of the interrupt vector table in the ARM memory} register -- e.g. applications generated by STM32Cube set the \docVarName{VTOR} register to the beginnig of the flash area
-  \item write to NVM beyond the bootloader API -- bootloade settings would be demaged
-\end{itemize}
-
-\subsubsection*{Prior executing the application code, the bootloader sets:}
-\begin{itemize}
-  \item the application stack to the value stored at the first word of the application flash area
-  \item the interrupt vector (\docVarName{VTOR}) to the beginning of the application area
-\end{itemize}
-
 \clearpage
 \subsection{Bootloader Upgrade Procedure}
 \docNote{To upgrade the Bootloader, it is currently recommended to use the ROM bootloader or SWD interface.}
 
 \clearpage
-\subsection{Bootloader Build Options}
+\subsection{Custom Build Configuration}
 
-  The folowing table summarizes the build options, which can be used for link-time configuration.
+  The folowing table summarizes the compile- and link-time options, which can be used for the static bootloader configuration.
 
   \begin{table*}[!ht]
     \hspace*{-4cm}
@@ -513,6 +484,34 @@ The following table summarizes command priviledges and bootloader security modes
    
    \docNote{The typical \texttt{dev\_userInit()} use case is, that the bootloader initializes UART-to-Anything converter.}
 
+   
+   
+\clearpage
+\section{Application Interface}
+
+\subsection{Application Requirements}
+\subsubsection*{Application MUST:}
+\begin{itemize}
+  \item respect the memory map defined by the bootloader and use application-only memory
+\end{itemize}
+
+\subsubsection*{Application SHOULD NOT:}
+\begin{itemize}
+  \item modify \docVarName{VTOR}\footnote{\docVarName{Vector Table Offset Register} -- defines the offset of the interrupt vector table in the ARM memory} register -- e.g. applications generated by STM32Cube set the \docVarName{VTOR} register to the beginnig of the flash area
+  \item write to NVM beyond the bootloader API -- bootloade settings would be demaged
+\end{itemize}
+
+\subsubsection*{Prior executing the application code, the bootloader sets:}
+\begin{itemize}
+  \item the application stack to the value stored at the first word of the application flash area
+  \item the interrupt vector (\docVarName{VTOR}) to the beginning of the application area
+\end{itemize}
+
+\subsection{Bootloader API} \label{sec:api}
+\subsubsection*{Set-Up Bootloader}
+
+\subsubsection*{AES}
+   
 \clearpage
 \section{Cryptographic Functions}
 This section summarizes information on portable (software implemented) cryptographic primitives employed by the KETCube bootloader.
