@@ -34,7 +34,7 @@
 \section*{KETCube Bootloader: the STM Bootloader Re-Invented}
 \input{resources/about.tex}
 
-This document describes the KETCube Bootloader. The bootloader is in part compatible with the standard ROM STM32 bootloader \cite{STM32:AN3155}. It was designed to provide a basic bootloader for the KETCube platform compatible with the standard toolset but equipped employed by customizable parameters, such as command timeouts.
+This document describes the KETCube Bootloader. The bootloader is protocol-compatible with the standard ROM STM32 bootloader \cite{STM32:AN3155}. It was designed to provide a customizable bootloader with security features for the KETCube platform compatible with the standard toolset.
 
 \setcounter{tocdepth}{2}
 \tableofcontents
@@ -185,14 +185,14 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 \raisebox{-\height}{
 
 \begin{tikzpicture}
-  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application};
-  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader};
+  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application (176kB)};
+  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader (16kB)};
   
   \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white] {0x08000000};
   \node[anchor=center,yshift=2.5cm,xshift=4cm,fill=white] {0x08004000};
   \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x0802FFFF};
   
-  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {Program Flash};
+  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {Program Flash \texttt{(STM32L0[8|7]x)}};
 \end{tikzpicture}
 }
 
@@ -202,20 +202,20 @@ This document describes the KETCube Bootloader. The bootloader is in part compat
 The microcontroller Non-Volatile Memory is typically organized in one or more banks.
 The typical EEPROM memory organization with two banks is shown in Figure~\ref{fig:arch:EEPROMMap}.
 
-\docNote{Our default targets (\texttt{STM32l0xx}) are quit typical and employ two EEPROM Banks.}
+\docNote{Our default targets (\texttt{(STM32L0[8|7]x)}) are quit typical and employ two EEPROM Banks.}
 
-\marginlabel{\captionof{figure}{Physical\\EEPROM Organization\\(STM32l082)}\label{fig:arch:EEPROMMap}}
+\marginlabel{\captionof{figure}{Physical\\EEPROM Organization}\label{fig:arch:EEPROMMap}}
 \raisebox{-\height}{
 
 \begin{tikzpicture}
-  \node[draw,fill=SeaGreen1,    minimum height=3cm,minimum width = 5cm,yshift=0cm](10/5){Bank 1};
-  \node[draw,fill=SeaGreen3,minimum height=3cm,minimum width = 5cm,yshift=3cm](10/5){Bank 0};
+  \node[draw,fill=SeaGreen1,    minimum height=3cm,minimum width = 5cm,yshift=0cm](10/5){Bank 1 (3kB)};
+  \node[draw,fill=SeaGreen3,minimum height=3cm,minimum width = 5cm,yshift=3cm](10/5){Bank 0 (3kB)};
   
   \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white]  {0x08080000};
   \node[anchor=center,yshift=1.5cm,xshift=4cm,fill=white]  {0x08080C00};
   \node[anchor=center,yshift=-1.5cm,xshift=4cm,fill=white] {0x080817FF};
   
-  \node[anchor=center,yshift=-2.0cm,xshift=0cm,fill=white] {EEPROM Data Memory};
+  \node[anchor=center,yshift=-2.0cm,xshift=0cm,fill=white] {EEPROM Data Memory \texttt{(STM32L0[8|7]x)}};
 \end{tikzpicture}
 }
 
@@ -259,8 +259,8 @@ The \textit{base fragment} represents a plain memory containing the NVM block da
 The \textit{Patch Area} holds multiple fragments called \textit{patch fragments}.
 The default \textit{Patch Area} size is 0.5kB, while the \textit{patch fragment} size is variable.
 Each \textit{patch fragment} holds a patch related to the \textit{base fragment} and previous \textit{patch fragments}.
-by applying all valid patches sequentially to data hold in the \textit{base fragment}, 
-the recent NVM block content is recovered.
+By applying valid patches sequentially to data hold in the \textit{base fragment}, 
+the NVM block content is recovered.
 
 Each \textit{fragment} is composed of the fixed-size header and data. The fragment header format is as follows:
 
@@ -321,72 +321,79 @@ On the other hand, in the dual-bank case, the undamaged bank could be used exclu
 \raisebox{-\height}{
 
 \begin{tikzpicture}
-  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application Only};
-  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader};
+  \node[draw,fill=white,    minimum height=5cm,minimum width = 5cm,yshift=0cm](10/5){Application Only (18kB)};
+  \node[draw,fill=SeaGreen3,minimum height=2cm,minimum width = 5cm,yshift=3.5cm](10/5){Bootloader (2kB)};
   
-  \node[anchor=center,yshift=4.5cm,xshift=4cm,fill=white]  {0x20000000};
-  \node[anchor=center,yshift=2.5cm,xshift=4cm,fill=white]  {0x20000800};
-  \node[anchor=center,yshift=-2.5cm,xshift=4cm,fill=white] {0x20004FFF};
+  \node[anchor=west,yshift=4.5cm,xshift=3cm,fill=white]  {0x20000000~~.api};
+  \node[anchor=west,yshift=4.0cm,xshift=5cm,fill=white]  {.ramcode};
+  \node[anchor=west,yshift=3.5cm,xshift=5cm,fill=white]  {.data};
+  \node[anchor=west,yshift=3.0cm,xshift=5cm,fill=white]  {.bss};
+  \node[anchor=west,yshift=2.5cm,xshift=3cm,fill=white]  {0x20000800};
+  \node[anchor=west,yshift=-2.5cm,xshift=3cm,fill=white] {0x20004FFF};
   
-  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {RAM Data Memory};
+  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] {Volatile Data Memory \texttt{(STM32L0[8|7]x)}};
 \end{tikzpicture}
 }
 
-\docNote{RAM used by the bootloader cannot be re-used by Application!}
+The Bootloader API object (structure of function pointers) is located at the beginning of the (Bootloader) RAM area in the \texttt{.api} section to allow straight-forward application-bootloader interfacing. 
 
-\docNote{Structure of pointers to Bootloader API is provided at the gbeginnig of the RAM area.}
+The \texttt{.api} section is followed by the \texttt{.ramcode} section holding Bootloader code executed from RAM. 
+
+The rest of the bootloaders' RAM is dedicated for initialized and uninitialized data (common \texttt{.data} and \texttt{.bss} sections).
+
+\docNote{RAM used by the bootloader cannot be re-used by Application. 
+
+Application \textbf{must not} use memory reserved for bootloader!}
+
 
 
 \clearpage
-\subsection{Bootloader States} \label{sec:arch:states}
+\subsection{Bootloader Access Control} \label{sec:arch:access}
+
+The bootloader employs a simple two-layer access control mechanism to gran access to the bootloader functions.
+
+The root layer of the access control employs two bootloader states to grant access to bootloader functions:
 
 \begin{itemize}
-  \item \texttt{Locked}
-  \item \texttt{Unlocked}
+  \item \texttt{Locked State} -- in the locked state, access privileges -- see \nameref{sec:arch:secModes} below -- are used to control access to bootloader functions.
+  \item \texttt{Unlocked State} -- in the unlocked state, the user has full control over the bootloader command set.
 \end{itemize}
 
-\docNote{TODO: state transition diagram.}
+\subsubsection*{Bootloader Access Privileges and Security Mode} \label{sec:arch:secModes}
 
-\subsection{Bootloader Security Modes} \label{sec:arch:secModes}
+The bootloader defines the command access privileges for fine-grained access control in the locked state. 
 
-\begin{itemize}
-  \item \texttt{No protection} -- 0x0000
-  \item \texttt{Readout Protection} -- 0x0001
-  \item \texttt{Bootloader Lock} -- 0x0002
-\end{itemize}
+Each command defines the access privilege level, while the bootloader settings define the bootloader security mode
+(part of the NVM configuration -- see \ref{sec:arch:nvm}) determining enabled commands. 
 
-\begin{docCodeSnippetTitled}{Security Mode Transition Algorithm}
-\begin{verbatim}
-bool try_dec_mode(new_mode):
-  if new_mode == 0x000:
-    if(mass_erase() == OK):
-      return TRUE
-    else:
-      return FALSE
-  else:
-    return TRUE
-  
-bool try_inc_mode(new_mode):
-  if (new_mode > 0x0002):
-    return FALSE
-  else:
-    return TRUE
+The bootloader security mode must at least match the specified command access privilege level to enable command execution.
+Commands with lower access privileges are always enabled in higher security modes.
+The following table summarizes command priviledges and bootloader security modes:
 
-bool reqest_mode(new_mode):
-  mode = load_from_NVM(mode)
-  
-  if (new_mode > mode): 
-    mode = try_inc_mode(new_mode) ? new_mode : mode
-  elsif (new_mode < mode): 
-    mode = try_dec_mode(new_mode) ? new_mode : mode
+\begin{table*}[!ht]
+  \hspace*{-4cm}
+  \begin{tabular}{| p{4cm} | p{1.5cm} | p{8.5cm} | }
+      \hline
+      \rowcolor{SeaGreen3!30!} {\bf Name} & {\bf Mask} & {\bf Description} \\
+      \hline
+      \hline
+      {\tt ACCESS\_PRIV\_UNLOCK} & {\tt 0x0000} & Not restricted, commands are always enabled.\\
+      \hline
+      {\tt ACCESS\_PRIV\_INFO} & {\tt 0x0001} & Informative commands, bootloader and MCU information could be read-out.\\
+      \hline
+      {\tt ACCESS\_PRIV\_WRITE} & {\tt 0x0003} & Memory write commands, write to application memory areas is allowed, while running unverified code is not allowed.\\
+      \hline
+      {\tt ACCESS\_PRIV\_READ} & {\tt 0x0007} & Memory read commands, readout memory is allowed.\\
+      \hline
+      {\tt ACCESS\_PRIV\_CONFIG} & {\tt 0x000F} & Bootloader configuration commands, bootloader configuration could be altered.\\
+      \hline
+      {\tt ACCESS\_PRIV\_TEST} & {\tt 0x001F} & Bootloader special test commands, bootloader tests could be executed, no test comamnds are included in the final release bootloader builds.\\
+      \hline
+  \end{tabular}
+\end{table*}
 
-  if (new_mode == mode):
-    return TRUE
-  else:
-    return FALSE
-  
-\end{verbatim}
-\end{docCodeSnippetTitled}
+\docNote{The bootloader security mode representation in the NVM is inverted: the empty memory implies that all privileges are granted.}
+
 
 \clearpage
 \subsection{Non-Volatile Bootloader Configuration} \label{sec:arch:nvm}
@@ -403,28 +410,7 @@ bool reqest_mode(new_mode):
                           {\tt 0x0002} -- stay in bootloader until timeout;\newline 
                           {\tt 0x0003} -- stay in bootloader until go.\\
       \hline
-      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- only commands needed for bootloader configuration unlock are enabled;\newline
-                           {\tt 0x0001} -- application code/data memory readout protection, bootloader configuration is key-locked, INFO commands enabled;\newline
-                           {\tt 0x0002} -- application code/data memory readout protection, bootloader configuration is key-locked, memory write enabled;\newline
-                           {\tt 0x0003} -- application code/data memory readout enabled, bootloader configuration is key-locked;\newline
-                           {\tt 0x0004} -- application code/data memory readout enabled, bootloader configuration is unlocked;\newline
-                           {\tt 0x0005} -- application code/data memory readout enabled, bootloader configuration is unlocked, test commands are enabled.\newline
-                           \begin{tabular}{cc|c|c|c|c|c}
-                           	& 
-                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~key unlock}} &
-                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~info commands}} &
-                           	\rotatebox[origin=c]{90}{\parbox{3cm}{\centering application code/\\data memory\\ write}} &
-                           	\rotatebox[origin=c]{90}{\parbox{3cm}{\centering application code/\\data memory\\ readout}} &
-                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~bootloader\\configuration}} &
-                           	\rotatebox[origin=c]{90}{\parbox{3cm}{~test commands}}
-                           	\\\hline
-                           	 0x0000	&Y&&&&&\\\hline
-                            0x0001	&Y&Y&&&&\\\hline
-							0x0002	&Y&Y&Y&&&\\\hline
-							0x0003	&Y&Y&Y&Y&&\\\hline
-							0x0004	&Y&Y&Y&Y&Y&\\\hline
-							0x0005	&Y&Y&Y&Y&Y&Y\\
-                           \end{tabular}\\
+      {\tt security\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- see \nameref{sec:arch:secModes}\\
       \hline
       {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
       \hline
@@ -457,20 +443,21 @@ bool reqest_mode(new_mode):
 
 \clearpage
 \subsection{Application Requirements}
-\subsubsection*{Application must}
+\subsubsection*{Application MUST:}
 \begin{itemize}
-  \item respect the memory map defined by the bootloader
+  \item respect the memory map defined by the bootloader and use application-only memory
 \end{itemize}
 
-\subsubsection*{Application should not}
+\subsubsection*{Application SHOULD NOT:}
 \begin{itemize}
   \item modify \docVarName{VTOR}\footnote{\docVarName{Vector Table Offset Register} -- defines the offset of the interrupt vector table in the ARM memory} register -- e.g. applications generated by STM32Cube set the \docVarName{VTOR} register to the beginnig of the flash area
+  \item write to NVM beyond the bootloader API -- bootloade settings would be demaged
 \end{itemize}
 
-\subsubsection*{Prior executing the application code,\\the bootloader sets}
+\subsubsection*{Prior executing the application code, the bootloader sets:}
 \begin{itemize}
   \item the application stack to the value stored at the first word of the application flash area
-  \item the interrupt vector to the beginning of the application area
+  \item the interrupt vector (\docVarName{VTOR}) to the beginning of the application area
 \end{itemize}
 
 \clearpage
@@ -480,6 +467,8 @@ bool reqest_mode(new_mode):
 \clearpage
 \subsection{Bootloader Build Options}
 
+  The folowing table summarizes the build options, which can be used for link-time configuration.
+
   \begin{table*}[!ht]
     \hspace*{-4cm}
     \begin{tabular}{| p{5.5cm} | p{7.5cm} |}
@@ -487,24 +476,30 @@ bool reqest_mode(new_mode):
         \rowcolor{SeaGreen3!30!} {\bf Option} & {\bf Description} \\
         \hline
         \hline
-        \texttt{IFACE\_BR\_115200} & UART interface baudRate is 115200\\
+        \texttt{IFACE\_BR\_115200} & UART interface baudRate is 115200, default is 57600\\
         \hline
-        \texttt{IFACE\_PARITY\_NONE} & UART interface parity is NONE\\
+        \texttt{IFACE\_PARITY\_NONE} & UART interface parity is NONE, default is EVEN\\
         \hline
-        \texttt{TESTS\_ENABLE} & All test commands are linked and enabled\\
+        \texttt{TESTS\_ENABLE} & All test commands are enabled and linked\\
         \hline
         \texttt{TEST\_FORCE\_UNLOCK} & Bootloader is unlocked permanently \\
+        \hline
+        \texttt{AES\_128\_OTFK} & USE AES 128 only, On-the-fly \\
+        \hline
+        \texttt{AES\_128\_PREKEYED} & USE AES 128 only, Prekeyed \\
         \hline
     \end{tabular}
     \addcontentsline{lot}{table}{Bootloader Build Options}
     \label{tab:cmdset}
    \end{table*}
    
+   The folowing table summarizes used weak functions, which may be re-defined by end user on project basis to afect bootloader behavior, e.g. to enable interfacing with speciffic peripherals or set-up the appliocation enviroment specifically.
+   
    \begin{table*}[!ht]
     \hspace*{-4cm}
     \begin{tabular}{| p{5.5cm} | p{7.5cm} |}
         \hline
-        \rowcolor{SeaGreen3!30!} {\bf Option} & {\bf Description} \\
+        \rowcolor{SeaGreen3!30!} {\bf Function} & {\bf Description} \\
         \hline
         \hline
         \texttt{dev\_userInit()} & function is executed after interface initialization\\
@@ -515,11 +510,180 @@ bool reqest_mode(new_mode):
     \addcontentsline{lot}{table}{Bootloader Weak Function Hooks}
     \label{tab:cmdset}
    \end{table*}
+   
+   \docNote{The typical \texttt{dev\_userInit()} use case is, that the bootloader initializes UART-to-Anything converter.}
 
+\clearpage
+\section{Cryptographic Functions}
+This section summarizes information on portable (software implemented) cryptographic primitives employed by the KETCube bootloader.
+
+\subsection{Advanced Encryption Standard (AES-128)}
+
+The block-cipher selected for use with the bootloader is NIST standard \textit{Advanced Encryption Standard} (AES)~\cite{NIST:AES} with 128-bit block size. 
+
+The software implementation of the AES module itself is based on third-party open-source implementation originally published by Brian Gladman from Worcester, UK.  This AES implementation is proven by several open source projects -- e.g. LoRaMac-node\footnote{\url{https://github.com/Lora-net/LoRaMac-node/tree/master/src/peripherals/soft-se}} is a reference closely related to the KETCube project. The AES module is distributed under a specific BSD-like license\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-bootloader/blob/main/Modules/aes/LICENSE}}.
+
+During integration, the AES module was optimized for 128-bit operation only, and it was parametrized for performance on STM32L0x MCU.
+
+\docNote{Please note, that no side-channel protection mechanisms are currently employed.}
+
+
+\subsection{Message Authentication Code (MAC)}
+
+\textit{Message authentication code} (MAC) is used to assure, that the message transmitted over an insecure channel has not been altered. In other words, MAC serves as a digital signature of the data block.
+
+As the authentication code, AES-CMAC was selected to effectively utilize the bootloader resources, as it complements the AES-128 module. The AES-CMAC is implemented according to the NIST and IETF recomendations~\cite{NIST:AES-CMAC}~\cite{IETF:AES-CMAC}. 
+
+The AES-CMAC tests were undertaken from the IETF recommendation~\cite{IETF:AES-CMAC}.
+
+\docNote{The block length of the AES-CMAC is 128 bits, while the AES-CMAC implementation is byte-oriented: arbitrary-length, but byte-padded messages are processed correctly.}
+
+\clearpage
+\subsection{True Random Number Generator}
+ For compatibility purposes the TRNG is based on general purpose timers by the means of LSI and HSI jitter, as proposed by~\cite{Laban:2018:TRNG}.
+ 
+ The following example is based on STM32L07x implementation:\\
+ LSI is connected as capture input to timer TIM21 which is clocked by HSI. Once in eight LSI rising edges (PRSC=8) capture event is generated and TIM21 counter value is captured in CCR1 register. TIM21 capture event also generates trigger output TRGO, which is connected to TIM2. 
+ 
+ TIM2 is clocked by TIM21 TRGO pulses (external clock mode). After predetermined number of TRGO pulses TIM2 reaches its period and reloads. This automatic reload generates trigger output, requesting DMA transfer from TIM21 CCR1 to RAM and resetting TIM21 counter value for next sample. By setting the period of TIM2 counter reload the number of skipped CCR1 read-outs is determined. TIM2 period is called INT for consistency with~\cite{Laban:2018:TRNG}.
+ 
+ This interconnection of timers enables generating random bits independently of MCU core without a need for any interrupt, eliminating any SW dependency.
+ 
+ \subsubsection{TRNG Sample Distribution and Test} 
+ 
+ The output samples of the generator were tested by ENT suite, similarly as in~\cite{Laban:2018:TRNG}, with the same acceptance criteria.
+ 
+ \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+ \begin{table*}[!ht]
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1.5cm} | P{2.5cm} | P{3cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+		\hline
+		\rowcolor{SeaGreen3!30!} {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+		\hline
+		\hline
+		$>7,976$ & 0\% & 10\% $ < \chi^2 <$ 90\% & $\approx127,5$ &  $\approx3,14$ & $\approx0$ \\
+		\hline
+	\end{tabular}
+	%\addcontentsline{lot}{table}{Bootloader Special Commands}
+	\label{tab:TRNGacceptance}
+\end{table*}
+
+Results of this test show that for INT setting of 5 or 6, four least significant bits can be used. For INT=5, the following sample distribution was obtained, based on 524,288 samples.
+ 
+\begin{figure}[H]
+	\hspace{-3cm}
+	\includegraphics[width=0.6\paperwidth]{resources/appNotes/008/TRNG_distributions.pdf}
+	%\caption{Sample distribution for INT=5. (524,288 samples)}
+\end{figure}
+
+\begin{table*}[!ht]
+	\hspace*{-4cm}INT=2\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+		\hline
+		\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+		\hline
+		\hline
+		 %INT2 (524288 samples) &
+		1 & 7,996955 & 0\% & 16,59\% & 127,7905 & 3,142648 & 0,002355\\\hline
+		2 & 7,997138 & 0\% & 34,39\% & 127,4779 & 3,141183 & 0,003672\\\hline
+		3 & 7,997295 & 0\% & 64,52\% & 127,4404 & 3,143380 & 0,003257\\\hline
+		4 & \textcolor{red}{7,966528} & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,7564 & 3,057682 & 0,030836\\\hline
+		5 & \textcolor{red}{6,723528} & \textcolor{red}{15\%} & \textcolor{red}{$ < 0,01$\%} & 123,2845 & 2,606849 & 0,411459\\\hline
+		6 & \textcolor{red}{4,395023} & \textcolor{red}{45\%} & \textcolor{red}{$ < 0,01$\%} & 95,4664 & 2,757370 & 0,744699\\\hline
+		7 & \textcolor{red}{3,361964} & \textcolor{red}{57\%} & \textcolor{red}{$ < 0,01$\%} & 76,6856 & 2,984069 & 0,816606\\\hline
+		8 & \textcolor{red}{3,353993} & \textcolor{red}{58\%} & \textcolor{red}{$ < 0,01$\%} & 76,6373 & 2,984069 & 0,817081\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=3\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+		\hline
+		\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+		\hline
+		\hline
+		%INT3 (524288 samples) &
+		1 & 7,997070 & 0\% & 28,54\% & 127,1485 & 3,123238 & 0,005393\\\hline
+		2 & 7,997440 & 0\% & 84,89\% & 127,6212 & 3,146676 & 0,005765\\\hline
+		3 & 7,997036 & 0\% & 27,42\% & 127,7028 & 3,133858 & -0,001002\\\hline
+		4 & 7,995141 & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,3083 & 3,144479 & 0,001381\\\hline
+		5 & \textcolor{red}{7,387480} & \textcolor{red}{7\%} & \textcolor{red}{$ < 0,01$\%} & 126,0138 & 2,782274 & 0,210976\\\hline
+		6 & \textcolor{red}{5,215677} & \textcolor{red}{34\%} & \textcolor{red}{$ < 0,01$\%} & 115,7047 & 2,505402 & 0,642752\\\hline
+		7 & \textcolor{red}{3,909284} & \textcolor{red}{51\%} & \textcolor{red}{$ < 0,01$\%} & 154,0034 & 1,709211 & 0,786683\\\hline
+		8 & \textcolor{red}{0,518753} & \textcolor{red}{93\%} & \textcolor{red}{$ < 0,01$\%} & 249,2199 & 0,099615 & 0,758845\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=4\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+	\hline
+	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+	\hline
+	\hline
+	%INT4 (524288 samples) &
+	1 & 7,997099 & 0\% & 33,34\% & 127,7378 & 3,158030 & 0,000593\\\hline
+	2 & 7,997185 & 0\% & 48,96\% & 127,6762 & 3,133492 & -0,001407\\\hline
+	3 & 7,996617 & 0\% & \textcolor{red}{1,58\%} & 127,6407 & 3,154734 & -0,006683\\\hline
+	4 & 7,997154 & 0\% & 43,34\% & 127,4795 & 3,139718 & -0,008240\\\hline
+	5 & \textcolor{red}{7,744063} & \textcolor{red}{3\%} & \textcolor{red}{$ < 0,01$\%} & 127,3697 & 2,910822 & 0,086066\\\hline
+	6 & \textcolor{red}{5,883025} & \textcolor{red}{26\%} & \textcolor{red}{$ < 0,01$\%} & 127,8551 & 2,353415 & 0,518821\\\hline
+	7 & \textcolor{red}{3,497369} & \textcolor{red}{56\%} & \textcolor{red}{$ < 0,01$\%} & 176,2003 & 1,297931 & 0,786333\\\hline
+	8 & \textcolor{red}{1,645495} & \textcolor{red}{79\%} & \textcolor{red}{$ < 0,01$\%} & 36,3277 & 3,502655 & 0,883243\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=5\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+	\hline
+	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+	\hline
+	\hline
+	%INT5 (524288 samples) &
+	1 & 7,997445 & 0\% & 85,26\% & 127,8543 & 3,120674 & -0,003548\\\hline
+	2 & 7,997096 & 0\% & 34,43\% & 127,4254 & 3,149240 & -0,004049\\\hline
+	3 & 7,997480 & 0\% & 87,49\% & 127,0517 & 3,158396 & 0,006026\\\hline
+	4 & 7,997025 & 0\% & 25,53\% & 127,5354 & 3,142282 & -0,001071\\\hline
+	5 & \textcolor{red}{7,901627} & \textcolor{red}{1\%} & \textcolor{red}{$ < 0,01$\%} & 127,2943 & 2,990295 & 0,038994\\\hline
+	6 & \textcolor{red}{6,417549} & \textcolor{red}{19\%} & \textcolor{red}{$ < 0,01$\%} & 122,2469 & 2,612342 & 0,402473\\\hline
+	7 & \textcolor{red}{4,188586} & \textcolor{red}{47\%} & \textcolor{red}{$ < 0,01$\%} & 87,4719 & 2,922542 & 0,711057\\\hline
+	8 & \textcolor{red}{3,377565} & \textcolor{red}{57\%} & \textcolor{red}{$ < 0,01$\%} & 73,0581 & 3,080388 & 0,774445\\\hline
+	\end{tabular}
+
+	~\\
+	\hspace*{-4cm}INT=6\\
+	\hspace*{-4cm}
+	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
+	\hline
+	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
+	\hline
+	\hline
+	%INT6 (524288 samples) &
+	1 & 7,997334 & 0\% & 71,65\% & 128,2106 & 3,139718 & 0,001314\\\hline
+	2 & 7,997210 & 0\% & 51,73\% & 127,8553 & 3,137521 & 0,001606\\\hline
+	3 & 7,997243 & 0\% & 57,87\% & 128,0486 & 3,140450 & -0,001759\\\hline
+	4 & 7,997307 & 0\% & 66,67\% & 127,3522 & 3,140450 & 0,000769\\\hline
+	5 & \textcolor{red}{7,962631} & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,5400 & 3,045230 & 0,017089\\\hline
+	6 & \textcolor{red}{6,866886} & \textcolor{red}{14\%} & \textcolor{red}{$ < 0,01$\%} & 128,3820 & 2,564732 & 0,293240\\\hline
+	7 & \textcolor{red}{4,736876} & \textcolor{red}{40\%} & \textcolor{red}{$ < 0,01$\%} & 145,2501 & 1,915400 & 0,672422\\\hline
+	8 & \textcolor{red}{2,890833} & \textcolor{red}{63\%} & \textcolor{red}{$ < 0,01$\%} & 176,9694 & 1,293170 & 0,848671\\\hline
+	\end{tabular}
+	\label{tab:TRNGtest}
+\end{table*}
+
+  \subsubsection{TRNG Embedded Test}
+  
+  TBD
+  
+  \docNote{KETCube bootloader employs NIST-recommended embedded tests to assure TRNG-output quality.}
+   
+   
 \clearpage
 \section{Supported Devices}\label{sec:supportedDevices}
 
-\docNote{This bootloader is designed to be generic, however, it is currently tested only on STM32L0[7,8][1-3] devices.}
+\docNote{This bootloader is designed to be generic, however, it is currently tested only on STM32L0[7|8][1-3] devices.}
 
 \subsection{Adding a New Device}
 
@@ -1866,172 +2030,7 @@ $ All test cases PASSED!
 \end{tikzpicture}}}
 \footnotetext{readout protection is disabled after flash Mass Erase is sucesfully finished}
 
-\clearpage
-\section{Cryptographic Functions}
-This section summarizes information on portable (software implemented) cryptographic primitives employed by the KETCube bootloader.
 
-\subsection{Advanced Encryption Standard (AES-128)}
-
-The block-cipher selected for use with the bootloader is NIST standard \textit{Advanced Encryption Standard} (AES)~\cite{NIST:AES} with 128-bit block size. 
-
-The software implementation of the AES module itself is based on third-party open-source implementation originally published by Brian Gladman from Worcester, UK.  This AES implementation is proven by several open source projects -- e.g. LoRaMac-node\footnote{\url{https://github.com/Lora-net/LoRaMac-node/tree/master/src/peripherals/soft-se}} is a reference closely related to the KETCube project. The AES module is distributed under a specific BSD-like license\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-bootloader/blob/main/Modules/aes/LICENSE}}.
-
-During integration, the AES module was optimized for 128-bit operation only, and it was parametrized for performance on STM32L0x MCU.
-
-\docNote{Please note, that no side-channel protection mechanisms are currently employed.}
-
-
-\subsection{Message Authentication Code (MAC)}
-
-\textit{Message authentication code} (MAC) is used to assure, that the message transmitted over an insecure channel has not been altered. In other words, MAC serves as a digital signature of the data block.
-
-As the authentication code, AES-CMAC was selected to effectively utilize the bootloader resources, as it complements the AES-128 module. The AES-CMAC is implemented according to the NIST and IETF recomendations~\cite{NIST:AES-CMAC}~\cite{IETF:AES-CMAC}. 
-
-The AES-CMAC tests were undertaken from the IETF recommendation~\cite{IETF:AES-CMAC}.
-
-\docNote{The block length of the AES-CMAC is 128 bits, while the AES-CMAC implementation is byte-oriented: arbitrary-length, but byte-padded messages are processed correctly.}
-
-\clearpage
-\subsection{True Random Number Generator}
- For compatibility purposes the TRNG is based on general purpose timers by the means of LSI and HSI jitter, as proposed by~\cite{Laban:2018:TRNG}.
- 
- The following example is based on STM32L07x implementation:\\
- LSI is connected as capture input to timer TIM21 which is clocked by HSI. Once in eight LSI rising edges (PRSC=8) capture event is generated and TIM21 counter value is captured in CCR1 register. TIM21 capture event also generates trigger output TRGO, which is connected to TIM2. 
- 
- TIM2 is clocked by TIM21 TRGO pulses (external clock mode). After predetermined number of TRGO pulses TIM2 reaches its period and reloads. This automatic reload generates trigger output, requesting DMA transfer from TIM21 CCR1 to RAM and resetting TIM21 counter value for next sample. By setting the period of TIM2 counter reload the number of skipped CCR1 read-outs is determined. TIM2 period is called INT for consistency with~\cite{Laban:2018:TRNG}.
- 
- This interconnection of timers enables generating random bits independently of MCU core without a need for any interrupt, eliminating any SW dependency.
- 
- \subsubsection{TRNG Sample Distribution and Test} 
- 
- The output samples of the generator were tested by ENT suite, similarly as in~\cite{Laban:2018:TRNG}, with the same acceptance criteria.
- 
- \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
- \begin{table*}[!ht]
-	\hspace*{-4cm}
-	\begin{tabular}{| P{1.5cm} | P{2.5cm} | P{3cm} | P{2cm} | P{1.5cm} | P{2cm} | }
-		\hline
-		\rowcolor{SeaGreen3!30!} {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
-		\hline
-		\hline
-		$>7,976$ & 0\% & 10\% $ < \chi^2 <$ 90\% & $\approx127,5$ &  $\approx3,14$ & $\approx0$ \\
-		\hline
-	\end{tabular}
-	%\addcontentsline{lot}{table}{Bootloader Special Commands}
-	\label{tab:TRNGacceptance}
-\end{table*}
-
-Results of this test show that for INT setting of 5 or 6, four least significant bits can be used. For INT=5, the following sample distribution was obtained, based on 524,288 samples.
- 
-\begin{figure}[H]
-	\hspace{-3cm}
-	\includegraphics[width=0.6\paperwidth]{resources/appNotes/008/TRNG_distributions.pdf}
-	%\caption{Sample distribution for INT=5. (524,288 samples)}
-\end{figure}
-
-\begin{table*}[!ht]
-	\hspace*{-4cm}INT=2\\
-	\hspace*{-4cm}
-	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
-		\hline
-		\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
-		\hline
-		\hline
-		 %INT2 (524288 samples) &
-		1 & 7,996955 & 0\% & 16,59\% & 127,7905 & 3,142648 & 0,002355\\\hline
-		2 & 7,997138 & 0\% & 34,39\% & 127,4779 & 3,141183 & 0,003672\\\hline
-		3 & 7,997295 & 0\% & 64,52\% & 127,4404 & 3,143380 & 0,003257\\\hline
-		4 & \textcolor{red}{7,966528} & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,7564 & 3,057682 & 0,030836\\\hline
-		5 & \textcolor{red}{6,723528} & \textcolor{red}{15\%} & \textcolor{red}{$ < 0,01$\%} & 123,2845 & 2,606849 & 0,411459\\\hline
-		6 & \textcolor{red}{4,395023} & \textcolor{red}{45\%} & \textcolor{red}{$ < 0,01$\%} & 95,4664 & 2,757370 & 0,744699\\\hline
-		7 & \textcolor{red}{3,361964} & \textcolor{red}{57\%} & \textcolor{red}{$ < 0,01$\%} & 76,6856 & 2,984069 & 0,816606\\\hline
-		8 & \textcolor{red}{3,353993} & \textcolor{red}{58\%} & \textcolor{red}{$ < 0,01$\%} & 76,6373 & 2,984069 & 0,817081\\\hline
-	\end{tabular}
-
-	~\\
-	\hspace*{-4cm}INT=3\\
-	\hspace*{-4cm}
-	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
-		\hline
-		\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
-		\hline
-		\hline
-		%INT3 (524288 samples) &
-		1 & 7,997070 & 0\% & 28,54\% & 127,1485 & 3,123238 & 0,005393\\\hline
-		2 & 7,997440 & 0\% & 84,89\% & 127,6212 & 3,146676 & 0,005765\\\hline
-		3 & 7,997036 & 0\% & 27,42\% & 127,7028 & 3,133858 & -0,001002\\\hline
-		4 & 7,995141 & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,3083 & 3,144479 & 0,001381\\\hline
-		5 & \textcolor{red}{7,387480} & \textcolor{red}{7\%} & \textcolor{red}{$ < 0,01$\%} & 126,0138 & 2,782274 & 0,210976\\\hline
-		6 & \textcolor{red}{5,215677} & \textcolor{red}{34\%} & \textcolor{red}{$ < 0,01$\%} & 115,7047 & 2,505402 & 0,642752\\\hline
-		7 & \textcolor{red}{3,909284} & \textcolor{red}{51\%} & \textcolor{red}{$ < 0,01$\%} & 154,0034 & 1,709211 & 0,786683\\\hline
-		8 & \textcolor{red}{0,518753} & \textcolor{red}{93\%} & \textcolor{red}{$ < 0,01$\%} & 249,2199 & 0,099615 & 0,758845\\\hline
-	\end{tabular}
-
-	~\\
-	\hspace*{-4cm}INT=4\\
-	\hspace*{-4cm}
-	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
-	\hline
-	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
-	\hline
-	\hline
-	%INT4 (524288 samples) &
-	1 & 7,997099 & 0\% & 33,34\% & 127,7378 & 3,158030 & 0,000593\\\hline
-	2 & 7,997185 & 0\% & 48,96\% & 127,6762 & 3,133492 & -0,001407\\\hline
-	3 & 7,996617 & 0\% & \textcolor{red}{1,58\%} & 127,6407 & 3,154734 & -0,006683\\\hline
-	4 & 7,997154 & 0\% & 43,34\% & 127,4795 & 3,139718 & -0,008240\\\hline
-	5 & \textcolor{red}{7,744063} & \textcolor{red}{3\%} & \textcolor{red}{$ < 0,01$\%} & 127,3697 & 2,910822 & 0,086066\\\hline
-	6 & \textcolor{red}{5,883025} & \textcolor{red}{26\%} & \textcolor{red}{$ < 0,01$\%} & 127,8551 & 2,353415 & 0,518821\\\hline
-	7 & \textcolor{red}{3,497369} & \textcolor{red}{56\%} & \textcolor{red}{$ < 0,01$\%} & 176,2003 & 1,297931 & 0,786333\\\hline
-	8 & \textcolor{red}{1,645495} & \textcolor{red}{79\%} & \textcolor{red}{$ < 0,01$\%} & 36,3277 & 3,502655 & 0,883243\\\hline
-	\end{tabular}
-
-	~\\
-	\hspace*{-4cm}INT=5\\
-	\hspace*{-4cm}
-	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
-	\hline
-	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
-	\hline
-	\hline
-	%INT5 (524288 samples) &
-	1 & 7,997445 & 0\% & 85,26\% & 127,8543 & 3,120674 & -0,003548\\\hline
-	2 & 7,997096 & 0\% & 34,43\% & 127,4254 & 3,149240 & -0,004049\\\hline
-	3 & 7,997480 & 0\% & 87,49\% & 127,0517 & 3,158396 & 0,006026\\\hline
-	4 & 7,997025 & 0\% & 25,53\% & 127,5354 & 3,142282 & -0,001071\\\hline
-	5 & \textcolor{red}{7,901627} & \textcolor{red}{1\%} & \textcolor{red}{$ < 0,01$\%} & 127,2943 & 2,990295 & 0,038994\\\hline
-	6 & \textcolor{red}{6,417549} & \textcolor{red}{19\%} & \textcolor{red}{$ < 0,01$\%} & 122,2469 & 2,612342 & 0,402473\\\hline
-	7 & \textcolor{red}{4,188586} & \textcolor{red}{47\%} & \textcolor{red}{$ < 0,01$\%} & 87,4719 & 2,922542 & 0,711057\\\hline
-	8 & \textcolor{red}{3,377565} & \textcolor{red}{57\%} & \textcolor{red}{$ < 0,01$\%} & 73,0581 & 3,080388 & 0,774445\\\hline
-	\end{tabular}
-
-	~\\
-	\hspace*{-4cm}INT=6\\
-	\hspace*{-4cm}
-	\begin{tabular}{| P{1cm} | P{1.5cm} | P{2.5cm} | P{1.5cm} | P{2cm} | P{1.5cm} | P{2cm} | }
-	\hline
-	\rowcolor{SeaGreen3!30!} {\bf Bit}  & {\bf Entropy} & {\bf Compression} & {\bf Chi Square} & {\bf Arithmetic	Mean} & {\bf Monte	Carlo} & {\bf Correlation Coefficient} \\
-	\hline
-	\hline
-	%INT6 (524288 samples) &
-	1 & 7,997334 & 0\% & 71,65\% & 128,2106 & 3,139718 & 0,001314\\\hline
-	2 & 7,997210 & 0\% & 51,73\% & 127,8553 & 3,137521 & 0,001606\\\hline
-	3 & 7,997243 & 0\% & 57,87\% & 128,0486 & 3,140450 & -0,001759\\\hline
-	4 & 7,997307 & 0\% & 66,67\% & 127,3522 & 3,140450 & 0,000769\\\hline
-	5 & \textcolor{red}{7,962631} & 0\% & \textcolor{red}{$ < 0,01$\%} & 127,5400 & 3,045230 & 0,017089\\\hline
-	6 & \textcolor{red}{6,866886} & \textcolor{red}{14\%} & \textcolor{red}{$ < 0,01$\%} & 128,3820 & 2,564732 & 0,293240\\\hline
-	7 & \textcolor{red}{4,736876} & \textcolor{red}{40\%} & \textcolor{red}{$ < 0,01$\%} & 145,2501 & 1,915400 & 0,672422\\\hline
-	8 & \textcolor{red}{2,890833} & \textcolor{red}{63\%} & \textcolor{red}{$ < 0,01$\%} & 176,9694 & 1,293170 & 0,848671\\\hline
-	\end{tabular}
-	\label{tab:TRNGtest}
-\end{table*}
-
-  \subsubsection{TRNG Embedded Test}
-  
-  TBD
-  
-  \docNote{KETCube bootloader employs NIST-recommended embedded tests to assure TRNG-output quality.}
-   
  
 % ------------------------------------------------------------
 % ------------------------------------------------------------
