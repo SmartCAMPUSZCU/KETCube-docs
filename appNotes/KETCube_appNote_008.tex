@@ -459,6 +459,8 @@ The following table summarizes command priviledges and bootloader security modes
         \hline
         \texttt{AES\_128\_PREKEYED} & USE AES 128 only, Prekeyed \\
         \hline
+        \texttt{ACCESS\_ENABLE\_PASSWORD} & Enable password to unlock the bootloader \\
+        \hline
     \end{tabular}
     \addcontentsline{lot}{table}{Bootloader Build Options}
     \label{tab:cmdset}
@@ -1622,7 +1624,7 @@ $ All test cases PASSED!
     minimum width=3.5cm,
     minimum height=2.5cm,
     align=center
-] (blockMassYN) { Received\\0xFFFF,\\0x0000\footnotemark };
+] (blockMassYN) { Received\\0xFFFF,\\0x00\footnotemark };
 
 \node[draw,
     below=of block6,
@@ -1717,7 +1719,7 @@ $ All test cases PASSED!
 \addtocounter{footnote}{+1}
 \footnotetext{Each page is encoded by two bytes (MSB-first)}
 \addtocounter{footnote}{+1}
-\footnotetext{Receive 2 bytes (MSB-first) encoding special value and another 2 bytes (MSB-first), as the commandm complement: 0xFFFF code encodes Mass Erase}
+\footnotetext{Receive 2 bytes (MSB-first) encoding special value and another 1 byte of checksum: 0xFFFF + 0x00 code encodes Mass Erase}
 \addtocounter{footnote}{+1}
 \footnotetext{Checksum is a single byte computed over all bytes received since the number of pages - 1 bytes (included)}
 
