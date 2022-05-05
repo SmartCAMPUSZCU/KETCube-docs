@@ -447,9 +447,15 @@ The following table summarizes command priviledges and bootloader security modes
         \rowcolor{SeaGreen3!30!} {\bf Option} & {\bf Description} \\
         \hline
         \hline
-        \texttt{IFACE\_BR\_115200} & UART interface baudRate is 115200, default is 57600\\
+        \texttt{IFACE\_UART} & Use UART interface\\
         \hline
-        \texttt{IFACE\_PARITY\_NONE} & UART interface parity is NONE, default is EVEN\\
+        \texttt{IFACE\_I2C} & Use I2C interface - NOT Implemented yet!\\
+        \hline
+        \texttt{IFACE\_UART\_BR\_115200} & UART interface baudRate is 115200, default is 57600\\
+        \hline
+        \texttt{IFACE\_UART\_PARITY\_NONE} & UART interface parity is NONE, default is EVEN\\
+        \hline
+        \texttt{IFACE\_UART\_MAX\_BYTE\_TIMEOUT} & UART maximum timeout for sinle byte Rx\\
         \hline
         \texttt{TESTS\_ENABLE} & All test commands are enabled and linked\\
         \hline
