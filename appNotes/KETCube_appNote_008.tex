@@ -346,7 +346,8 @@ To add a new device:
 \item insert the device definitions to the \docFileName{device.h} file, 
 \item create the custom memory map in the \docFileName{memory} directory and include it to the linker script \docFileName{LinkerScript.ld},
 \item re-visit or re-implement the \docVarName{dev\_initClock()} function,
-\item re-visit or re-implement the interface implementation(s)\\in~\docFileName{iface\_IFACE.c}.
+\item re-visit or re-implement the interface implementation(s)\\in~\docFileName{iface\_IFACE.c},
+\item re-visit or re-implement and verify the TRNG module.
 \end{enumerate}
 
 For the STM32 devices specification details, see Table 149 in \cite{STM32:AN2606}.
