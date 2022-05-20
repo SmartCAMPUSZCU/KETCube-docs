@@ -71,23 +71,35 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
     minimum width=3.5cm,
     minimum height=1cm,
     align=center
-] (block1) { 0x7F or command received\\in the time window\footnotemark\\on supported interface };
+] (block1) { 0x7F or command received\\in the time window\footnotemark\\on supported interface\footnotemark };
 
 \node[draw,
     below=of block1,
     minimum width=3cm,
     minimum height=1cm,
     align=center
-] (block2) { USART1 selected };
+] (block2) { USART type peripheral\\selected };
 
 \node[draw,
     below=of block2,
     minimum width=3cm,
     minimum height=3cm,
     align=center
-] (block3) { Auto-baud rate sequence\\send ACK byte \& disable\\unused peripherals\footnotemark };
+] (block3) { Auto-baud rate sequence\\send ACK byte\footnotemark };
 
-\node[coordinate,below=1cm of block3] (blockCmdWait) {};
+\node[draw,
+    right=of block3,
+    minimum width=3cm,
+    minimum height=3cm,
+    align=center
+] (block3b) { Application enabled? };
+
+\node[draw,
+    below=of block3,
+    minimum width=3cm,
+    minimum height=3cm,
+    align=center
+] (blockCmdWait) { Disable unused\\peripherals\addtocounter{footnote}{-2}\footnotemark\addtocounter{footnote}{+1}};
 
 \node[draw,
     diamond,
@@ -104,7 +116,7 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
     minimum width=3cm,
     minimum height=2cm,
     align=center
-] (block6) { Basic Commands\\(Get, Read, Write, \dots) };
+] (block6) { Basic or Extended\\Commands\\(Get, Read, Write, \dots) };
 
 \node[draw,
     right=of block6,
@@ -124,11 +136,14 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \draw[-latex] (block0) edge (block1)
               (block2) edge (block3)
               (block3) -- (blockCmdWait)
-              (blockCmdWait) -| (block4)
+              (blockCmdWait) -- (block4)
               (block4) edge (blockCmdRecv);
               
 \draw[->] (block1) -- (block2) node [pos=0.5,right,font=\footnotesize] { Yes };
-\draw[->] (block1) -| (blockJumpApp) node [pos=0.1,above,font=\footnotesize] { No };
+\draw[->] (block1) -| (block3b) node [pos=0.1,above,font=\footnotesize] { No };
+
+\draw[->] (block3b) |- (blockCmdWait) node [pos=0.3,left,font=\footnotesize] { No };
+\draw[->] (block3b) -| (blockJumpApp) node [pos=0.1,above,font=\footnotesize] { Yes };
               
 \draw[->] (blockCmdRecv) -| (block6);
 \draw[->] (blockCmdRecv) -| (block7);
@@ -141,8 +156,10 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \draw[->] (blockCmdExec3) |- (blockCmdWait);
  
 \end{tikzpicture}}}
-\addtocounter{footnote}{-1}
+\addtocounter{footnote}{-2}
 \footnotetext{The dafault time window for 0x7F reception is 5 seconds}
+\addtocounter{footnote}{+1}
+\footnotetext{USART only is currently supported}
 \addtocounter{footnote}{+1}
 \footnotetext{Autobaudrate is currently NOT supported by this bootloader}
 
