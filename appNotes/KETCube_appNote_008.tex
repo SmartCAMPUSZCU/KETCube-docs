@@ -34,7 +34,10 @@
 \section*{KETCube Bootloader: the STM Bootloader Re-Invented}
 \input{resources/about.tex}
 
-This document describes the KETCube Bootloader. The bootloader is protocol-compatible with the standard ROM STM32 bootloader \cite{STM32:AN3155}. It was designed to provide a customizable bootloader with security features for the KETCube platform compatible with the standard toolset.
+This document describes the KETCube Bootloader. 
+The bootloader is (mostly) protocol-compatible with the standard ROM STM32 bootloader~\cite{STM32:AN3155}.
+It was designed to provide a customizable and portable bootloader with security features for the KETCube platform 
+compatible with the standard STM bootloaders' toolset, primarily with the open-source tools.
 
 \setcounter{tocdepth}{2}
 \tableofcontents
@@ -43,7 +46,7 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \listoffigures
 \listoftables
 \begin{versionhistory}
-  \vhEntry{0.2.0*}{8.11.2021}{JB|KV}{Initial version}
+  \vhEntry{0.2*}{27.5.2022}{JB|KV}{Initial version}
 \end{versionhistory}
 % history table ... do not number
 \setcounter{table}{0}
@@ -71,7 +74,7 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
     minimum width=3.5cm,
     minimum height=1cm,
     align=center
-] (block1) { 0x7F or command received\\in the time window\footnotemark\\on supported interface\footnotemark };
+] (block1) { 0x7F or command word\\received in the time window\footnotemark\\on one of the\\supported interfaces\footnotemark };
 
 \node[draw,
     below=of block1,
@@ -85,9 +88,10 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
     minimum width=3cm,
     minimum height=3cm,
     align=center
-] (block3) { Auto-baud rate sequence\\send ACK byte\footnotemark };
+] (block3) { For the auto-baud-rate\\send ACK byte\footnotemark };
 
 \node[draw,
+    diamond,
     right=of block3,
     minimum width=3cm,
     minimum height=3cm,
@@ -102,7 +106,6 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 ] (blockCmdWait) { Disable unused\\peripherals\addtocounter{footnote}{-2}\footnotemark\addtocounter{footnote}{+1}};
 
 \node[draw,
-    diamond,
     below=1cm of blockCmdWait,
     minimum width=3cm,
     minimum height=2cm,
@@ -112,18 +115,19 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \node[coordinate,below=1cm of block4] (blockCmdRecv) {};
 
 \node[draw,
-    below=of blockCmdRecv,
+    below=2cm of blockCmdRecv,
     minimum width=3cm,
     minimum height=2cm,
     align=center
 ] (block6) { Basic or Extended\\Commands\\(Get, Read, Write, \dots) };
 
 \node[draw,
+    diamond,
     right=of block6,
     minimum width=3cm,
     minimum height=2cm,
     align=center
-] (block7) { GO cmd\\routine };
+] (block7) { GO command:\\valid and\\enabled address? };
 
 \node[below=1cm of block7, fill=white] (blockJumpAddr) {Jump To Address};
 \node[right=of blockJumpAddr, fill=white] (blockJumpApp) {Jump To Application};
@@ -131,6 +135,8 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \node[coordinate,below=1cm of block6] (blockCmdExec) {};
 \node[coordinate,below=1cm of blockCmdExec] (blockCmdExec2) {};
 \node[coordinate,left=5cm of blockCmdExec2] (blockCmdExec3) {};
+ 
+\node[coordinate,right=1cm of block7] (blockGoNo) {};
  
 % Arrows
 \draw[-latex] (block0) edge (block1)
@@ -149,11 +155,13 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \draw[->] (blockCmdRecv) -| (block7);
 
 \draw[] (block6) |- (blockCmdExec);
-\draw[->] (block7) -- (blockJumpAddr);
+\draw[->] (block7) -- (blockJumpAddr) node [pos=0.2,right,font=\footnotesize] { Yes };
+\draw[-] (block7) -| (blockGoNo) node [pos=0.1,above,font=\footnotesize] { No };
+\draw[->] (blockGoNo) |- (block4);
 
 \draw[] (blockCmdExec) |- (blockCmdExec2)
         (blockCmdExec2) |- (blockCmdExec3);
-\draw[->] (blockCmdExec3) |- (blockCmdWait);
+\draw[->] (blockCmdExec3) |- (block4);
  
 \end{tikzpicture}}}
 \addtocounter{footnote}{-2}
@@ -210,13 +218,13 @@ This document describes the KETCube Bootloader. The bootloader is protocol-compa
 \end{tikzpicture}
 }
 
-The Bootloader API object (structure of function pointers) is located at the beginning of the (Bootloader) RAM area in the \texttt{.api} section to allow straight-forward application-bootloader interfacing. 
+The Bootloader API object (structure of function pointers) is located at the beginning of the (Bootloader) RAM area in the \texttt{.api} section to allow straightforward application-bootloader interfacing. 
 
 The \texttt{.api} section is followed by the \texttt{.ramcode} section holding Bootloader code executed from RAM. 
 
 The rest of the bootloaders' RAM is dedicated for initialized and uninitialized data (common \texttt{.data} and \texttt{.bss} sections).
 
-\docNote{RAM used by the bootloader cannot be re-used by Application. 
+\docNote{RAM used by the bootloader cannot be re-used by the application. 
 
 Application \textbf{must not} use memory reserved for bootloader!}
 
@@ -279,7 +287,7 @@ Data itself are held in simple containers called \textit{fragments}. NVM contain
 
 The \textit{Block Base} area holds a single fragment called \textit{base fragment}. 
 The \textit{base fragment} represents an effective size of the NVM block, while its default size is 1kB.
-The \textit{base fragment} represents a plain memory containing the NVM block data in a conventional way.
+The \textit{base fragment} represents a plain memory containing the NVM block data.
 
 The \textit{Patch Area} holds multiple fragments called \textit{patch fragments}.
 The default \textit{Patch Area} size is 0.5kB, while the \textit{patch fragment} size is variable.
@@ -316,7 +324,7 @@ Each \textit{fragment} is composed of the fixed-size header and data. The fragme
 \clearpage
  \docNote{Fragment versions in a single NVM Block is the uninterrupted rising series of integers (incremented by one). In case of a gap (> 1) between the following version numbers, the next fragment is considered invalid.}
  
- \docNote{Note, that there is no need to reset the fragment version field or watch for overflow, because 32-bit version field allows to represent more than 10M of full 6kB EEPROM writes (in the pessimistic case, for the smallest possible fragments), which is much above typical EEPROM durability.}
+ \docNote{Note, that there is no need to reset the fragment version field or watch for overflow because the 32-bit version field allows representing more than 10M of full 6kB EEPROM writes (in the pessimistic case, for the smallest possible fragments), which is much above typical EEPROM durability.}
 
  \docNote{Fragment version field represents the utilization of the memory and if the memory was not completely erased, it might serve as a memory age indicator.}
  
@@ -324,22 +332,22 @@ Each \textit{fragment} is composed of the fixed-size header and data. The fragme
  
  Depending on the bootloader configuration, the physical memory is used logically as a single-bank memory or as a dual-bank mirrored memory with half capacity. 
 
-\docWarn{The dual-bank mirrored case is not implemented yet.}
- 
  In the single-bank case, the capacity of the memory is higher allowing more blocks could be stored in NVM. 
  If memory content is damaged during a write operation, only the latest fragment is damaged. 
  As fragments employ the self-checking CRC32 mechanism for error-detection, an error is discovered when EEPROM is read and automatic rollback to the previous patch/block is performed.
 
+\docWarn{The dual-bank mirrored case is not implemented yet!}
+ 
  In the mirrored memory organization, blocks are synchronously stored in both banks to increase the diversity of data. 
  In case of inconsistency, read/write operations in dual-bank arrangement select the newer valid content from both banks and initiate damaged bank recovery.
  If memory content is damaged during write, no rollback is taken, but the second memory bank content is used to recover recent data and restore consistency.
  
-\docWarn{If an EEPROM cell is permanently damaged, the current implementation in the single-bank case is unable to recover - no new patches could be stored.
+\docWarn{If an EEPROM bank is permanently damaged, the current implementation in the single-bank case is unable to recover - no new patches could be stored.
 On the other hand, in the dual-bank case, the undamaged bank could be used exclusively.}
  
 \subsubsection{Security Features}\label{sec:arch:EEPROMMap:sec}
 
-The NVM memory could be protected by standard MCU read-out protection mechanism and by access priviledge mechanism implemented in KETCube bootloader.
+The NVM memory could be protected by a standard MCU read-out protection mechanism and by an access privilege mechanism implemented in the KETCube bootloader.
 
 
 \clearpage
@@ -360,11 +368,12 @@ Independent watchdog (IWDG) is currently not handled by the bootloader -- please
 
 To add a new device:
 \begin{enumerate}
+\item see the \docFileName{Targets} directory, add a new target and implement the startup file, interrupt handler, and the custom target Makefile if needed,
 \item insert the device definitions to the \docFileName{device.h} file, 
+\item re-visit the \docFileName{device.c} file (\docVarName{dev\_initClock()} function),
 \item create the custom memory map in the \docFileName{memory} directory and include it to the linker script \docFileName{LinkerScript.ld},
-\item re-visit or re-implement the \docVarName{dev\_initClock()} function,
-\item re-visit or re-implement the interface implementation(s)\\in~\docFileName{iface\_IFACE.c},
-\item re-visit or re-implement and verify the TRNG module.
+\item re-visit or modify the interface implementation(s)\\in~\docFileName{iface\_IFACE.c},
+\item re-visit or modify, and verify the TRNG module.
 \end{enumerate}
 
 For the STM32 devices specification details, see Table 149 in \cite{STM32:AN2606}.
@@ -379,7 +388,7 @@ Always use the preprocessor conditional expressions, conditional block, or condi
 \end{verbatim}
 \end{docCodeExampleTitled}
 
-\docNote{To select the device, set \docVarName{DEVICE} variable in the Makefile to the device-speciffic string, e.g. to \docVarName{STM32L071xx} to select STM32l071 device.}
+\docNote{To select the device, set \docVarName{DEVICE} variable in the Makefile to the device-speciffic string, e.g. to \docVarName{STM32L071xx} to select STM32l071xx device.}
 
 \clearpage
 \section{Supported Interfaces}
@@ -411,8 +420,8 @@ To add a new interface support:
 \clearpage
 \section{Bootloader Configuration} \label{sec:settings}
 
-Bootloader is written to be compile-time and run-time configurable. 
-The compile-time configuration is realized through preprocessor defines, as described below.
+The bootloader is written to be compile-time and run-time configurable. 
+The compile-time configuration is realized through the preprocessor defines described below.
 To store the run-time configuration, this bootloader uses a portion of NVM.
 Altering the run-time configuration is possible through the application API 
 or through special commends through standard bootloader protocol.
@@ -429,6 +438,7 @@ The Arm GNU Toolchain (\docVarName{GCC}) is currently the only supported compile
 \subsection{Custom Build Configuration}
 
   The folowing table summarizes the compile- and link-time options, which can be used for the static bootloader configuration.
+  The default bootloader build options are star-marked.
 
   \begin{table*}[!ht]
     \hspace*{-4cm}
@@ -439,13 +449,13 @@ The Arm GNU Toolchain (\docVarName{GCC}) is currently the only supported compile
         \hline
         \texttt{ACCESS\_ENABLE\_PASSWORD} & Enable password to unlock the bootloader \\
         \hline
-        \texttt{AES\_128\_OTFK} & USE AES 128 only, On-the-fly \\
+        \texttt{AES\_128\_OTFK$^*$} & USE AES 128 only, On-the-fly \\
         \hline
         \texttt{AES\_128\_PREKEYED} & USE AES 128 only, Prekeyed \\
         \hline
         \texttt{CMD\_ENABLE\_ERASE\_MEM} & Enable the deprecated erase memory command \\
         \hline
-        \texttt{IFACE\_UART} & Use UART interface\\
+        \texttt{IFACE\_UART$^*$} & Use UART interface\\
         \hline
         \texttt{IFACE\_I2C} & Use I2C interface - NOT Implemented yet!\\
         \hline
@@ -494,7 +504,7 @@ The Arm GNU Toolchain (\docVarName{GCC}) is currently the only supported compile
       \rowcolor{SeaGreen3!30!} {\bf Type} & {\bf Description} \\
       \hline
       \hline
-      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- wait for five seconds for command, then start application if available;\newline
+      {\tt startup\_t } \newline ({\tt uint16\_t })  & {\tt 0x0000} -- wait for five seconds for command, then start application if available and enabled;\newline
                           {\tt 0x0001} -- start application code immediatelly (do not enter bootloader);\newline
                           {\tt 0x0002} -- stay in bootloader until timeout;\newline 
                           {\tt 0x0003} -- stay in bootloader until go.\\
@@ -520,25 +530,25 @@ The Arm GNU Toolchain (\docVarName{GCC}) is currently the only supported compile
   \label{tab:cfgStruct}
  \end{table*}
  
-\docNote{The employed threat model states, that a running application is completely trusted by the bootloader. Application can use the bootloader configuration API to set up the bootloader. The application should write to the bootloader Non-Volatile Configuration memory using bootloader configuration API exclusively to ensure configuration correctness. Bootloader configuration API may serve, e.g. for out-of-band bootloader key management.}
+\docNote{The employed threat model states, that a running application is completely trusted by the bootloader. The application can use the bootloader configuration API to set up the bootloader. The application should write to the bootloader Non-Volatile Configuration memory using bootloader configuration API exclusively to ensure configuration correctness. Bootloader configuration API may serve, e.g. for out-of-band bootloader key management.}
 
 \subsection{Bootloader Upgrade Procedure}
 \docNote{To upgrade the Bootloader, it is currently recommended to use the ROM bootloader or SWD interface.}
-
 
 \clearpage
 \section{Bootloader Security} \label{sec:security}
 
 This bootloader is designed to provide a basic level of security and trust in constrained,
-low-power and low-cost devices like IoT nodes, wireless batery sensors, etc.
+low-power and low-cost devices like IoT nodes, wireless battery-operated sensors, etc.
 
-The primary aim of this bootloader is to control access to confidential data stored in embedded MCU memories.
-Unpriviledged access thru interfaces controlled by this bootloader is prohibited if the bootloader is properly configured.
+The primary aim of this bootloader is to control access to confidential data and code stored in embedded MCU memories.
+Unprivileged access thru interfaces controlled by this bootloader is prohibited if the bootloader is properly configured.
 
 Access to embedded memories thru physical interfaces not handled by this bootloader, 
-or as a result of silicon-level error is not and could not be covered by this bootloader.
+or as a result of the silicon-level error is not and could not be covered by this bootloader. 
+This bootloader completely relies on the security features provided by the device itself.
 
-It is the responsibility of the organization deploying the final application to cofigure the target MCU
+It is the responsibility of the organization deploying the final application to configure the target MCU
 in such a way to disable access channels, which may compromise the MCU security outside the bootloader like
 e.g. JTAG/SWD or manufacturers' insecure bootloader.
 
@@ -558,12 +568,12 @@ Under certain (still restricted) bootloader configurations, an attacker may be a
 but the bootloader assures that confidential data have vanished from MCU before untrusted code is executed.
 Depending on the underlying MCU and its features, this might lead also to bootloader code vanishing from the MCU flash.
 
-\subsubsection*{Attacker Can Read Data Downloaded to Bootloader}
+\subsubsection*{Attacker Can Read/Modify Data Downloaded to the Target}
 
 It is assumed, that an attacker may unintentionally (e.g. intercepted confidential communication) or intentionally (e.g. untrusted technician)
-gain access to data intended for download to the bootloader.
+gain access to data intended for download to the device using the bootloader.
 
-Bootloader provides mechanisms to verify application prior to execution (AES-CMAC). 
+Bootloader provides mechanisms to verify application before execution (AES-CMAC). 
 If propper security mode is set, the application code signature must be verified
 prior execution: untrusted application execution is not possible.
 
@@ -644,12 +654,12 @@ The following table summarizes command priviledges and bootloader security modes
   \end{tabular}
 \end{table*}
 
-\docNote{For priviledges lower than \docVarName{ACCESS\_PRIV\_CONFIG}, the new application could be uploaded to the application area, however, it could not be executed until it is verified by AES-CMAC. Unsigned applications could not be executed!}
+\docNote{For privileges lower than \docVarName{ACCESS\_PRIV\_CONFIG}, the new application could be uploaded to the application area, however, it could not be executed until it is verified by AES-CMAC. Unsigned applications could not be executed!}
 
-\docNote{For priviledges lower than \docVarName{ACCESS\_PRIV\_CONFIG}, the bootloader configuration is write and read-out protected thru the bootloader protocol (not from the running application).}
+\docNote{For privileges lower than \docVarName{ACCESS\_PRIV\_CONFIG}, the bootloader configuration is written and read-out protected thru the bootloader protocol (not from the running application).}
 
 \docNote{The bootloader security mode representation in the NVM is inverted: the empty memory implies that all privileges are granted.}
-   
+
    
 \clearpage
 \section{Application Interface}
@@ -715,7 +725,7 @@ This section summarizes information on portable (software implemented) cryptogra
 
 The block-cipher selected for use with the bootloader is NIST standard \textit{Advanced Encryption Standard} (AES)~\cite{NIST:AES} with 128-bit block size. 
 
-The software implementation of the AES module itself is based on third-party open-source implementation originally published by Brian Gladman from Worcester, UK.  This AES implementation is proven by several open source projects -- e.g. LoRaMac-node\footnote{\url{https://github.com/Lora-net/LoRaMac-node/tree/master/src/peripherals/soft-se}} is a reference closely related to the KETCube project. The AES module is distributed under a specific BSD-like license\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-bootloader/blob/main/Modules/aes/LICENSE}}.
+The software implementation of the AES module itself is based on a third-party open-source implementation originally published by Brian Gladman from Worcester, UK.  This AES implementation is proven by several open source projects -- e.g. LoRaMac-node\footnote{\url{https://github.com/Lora-net/LoRaMac-node/tree/master/src/peripherals/soft-se}} is a reference closely related to the KETCube project. The AES module is distributed under a specific BSD-like license\footnote{\url{https://github.com/SmartCAMPUSZCU/KETCube-bootloader/blob/main/Modules/aes/LICENSE}}.
 
 During integration, the AES module was optimized for 128-bit operation only, and it was parametrized for performance on STM32L0x MCU.
 
@@ -873,6 +883,7 @@ Results of this test show that for INT setting of 5 or 6, four least significant
   
   \docNote{KETCube bootloader employs NIST-recommended embedded tests to assure TRNG-output quality.}
    
+  \subsubsection{TRNG Porting}
 
 \clearpage
 \section{Testing}
@@ -997,11 +1008,15 @@ $ All test cases PASSED!
       \hline
       Set Enc Key & \texttt{0x0105} & 16 & 0 & 0 & Set bootloader Encryption key -- see Section \ref{sec:cfg:runtime} \\
       \hline
-      Unlock Request & \texttt{0x0120} & 0 & 16 & 0 & Get Unlock Seed \\
+      Unlock Request & \texttt{0x0120} & 0 & 16 & 0 & Get Unlock Seed\\
       \hline
-      Write Unlock Response & \texttt{0x0121} & 16 & 0 & 0 & Write Unlock Seed encrypted by the Unlock Key; \texttt{0x01} is returned when success\\
+      Write Unlock Response & \texttt{0x0121} & 16 & 0 & 0 & Write Unlock Seed encrypted by the Unlock Key\\
       \hline
-      Verify Flash CMAC & \texttt{0x0130} & 16 & 0 & 0 & Write Application CMAC to be verified by CMAC Key; \texttt{0x01} is returned when success\\
+      Unlock Password & \texttt{0x0122} & 0 & 16 & 0 & Unlock Bootloader by password\\
+      \hline
+      Lock & \texttt{0x0123} & 0 & 0 & 0 & Lock Bootloader\\
+      \hline
+      Verify Flash CMAC & \texttt{0x0130} & 16 & 0 & 0 & Write application CMAC to verify the application memory signature; \texttt{0x01} is returned in the status field when success\\
       \hline
   \end{tabular}
   \addcontentsline{lot}{table}{Bootloader Special Commands}
