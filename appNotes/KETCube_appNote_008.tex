@@ -66,7 +66,7 @@ compatible with the standard STM bootloaders' toolset, primarily with the open-s
     minimum width=3.5cm,
     minimum height=1cm,
     align=center
-] (block0) { Start Bootloader };
+] (block0) { Init and SelfCheck\\Start Bootloader };
  
 \node[draw,
     diamond,
@@ -370,7 +370,7 @@ To add a new device:
 \begin{enumerate}
 \item see the \docFileName{Targets} directory, add a new target and implement the startup file, interrupt handler, and the custom target Makefile if needed,
 \item insert the device definitions to the \docFileName{device.h} file, 
-\item re-visit the \docFileName{device.c} file (\docVarName{dev\_initClock()} function),
+\item re-visit or modify \docFileName{device.c} file and the target speciffic (\docVarName{device.c} file,
 \item create the custom memory map in the \docFileName{memory} directory and include it to the linker script \docFileName{LinkerScript.ld},
 \item re-visit or modify the interface implementation(s)\\in~\docFileName{iface\_IFACE.c},
 \item re-visit or modify, and verify the TRNG module.
@@ -434,6 +434,88 @@ KETCube bootloader utilizes the standard \docVarName{Makefile}-centric build pro
 
 The Arm GNU Toolchain (\docVarName{GCC}) is currently the only supported compiler.
 
+\subsection{Bootloader Binary Image}
+The bootloaders' image is the plain flash image (code and data) extended by a minimal set of metadata needed to perform the code self-check.
+The metadata is appended to the end of the image as a custom footer.
+
+When flashing the bootloader image to the MCU flash, ensure, 
+that bootloader image is footed by two 32-bit Little-endian words meaning the CRC-32 of the image (excluding the footer), 
+and the image size (excluding the footer), which is always non-zero.
+
+The rest of the memory dedicated for the Bootloader \textbf{must} be padded by zeroes to allow bootloader image self-check.
+
+\marginlabel{\captionof{figure}{Bootloader Binary Image Format}\label{fig:arch:MemImg}}
+\raisebox{-\height}{
+
+\begin{tikzpicture}
+  \node[draw,fill=SeaGreen3,minimum height=6cm,minimum width = 5cm,yshift=3cm](10/5){Bootloader Image};
+  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=1cm](10/5){ Image CRC };
+  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=0cm](10/5){ Image Length in bytes};
+  \node[draw,fill=white,    minimum height=2cm,minimum width = 5cm,yshift=-1.5cm](10/5){ zero padding };
+  
+  \node[anchor=center,yshift=-3.0cm,xshift=0cm,fill=white] { Bootloader Binary Image };
+\end{tikzpicture}
+}
+
+The bootloader image should be created in a way analogous to the recommended following process:
+
+\begin{docCodeExampleTitled}{Bootloader Image Creation Process}
+\begin{verbatim}
+$ arm-none-eabi-objcopy -O binary -S build/KETCube-bootloader.elf \
+    build/KETCube-bootloader.bin
+$ gzip build/KETCube-bootloader.bin -c | tail -c8 \
+    > build/KETCube-bootloader.bin_footer
+$ cat build/KETCube-bootloader.bin_footer >> build/KETCube-bootloader.bin
+\end{verbatim}
+\end{docCodeExampleTitled}
+
+
+The complete bootloader image, including the footer, should be uploaded to the erased dedicated piece of the memory:
+
+\begin{docCodeExampleTitled}{Bootloader Image Programming}
+\begin{verbatim}
+$ ./stm32flash -e 128 -o /dev/ttyUSB0
+stm32flash 0.5
+
+http://stm32flash.sourceforge.net/
+
+Interface serial_posix: 57600 8E1
+Version      : 0x31
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0447 (STM32L07xxx/08xxx)
+- RAM        : Up to 20KiB  (8192b reserved by bootloader)
+- Flash      : Up to 192KiB (size first sector: 32x128)
+- Option RAM : 32b
+- System RAM : 8KiB
+Erasing flash
+
+$ ./stm32flash -v -w ./build/KETCube-bootloader.bin -R -S 0x8000000 \
+    /dev/ttyUSB0
+stm32flash 0.5
+
+http://stm32flash.sourceforge.net/
+
+Using Parser : Raw BINARY
+Location     : 0x8000000
+Size         : 15108
+Interface serial_posix: 57600 8E1
+Version      : 0x31
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0447 (STM32L07xxx/08xxx)
+- RAM        : Up to 20KiB  (8192b reserved by bootloader)
+- Flash      : Up to 192KiB (size first sector: 32x128)
+- Option RAM : 32b
+- System RAM : 8KiB
+Write to memory
+Erasing memory
+Wrote and verified address 0x08003b04 (100.00%) Done.
+
+Resetting device... 
+Reset done.
+\end{verbatim}
+\end{docCodeExampleTitled}
 
 \subsection{Custom Build Configuration}
 
@@ -454,6 +536,8 @@ The Arm GNU Toolchain (\docVarName{GCC}) is currently the only supported compile
         \texttt{AES\_128\_PREKEYED} & USE AES 128 only, Prekeyed \\
         \hline
         \texttt{CMD\_ENABLE\_ERASE\_MEM} & Enable the deprecated erase memory command \\
+        \hline
+        \texttt{CMD\_EXCLUDE\_READ} & Exclude commands allowing memory read \\
         \hline
         \texttt{IFACE\_UART$^*$} & Use UART interface\\
         \hline
@@ -735,6 +819,41 @@ Done.
   \item the application stack to the value stored at the first word of the application flash area
   \item the interrupt vector (\docVarName{VTOR}) to the beginning of the application area
 \end{itemize}
+
+\clearpage
+\subsection{Bootloader Binary Image}
+The application image is the plain flash image (code and data) extended by a minimal set of metadata needed to perform the code self-check.
+The metadata is prefixed to the image and compose a custom image header.
+
+When flashing the image to the MCU flash, ensure, 
+that the image is prefixed by two 32-bit Little-endian words meaning the CRC-32 of the image (excluding the header), 
+and the image size (excluding the header), which is always non-zero.
+
+\marginlabel{\captionof{figure}{Application Binary Image Format}\label{fig:arch:MemImg}}
+\raisebox{-\height}{
+
+\begin{tikzpicture}
+  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=3cm](10/5){ Image CRC };
+  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=2cm](10/5){ Image Length in bytes};
+  \node[draw,fill=SeaGreen3,minimum height=6cm,minimum width = 5cm,yshift=-1.5cm](10/5){Application Image};
+  
+  \node[anchor=center,yshift=-5.0cm,xshift=0cm,fill=white] { Application Binary Image };
+\end{tikzpicture}
+}
+
+The application image should be created in a way analogous to the recommended following process:
+
+\begin{docCodeExampleTitled}{Bootloader Image Creation Process}
+\begin{verbatim}
+$ arm-none-eabi-objcopy -O binary -S build/application.elf \
+    build/application.bin
+$ gzip build/application.bin -c | tail -c8 \
+    > build/application.bin_header
+$ cat build/application.bin_header > build/application.bin~
+$ cat build/application.bin >> build/application.bin~
+$ mv build/application.bin~ build/application.bin
+\end{verbatim}
+\end{docCodeExampleTitled}
 
 \clearpage
 \subsection{Bootloader API} \label{sec:api}
@@ -1060,6 +1179,25 @@ $ bash run_tests.sh
 $ All test cases PASSED!
 \end{verbatim}
 \end{docCodeExampleTitled}
+
+\clearpage
+\section{Vulnerabilities and Countermeasures}
+
+\subsection{VLN\_001}
+
+\subsubsection*{Affected Targets}
+STM32L0xx
+
+\subsubsection*{Attack Vector}
+If the bootloader is set to alow flash uploads of unencrypted signed code only,
+the unsigned code could be uploaded without signature verification.
+This is a standard behavior, however, signature verification is required to allow firmware boot.
+
+BUT, the unverified code could be executed using the \docVarName{go} command in the ROM bootloader.
+
+Unverified code execution allows full access to the MCU memories.
+
+\subsubsection*{Countermeasure}
 
 \clearpage
 \section{Boootloader Command Set}
