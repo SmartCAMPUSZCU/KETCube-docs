@@ -31,7 +31,7 @@
 % ------------------------------------------------------------
 % ------------------------------------------------------------
 
-\section*{KETCube Bootloader: the STM Bootloader Re-Invented}
+\section*{KETCube Bootloader: Secure STM32-Protocol-Compatible Bootloader}
 \input{resources/about.tex}
 
 This document describes the KETCube Bootloader. 
@@ -39,17 +39,25 @@ The bootloader is (mostly) protocol-compatible with the standard ROM STM32 bootl
 It was designed to provide a customizable and portable bootloader with security features for the KETCube platform 
 compatible with the standard STM bootloaders' toolset, primarily with the open-source tools.
 
+Additionally, the bootloader provides a non-conventional feature:
+the API gaining access to the bootloaders' blocks useful in many constrained IoT applications
+allowing to decrease the application memory footprint by re-using the functions already implemented by the bootloader.
+
+
+
+\begin{versionhistory}
+  \vhEntry{0.2*}{27.5.2022}{JB|KV}{Initial internal version}
+\end{versionhistory}
+% history table ... do not number
+\setcounter{table}{0}
+
+\clearpage
 \setcounter{tocdepth}{2}
 \tableofcontents
 \clearpage
 
 \listoffigures
 \listoftables
-\begin{versionhistory}
-  \vhEntry{0.2*}{27.5.2022}{JB|KV}{Initial version}
-\end{versionhistory}
-% history table ... do not number
-\setcounter{table}{0}
 
 \clearpage 
 \pagenumbering{arabic} 
@@ -224,9 +232,9 @@ The \texttt{.api} section is followed by the \texttt{.ramcode} section holding B
 
 The rest of the bootloaders' RAM is dedicated for initialized and uninitialized data (common \texttt{.data} and \texttt{.bss} sections).
 
-\docNote{RAM used by the bootloader cannot be re-used by the application. 
+\docNote{Application \textbf{should not} use any memory reserved for bootloader! 
 
-Application \textbf{must not} use memory reserved for bootloader!}
+RAM used by the bootloader can be re-used by the application if and only if the application does not use the bootloader API.}
 
 
 \clearpage
@@ -535,6 +543,8 @@ Reset done.
         \hline
         \texttt{AES\_128\_PREKEYED} & USE AES 128 only, Prekeyed \\
         \hline
+        \texttt{APP\_DISABLE\_CRC} & Disable the aplication CRC check \\
+        \hline
         \texttt{CMD\_ENABLE\_ERASE\_MEM} & Enable the deprecated erase memory command \\
         \hline
         \texttt{CMD\_EXCLUDE\_READ} & Exclude commands allowing memory read \\
@@ -800,7 +810,7 @@ Done.
 \end{docCodeExampleTitled}
    
 \clearpage
-\section{Application}
+\section{Application}\label{sec:app}
 
 \subsection{Application Requirements}
 \subsubsection*{Application MUST:}
@@ -821,78 +831,70 @@ Done.
 \end{itemize}
 
 \clearpage
-\subsection{Bootloader Binary Image}
-The application image is the plain flash image (code and data) extended by a minimal set of metadata needed to perform the code self-check.
-The metadata is prefixed to the image and compose a custom image header.
+\subsection{Application Programming}\label{sec:app:prog}
+The application image is the plain flash image (code and data).
 
-When flashing the image to the MCU flash, ensure, 
-that the image is prefixed by two 32-bit Little-endian words meaning the CRC-32 of the image (excluding the header), 
-and the image size (excluding the header), which is always non-zero.
+The application length, CRC, and address should be computed and configured in a way analogous to the recommended programming process:
 
-\marginlabel{\captionof{figure}{Application Binary Image Format}\label{fig:arch:MemImg}}
-\raisebox{-\height}{
-
-\begin{tikzpicture}
-  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=3cm](10/5){ Image CRC };
-  \node[draw,fill=BlueGreen!30!,    minimum height=1cm,minimum width = 5cm,yshift=2cm](10/5){ Image Length in bytes};
-  \node[draw,fill=SeaGreen3,minimum height=6cm,minimum width = 5cm,yshift=-1.5cm](10/5){Application Image};
-  
-  \node[anchor=center,yshift=-5.0cm,xshift=0cm,fill=white] { Application Binary Image };
-\end{tikzpicture}
-}
-
-The application image should be created in a way analogous to the recommended following process:
-
-\begin{docCodeExampleTitled}{Bootloader Image Creation Process}
+\begin{docCodeExampleTitled}{Application Programming Example}
 \begin{verbatim}
 $ arm-none-eabi-objcopy -O binary -S build/application.elf \
     build/application.bin
-$ gzip build/application.bin -c | tail -c8 \
-    > build/application.bin_header
-$ cat build/application.bin_header > build/application.bin~
-$ cat build/application.bin >> build/application.bin~
-$ mv build/application.bin~ build/application.bin
+$ ./stm32flash -w build/application.bin -S 0x8004000 /dev/ttyUSB0
+stm32flash 0.5
+
+Using Parser : Raw BINARY
+Location     : 0x8004000
+Size         : 3772
+Interface serial_posix: 57600 8E1
+Version      : 0x01
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0447 (STM32L07xxx/08xxx)
+- RAM        : Up to 20KiB  (8192b reserved by bootloader)
+- Flash      : Up to 192KiB (size first sector: 32x128)
+- Option RAM : 32b
+- System RAM : 8KiB
+Write to memory
+Erasing memory
+Wrote and verified address 0x08004ebc (100.00%) Done.
+
+$ LEN="$( gzip build/application.bin -c | tail -c4 | \
+    hexdump -ve '1/4 "%.8X"' )"
+$ CRC="$( gzip build/application.bin -c | tail -c8 | \
+    head -c4 | hexdump -ve '1/4 "%.8X"' )"
+$ ADDR="08004000"
+$ ./stm32flash -x 0140:${ADDR}${LEN}${CRC} /dev/ttyUSB0
+stm32flash 0.5
+
+http://stm32flash.sourceforge.net/
+
+Interface serial_posix: 57600 8E1
+Version      : 0x01
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0447 (STM32L07xxx/08xxx)
+- RAM        : Up to 20KiB  (8192b reserved by bootloader)
+- Flash      : Up to 192KiB (size first sector: 32x128)
+- Option RAM : 32b
+- System RAM : 8KiB
+Executing special command
+Opcode: 0x0140
+Timeout: 5 s
+Parameter: 0x0800400000000EBC4932D5A7
+Execution time: 0.175953
+Done.
+
 \end{verbatim}
 \end{docCodeExampleTitled}
 
-\clearpage
-\subsection{Bootloader API} \label{sec:api}
-
-Bootloader provides its standard API for the application to expose its' standard configuration interface to the application,
-provide standard access to NVM, and provide access to standard security primitives -- currently AES and TRNG. 
-The application can benefit from available AES or TRNG modules and the application memory footprint could be decreased, which may be important, especially in constrained applications.
-
-The bootloader API is available through the API object (a standard C, but OOP-like structure of semantically grouped function pointers) and it's defined in the \docFileName{api.h} file, which must be included in the application.
-
-\docNote{Please note, that bootloader API functions are executed in the context of an application, thus
-if the bootloader API is used by the application, the running application must provide the access to time base through the API. 
-Simply said, the bootloader needs a pointer to function returning a monotonically rising (interrupt- or peripheral-read-based) number representing (approximately) running/passed milliseconds.
-KETCube bootloader API functions do not disable interrupts.}
-
-The following text will briefly describe the KETCube API modules.
-
-\subsubsection*{AES}
-Provides Access to the AES encryption function.
-
-\subsubsection*{APP}
-Allows an application to pass required application context settings to the Bootloader API 
--- currently, an only function returning a monotonically rising number representing the number of milliseconds is required (e.g. STM's standard HAL\_getTick()).
-
-\subsubsection*{CFG}
-Exposes the bootloaders' standard configuration API to the application.
-
-\subsubsection*{NVM}
-Exposes the API to access the non-volatile memory of the application.
-In case, the application does not use this API to access NVM, 
-the bootloader must be configured to use a limited portion of NVM,
-and the application must not modify the area used by the bootloader.
-
-\subsubsection*{TRNG}
-Provides Access to the bootloaders' True Random Number Generator utilizing RC oscillator jitter.
+\docNote{By default, the bootloader checks the CRC of the application image in the specified range -- without setting the application start address, application length, and CRC, the application will not start! The only exception is when the application is successfully verified by CMAC, then application settings are set automatically and there is no need for the custom setup -- see \ref{sec:app:verify}}
 
 \clearpage
-\subsection{Application Verification}
+\subsection{Application Verification}\label{sec:app:verify}
 To verify the application uploaded to MCU's memory, the CMAC signature using the correct CMAC key must be generated.
+
+\docWarn{The application verification by CMAC is required when user rights are lower than \docVarName{ACCESS\_PRIV\_CONFIG}. The user with \docVarName{ACCESS\_PRIV\_WRITE} access priviledges must upload the application CMAC to allow application execution. For detail, please see \ref{sec:security:secModes}.}
 
 \docNote{Please note, that currently, only the signature of the whole flash is supported by the Bootloader, thus CMAC must be computed for whole memory, where the firmware image is padded by zeroes to the full flash size.}
 
@@ -956,6 +958,43 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 Starting execution at address 0x08004000... done.
 \end{verbatim}
 \end{docCodeExampleTitled}
+
+\docNote{When application CMAC is uploaded and successfully verified, application settings (the application start address, application length, and the application CRC) are set automatically and the application si ready to start. The application length and CRC is however set concerning the whole flash application area: for application startup optimization, you can set the parameters manually, as described in \ref{sec:app:prog} (if enabled by your access rights -- \docVarName{ACCESS\_PRIV\_CONFIG} is required)}
+
+\clearpage
+\subsection{Bootloader API} \label{sec:app:api}
+
+Bootloader provides its standard API for the application to expose its' standard configuration interface to the application,
+provide standard access to NVM, and provide access to standard security primitives -- currently AES and TRNG. 
+The application can benefit from available AES or TRNG modules and the application memory footprint could be decreased, which may be important, especially in constrained applications.
+
+The bootloader API is available through the API object (a standard C, but OOP-like structure of semantically grouped function pointers) and it's defined in the \docFileName{api.h} file, which must be included in the application.
+
+\docNote{Please note, that bootloader API functions are executed in the context of an application, thus
+if the bootloader API is used by the application, the running application must provide the access to time base through the API. 
+Simply said, the bootloader needs a pointer to function returning a monotonically rising (interrupt- or peripheral-read-based) number representing (approximately) running/passed milliseconds.
+KETCube bootloader API functions do not disable interrupts.}
+
+The following text will briefly describe the KETCube API modules.
+
+\subsubsection*{AES}
+Provides Access to the AES encryption function.
+
+\subsubsection*{APP}
+Allows an application to pass required application context settings to the Bootloader API 
+-- currently, an only function returning a monotonically rising number representing the number of milliseconds is required (e.g. STM's standard HAL\_getTick()).
+
+\subsubsection*{CFG}
+Exposes the bootloaders' standard configuration API to the application.
+
+\subsubsection*{NVM}
+Exposes the API to access the non-volatile memory of the application.
+In case, the application does not use this API to access NVM, 
+the bootloader must be configured to use a limited portion of NVM,
+and the application must not modify the area used by the bootloader.
+
+\subsubsection*{TRNG}
+Provides Access to the bootloaders' True Random Number Generator utilizing RC oscillator jitter.
 
 \clearpage
 \section{Cryptographic Functions}
@@ -1189,15 +1228,31 @@ $ All test cases PASSED!
 STM32L0xx
 
 \subsubsection*{Attack Vector}
-If the bootloader is set to alow flash uploads of unencrypted signed code only,
-the unsigned code could be uploaded without signature verification.
-This is a standard behavior, however, signature verification is required to allow firmware boot.
+If the bootloader is set to alow flash uploads of unencrypted (MAC-verified) code,
+the code is first uploaded to the memory and the signature verification follows.
+This is a standard behavior, however, signature verification is required to allow firmware to boot.
 
-BUT, the unverified code could be executed using the \docVarName{go} command in the ROM bootloader.
+BUT, the unverified code is present in the program memory and could be executed using the \docVarName{go} command from the ROM bootloader.
 
 Unverified code execution allows full access to the MCU memories.
 
-\subsubsection*{Countermeasure}
+\subsubsection*{Countermeasures}
+
+The portable countermeasure included in the bootloader is the memory obfuscation. 
+When unencrypted code is uploaded to the bootloader memory in the security access mode lower than (see \ref{sec:security:secModes})
+\docVarName{ACCESS\_PRIV\_CONFIG}, each word uploaded to the memory is obfuscated by a random mask number leading to the invalid code in the MCUs' memory.
+The code is de-obfuscated after successfull MAC verification. 
+Please note, that the mask is lost when MCU reset, thus the MAC verification must follow application code write.
+
+The other countermeasure option is not portable in general, 
+but could be included for targets supporting the Memory Protection Unit (MPU) 
+allowing disable code execution from the specific address range. 
+This countermeasure is not portable, however it speeds up the code upload process.
+
+\docNote{For targets, where MPU is not present, or MPU support is not included in the bootloader, 
+the bootloader will automatically fallback into the obfuscation countermeasure scheme.}
+
+\docWarn{Please note, that MPU support was not implemented yet even for default targets!}
 
 \clearpage
 \section{Boootloader Command Set}
@@ -1277,11 +1332,17 @@ Unverified code execution allows full access to the MCU memories.
       \hline
       Verify Flash CMAC & \texttt{0x0130} & 16 & 0 & 0 & Write application CMAC to verify the application memory signature; \texttt{0x01} is returned in the status field when success; if success, application start address is set to the application flash begin as a side-effect\\
       \hline
+      Set Application & \texttt{0x0140} & 12 & 0 & 0 & Write application settings: 3 32-bit words (concatenation of three Big-Endian integers) representing application start address, application image length and its CRC\\
+      \hline
   \end{tabular}
   \addcontentsline{lot}{table}{Bootloader Special Commands}
   \label{tab:specCmd}
  \end{table*}
    
+   
+\docNote{The test-build-only special commands are not documented here. 
+
+See the Doxygen-generated code-level documentation for details.}
    
 \clearpage
 \subsection{Get} \label{cmd:get}

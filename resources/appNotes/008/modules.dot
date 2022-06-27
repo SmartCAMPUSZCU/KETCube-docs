@@ -9,7 +9,7 @@ digraph {
     node [penwidth=1, width=1, fontsize=10 fixedsize=true];
     edge [arrowhead=normal,arrowtail=normal,penwidth=1, minlen=2, fontsize=8];
 
-    HAL      [shape=box, label="Reduced\nHAL\n(target-spec.)" tooltip="HAL/Hardware drivers\n(SMT32 HAL or STM32 LL Drivers)" height=7 fixedsize=true];
+    HAL      [shape=box, label="Abstract\nDevice (HAL)\nand\ntarget-spec.\ndrivers" tooltip="HAL/Hardware drivers\n(SMT32 HAL or STM32 LL Drivers)" height=7 fixedsize=true];
 
 subgraph cluster_Protocol {
     rankdir="LR";
@@ -22,7 +22,7 @@ subgraph cluster_Protocol {
         rankdir="LR";
         style=filled;
         color=lightgrey;
-        label="INTERFACE(s)"
+        label="INTERFACE(s)\n(target-spec.)"
         tooltip="Supported Interfaces"
         fontsize=10 fixedsize=true
         margin=10
