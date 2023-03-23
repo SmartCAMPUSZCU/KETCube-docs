@@ -525,7 +525,7 @@ Reset done.
 \end{verbatim}
 \end{docCodeExampleTitled}
 
-\subsection{Custom Build Configuration}
+\subsection{Custom Build Configuration}\label{sec:arch:CustBuildConfig}
 
   The folowing table summarizes the compile- and link-time options, which can be used for the static bootloader configuration.
   The default bootloader build options are star-marked.
@@ -538,6 +538,8 @@ Reset done.
         \hline
         \hline
         \texttt{ACCESS\_ENABLE\_PASSWORD} & Enable password to unlock the bootloader \\
+        \hline
+        \texttt{ACCESS\_ENABLE\_INSECURE\_IMG} & Allow unencrypted images in insecure enviroment not supporting MPU\footnotemark \\
         \hline
         \texttt{AES\_128\_OTFK$^*$} & USE AES 128 only, On-the-fly \\
         \hline
@@ -567,6 +569,7 @@ Reset done.
     \addcontentsline{lot}{table}{Bootloader Build Options}
     \label{tab:cmdset}
    \end{table*}
+   \footnotetext{See note in \ref{sec:vln:001}}
    
    The folowing table summarizes used weak functions, which may be re-defined by end user on project basis to afect bootloader behavior, e.g. to enable interfacing with speciffic peripherals or set-up the appliocation enviroment specifically.
    
@@ -604,6 +607,11 @@ Reset done.
                           {\tt 0x0003} -- stay in bootloader until go.\\
       \hline
       {\tt security\_t } \newline ({\tt uint16\_t }) & see \nameref{sec:security:secModes}\\
+      \hline
+      {\tt integrity\_t } \newline ({\tt uint16\_t }) & {\tt 0x0000} -- no code integrity checking;\newline
+                          {\tt 0x0001} -- Application images are CMAC-signed;\newline
+                          {\tt 0x0002} -- Application images are encrypted;\newline 
+                          {\tt 0x0003} -- Application images are encrypted and CMAC-signed.\\
       \hline
       {\tt uint32\_t}    & Application Startup Timeout in milliseconds \\
       \hline
@@ -831,16 +839,18 @@ Done.
 \end{itemize}
 
 \clearpage
-\subsection{Application Programming}\label{sec:app:prog}
-The application image is the plain flash image (code and data).
+\subsection{Plain Application Programming}\label{sec:app:prog}
+If the acccess rights are set to \docVarName{ACCESS\_PRIV\_CONFIG}, or unverified code uploads are allowed -- \docVarName{integrity\_t} is set to \docVarName{0x0000}, and \docVarName{ACCESS\_PRIV\_WRITE} is set, the plain application image could be uploaded.
 
-The application length, CRC, and address should be computed and configured in a way analogous to the recommended programming process:
+In this simple case, the application image is the plain flash image (code and data) and should be uploaded as follows:
 
 \begin{docCodeExampleTitled}{Application Programming Example}
 \begin{verbatim}
+$ INTERFACE=/dev/ttyUSB0
+$
 $ arm-none-eabi-objcopy -O binary -S build/application.elf \
     build/application.bin
-$ ./stm32flash -w build/application.bin -S 0x8004000 /dev/ttyUSB0
+$ ./stm32flash -w build/application.bin -S 0x8005000 ${INTERFACE}
 stm32flash 0.5
 
 Using Parser : Raw BINARY
@@ -857,14 +867,25 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 - System RAM : 8KiB
 Write to memory
 Erasing memory
-Wrote and verified address 0x08004ebc (100.00%) Done.
+Wrote and verified address 0x08005ebc (100.00%) Done.
 
+\end{verbatim}
+\end{docCodeExampleTitled}
+
+If access rights are set to \docVarName{ACCESS\_PRIV\_CONFIG},
+the application length, CRC, and address should be computed and configured in a way analogous to the recommended programming process
+and configured as follows:
+
+\begin{docCodeExampleTitled}{Application Setting Example}
+\begin{verbatim}
+$ INTERFACE=/dev/ttyUSB0
+$
 $ LEN="$( gzip build/application.bin -c | tail -c4 | \
     hexdump -ve '1/4 "%.8X"' )"
 $ CRC="$( gzip build/application.bin -c | tail -c8 | \
     head -c4 | hexdump -ve '1/4 "%.8X"' )"
 $ ADDR="08004000"
-$ ./stm32flash -x 0140:${ADDR}${LEN}${CRC} /dev/ttyUSB0
+$ ./stm32flash -x 0140:${ADDR}${LEN}${CRC} ${INTERFACE}
 stm32flash 0.5
 
 http://stm32flash.sourceforge.net/
@@ -888,19 +909,35 @@ Done.
 \end{verbatim}
 \end{docCodeExampleTitled}
 
+If access rights are lower than \docVarName{ACCESS\_PRIV\_CONFIG},
+but \docVarName{integrity\_t} is set to \docVarName{0x0000},
+the code verification command must be executed with arbitrary (e.g. all-zero) MAC:
+
+\begin{docCodeExampleTitled}{Application Setting Example}
+\begin{verbatim}
+$ CMAC_KEY=00000000000000000000000000000000
+$
+$ INTERFACE=/dev/ttyUSB0
+$
+# Upload CMAC of the Flash to verify image in the memory
+$ ./stm32flash -x 0130:${CMAC} ${INTERFACE}
+
+...
+
+\end{verbatim}
+\end{docCodeExampleTitled}
+
 \docNote{By default, the bootloader checks the CRC of the application image in the specified range -- without setting the application start address, application length, and CRC, the application will not start! The only exception is when the application is successfully verified by CMAC, then application settings are set automatically and there is no need for the custom setup -- see \ref{sec:app:verify}}
 
 \clearpage
-\subsection{Application Verification}\label{sec:app:verify}
+\subsection{Signed Application Programming}\label{sec:app:verify}
 To verify the application uploaded to MCU's memory, the CMAC signature using the correct CMAC key must be generated.
 
-\docWarn{The application verification by CMAC is required when user rights are lower than \docVarName{ACCESS\_PRIV\_CONFIG}. The user with \docVarName{ACCESS\_PRIV\_WRITE} access priviledges must upload the application CMAC to allow application execution. For detail, please see \ref{sec:security:secModes}.}
-
-\docNote{Please note, that currently, only the signature of the whole flash is supported by the Bootloader, thus CMAC must be computed for whole memory, where the firmware image is padded by zeroes to the full flash size.}
+\docWarn{The application verification by CMAC is required when user rights are lower than \docVarName{ACCESS\_PRIV\_CONFIG} and the \docVarName{integrity\_t} is set to \docVarName{0x0001}, \docVarName{0x0002} or \docVarName{0x0003} (see \ref{sec:cfg:runtime}). The user with \docVarName{ACCESS\_PRIV\_WRITE} access priviledges must upload the application CMAC to allow application execution. For detail, please see \ref{sec:security:secModes}.}
 
 The following setup is recommended to generate firmware signature and upload the signed firmware to the MCU's memory:
 
-\begin{docCodeExampleTitled}{Test Bootloader Connection}
+\begin{docCodeExampleTitled}{The Bootloader Appliaction Upload Script}
 \begin{verbatim}
 # This is the CMAC key as set in the bootloaders' configuration
 CMAC_KEY=00000000000000000000000000000000
@@ -911,35 +948,28 @@ INTERFACE=/dev/ttyUSB0
 # Your firmware image
 FW=firmware.bin
 
-# How many bytes left in the memory when your firmware is uploaded
-PADDING=$(( 180224 - $( du -b ${FW} | awk '{print $1}' ) ))
-
-# Create temporary firmware file padded to full-size memory
-cp ${FW} ${FW}~
-truncate -s +${PADDING} ${FW}~
-
 # compute CMAC of the padded firmware
 CMAC=$( openssl dgst -mac cmac -macopt cipher:aes-128-cbc -macopt \ 
-  hexkey:${CMAC_KEY} ${FW}~ )
+  hexkey:${CMAC_KEY} ${FW} )
 CMAC=$( echo ${CMAC^^} | awk '{ print $2 }' )
 
 # Erase MCU memory
-$ ./stm32flash -S 0x8004000:180224 -o ${INTERFACE}
+$ ./stm32flash -S 0x8005000:176128 -o ${INTERFACE}
 
 ...
 
 # Upload the original (smaller) FW image
-$ ./stm32flash -w ${FW} -S 0x8004000 ${INTERFACE}
+$ ./stm32flash -w ${FW} -S 0x8005000 ${INTERFACE}
 
 ...
 
 # Upload CMAC of the Flash to verify image in the memory
-$ ./stm32flash -x 0130:${CMAC}+60 ${INTERFACE}
+$ ./stm32flash -x 0130:${CMAC} ${INTERFACE}
 
 ...
 
 # Start your uploaded and verified firmware
-$ ./stm32flash -g 0x8004000
+$ ./stm32flash -g 0x8005000
 
 stm32flash 0.5_KETCube
 
@@ -955,11 +985,11 @@ Device ID    : 0x0447 (STM32L07xxx/08xxx)
 - Option RAM : 32b
 - System RAM : 8KiB
 
-Starting execution at address 0x08004000... done.
+Starting execution at address 0x08005000... done.
 \end{verbatim}
 \end{docCodeExampleTitled}
 
-\docNote{When application CMAC is uploaded and successfully verified, application settings (the application start address, application length, and the application CRC) are set automatically and the application si ready to start. The application length and CRC is however set concerning the whole flash application area: for application startup optimization, you can set the parameters manually, as described in \ref{sec:app:prog} (if enabled by your access rights -- \docVarName{ACCESS\_PRIV\_CONFIG} is required)}
+\docNote{When application CMAC is uploaded and successfully verified, application settings (the application start address, application length, and the application CRC) are set automatically and the application is ready to start.}
 
 \clearpage
 \subsection{Bootloader API} \label{sec:app:api}
@@ -1220,39 +1250,47 @@ $ All test cases PASSED!
 \end{docCodeExampleTitled}
 
 \clearpage
-\section{Vulnerabilities and Countermeasures}
+\section{Vulnerabilities and Countermeasures}\label{sec:vln}
 
-\subsection{VLN\_001}
+\subsection{VLN\_001}\label{sec:vln:001}
 
 \subsubsection*{Affected Targets}
-STM32L0xx
+All targets without MPU (Memory Protection Unit) in general; affected supported targets: STM32L0xx
 
 \subsubsection*{Attack Vector}
-If the bootloader is set to alow flash uploads of unencrypted (MAC-verified) code,
-the code is first uploaded to the memory and the signature verification follows.
-This is a standard behavior, however, signature verification is required to allow firmware to boot.
+If the bootloader is set to allow flash uploads of unencrypted signed (CMAC) code.
+The user expected, that only signed code could be executed.
 
-BUT, the unverified code is present in the program memory and could be executed using the \docVarName{go} command from the ROM bootloader.
+The code is uploaded to the memory as provided by a user. The signature verification followed by the application parameter startup setting follows.
+The signature verification is required to allow the firmware to boot from this bootloader,
 
-Unverified code execution allows full access to the MCU memories.
+BUT prior to verification, the unverified code is present in the program memory and could be executed using the \docVarName{go} command from the ROM bootloader.
+
+Unverified code execution allows full access to the MCU memories and right escalation up to the \docVarName{ACCESS\_PRIV\_CONFIG} (see \ref{sec:security:secModes}).
+
+\subsubsection*{Recommendations}
+
+The portable and native protection implemented by the bootloader is to enable only encrypted code uploads and disable unencrypted signed uploads
+for access modes lower than \docVarName{ACCESS\_PRIV\_CONFIG}.
+
+If encrypted code is uploaded to the MCU memory, it is decrypted on-the-fly by the encryption key prior to saving it to the MCU memory.
+In case of unencrypted code, or code encrypted by an incorrect key, this leads to an implicit (and deterministic) obfuscation
+of the memory content leading to invalid memory content.
+
+\docWarn{Still small portions of unencrypted code may occur in the MCU RAM in the bootloader protocol Rx buffer. 
+This is unfortunately unavoidable without MPU, while this recommendation lowers the risk significantly.}
 
 \subsubsection*{Countermeasures}
 
-The portable countermeasure included in the bootloader is the memory obfuscation. 
-When unencrypted code is uploaded to the bootloader memory in the security access mode lower than (see \ref{sec:security:secModes})
-\docVarName{ACCESS\_PRIV\_CONFIG}, each word uploaded to the memory is obfuscated by a random mask number leading to the invalid code in the MCUs' memory.
-The code is de-obfuscated after successfull MAC verification. 
-Please note, that the mask is lost when MCU reset, thus the MAC verification must follow application code write.
+The protection implemented to avoid secret leakage is, that sensitive data are erased from the MCU memory if the access mode is lower than  \docVarName{ACCESS\_PRIV\_CONFIG}, MPU is not present, and an allowed write attempt of the unencrypted code image occurs (access mode is set to \docVarName{ACCESS\_PRIV\_WRITE}). This protection could be disabled by setting the build config variable \docVarName{ACCESS\_ENABLE\_INSECURE\_IMG} (see Section \ref{sec:arch:CustBuildConfig}).
 
-The other countermeasure option is not portable in general, 
-but could be included for targets supporting the Memory Protection Unit (MPU) 
-allowing disable code execution from the specific address range. 
-This countermeasure is not portable, however it speeds up the code upload process.
+The following countermeasure option is not portable in general but could be included for targets supporting the Memory Protection Unit (MPU)
+allowing disable code execution from the specified address range.
+Here, code execution is disabled, when a new image is uploaded to the memory prior to code verification.
+Code execution is enabled after the successful application verification.
 
-\docNote{For targets, where MPU is not present, or MPU support is not included in the bootloader, 
-the bootloader will automatically fallback into the obfuscation countermeasure scheme.}
 
-\docWarn{Please note, that MPU support was not implemented yet even for default targets!}
+\docWarn{Please note, that MPU support was not implemented yet, as it is not supported by the default target!}
 
 \clearpage
 \section{Boootloader Command Set}
