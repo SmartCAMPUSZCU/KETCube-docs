@@ -155,16 +155,16 @@ The remote terminal protocol is an application protocol built on top of any supp
  \node[draw,anchor=north west,yshift=2.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Core\_API\_version}};
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Module ID$_{LSB}$}};
  \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{Module ID$_{MSB}$}};
- \node[anchor=north west,yshift=4.0cm,xshift=-0.5cm,fill=white] {0};
- \node[anchor=north west,yshift=4.0cm,xshift=+3.75cm,fill=white] {4};
- \node[anchor=north west,yshift=4.0cm,xshift=+8.0cm,fill=white] {8};
+ \node[anchor=north west,yshift=4.1cm,xshift=0.25cm,fill=white] {0 (LSb)};
+ \node[anchor=north west,yshift=4.1cm,xshift=+4.0cm,fill=white] {4};
+ \node[anchor=north west,yshift=4.1cm,xshift=+7.5cm,fill=white] {7 (MSb)};
  
- \node[anchor=north west,yshift=2.75cm,xshift=-0.5cm,fill=white] {8};
- \node[anchor=north west,yshift=1.75cm,xshift=-0.65cm,fill=white] {16};
- \node[anchor=north west,yshift=2.75cm,xshift=+8.05cm,fill=white] {16};
- \node[anchor=north west,yshift=1.75cm,xshift=+8.05cm,fill=white] {24};
- \node[anchor=north west,yshift=0.75cm,xshift=-0.65cm,fill=white] {24};
- \node[anchor=north west,yshift=0.75cm,xshift=+8.05cm,fill=white] {32};
+ \node[anchor=north west,yshift=2.25cm,xshift=0.25cm,fill=white] {8};
+ \node[anchor=north west,yshift=1.25cm,xshift=0.05cm,fill=white] {16};
+ \node[anchor=north west,yshift=2.25cm,xshift=+7.35cm,fill=white] {15};
+ \node[anchor=north west,yshift=1.25cm,xshift=+7.35cm,fill=white] {23};
+ \node[anchor=north west,yshift=0.25cm,xshift=0.05cm,fill=white] {24};
+ \node[anchor=north west,yshift=0.25cm,xshift=+7.35cm,fill=white] {31};
 \end{tikzpicture}
 
 \begin{itemize}
@@ -258,9 +258,9 @@ Command with 8bit module ID and 4byte payload encoding:
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{payload$_2$}};
  \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{payload$_3$}};
  
- \node[anchor=north west,yshift=5.0cm,xshift=-0.25cm,fill=white] {0};
- \node[anchor=north west,yshift=5.0cm,xshift=+7.75cm,fill=white] {8};
- \node[anchor=north west,yshift=5.0cm,xshift=+16.0cm,fill=white] {16};
+ \node[anchor=north west,yshift=5.0cm,xshift=-0.0cm,fill=white] {0};
+ \node[anchor=north west,yshift=5.0cm,xshift=+8.0cm,fill=white] {8};
+ \node[anchor=north west,yshift=5.0cm,xshift=+15.5cm,fill=white] {15};
 \end{tikzpicture}
 }
 
@@ -283,9 +283,9 @@ Command \docKCCmdInline{set core basePeriod 10000} encoding:
  \node[draw,anchor=north west,yshift=1.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=8cm]{\texttt{0x00}};
  \node[draw,anchor=north west,yshift=0.5cm,fill=white,minimum height=1cm,minimum width = 8cm,xshift=0cm]{\texttt{0x00}};
  
- \node[anchor=north west,yshift=5.0cm,xshift=-0.25cm,fill=white] {0};
- \node[anchor=north west,yshift=5.0cm,xshift=+7.75cm,fill=white] {8};
- \node[anchor=north west,yshift=5.0cm,xshift=+16.0cm,fill=white] {16};
+ \node[anchor=north west,yshift=5.0cm,xshift=-0.0cm,fill=white] {0};
+ \node[anchor=north west,yshift=5.0cm,xshift=+8.0cm,fill=white] {8};
+ \node[anchor=north west,yshift=5.0cm,xshift=+15.5cm,fill=white] {15};
 \end{tikzpicture}
 }
 }
