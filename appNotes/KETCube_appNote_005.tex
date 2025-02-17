@@ -91,6 +91,15 @@ KETCube Terminal provides also the command history, which is available through {
 \raisebox{-\height}{\includegraphics[width=0.5\paperwidth]{ketCube_terminal_putty.png}}
 
 \clearpage
+
+\subsection{KETCube Terminal Protection}
+
+If KETCube is configured with \texttt{KETCUBE\_TERMINAL\_PASSWORD}, the terminal lock/unlock feature is included, and two additional commands are available: \docKCCmdInline{lock}/\docKCCmdInline{unlock}. If the terminal is locked, the correct password must be inserted using the \docKCCmdInline{unlock} command parameter to unlock the terminal, unless issuing of any command is prohibited. The password can be set by the \docKCCmdInline{set core terminalPassword} command.
+
+\docNote{When the terminal is locked, command history and command help is available, thus the command set itself is NOT protected. Additionally,  \docKCCmdInline{INFO}, \docKCCmdInline{ERROR}, and \docKCCmdInline{DEBUG} information are still printed: it is the responsibility of the admin to set up (the module and/or core) severity correctly to hide any sensitive information, which may be disclosed by the terminal output. For production use, the \docKCCmdInline{ERROR} severity should be set, while \docKCCmdInline{ERROR} messages should be designed in such a way omitting potentially sensitive information like secret keys, sensor values, etc.}.
+
+
+\clearpage
 \section{KETCube Modules}\label{sec:modules}
 KETCube is a modular platform, where number of modules is included in the platform release. Any module can be individually enabled or disabled based on user needs and extension boards connected to the KETCube {\it Main Board}. For details, please refer to the KETCube Datasheet \cite{ZCU:KETCube:05-2018} or appNote 006 \cite{ZCU:KETCubeAppNote006:09-2019}, where module parameters are described.
 
